@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type StatusForm = 'success' | 'error' | 'loading'
+export type TypeFormAddress = 'ADD' | 'EDIT';
 export type Sort = 'ascending' | 'descending';
 export type Category = {
     id: number;

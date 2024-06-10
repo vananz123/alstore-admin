@@ -20,7 +20,7 @@ const Navigate =useNavigate()
         if (status == 'success') {
             if (typeof promotion != 'undefined') {
                 openNotificationWithIcon('success');
-                Navigate('/admin/promotion')
+                Navigate('/promotion')
             }
         }
         if (status == 'error') openNotificationWithIcon('error');

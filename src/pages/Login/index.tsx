@@ -16,7 +16,7 @@ export type LoginType = {
 function Login() {
     const [error, setError] = React.useState<Result>();
     const Navigate = useNavigate();
-    const { setAccessToken} = useAuthStore()
+    const { auth, setAccessToken} = useAuthStore()
     const [open, setOpen] = React.useState(false);
     const [loadingSubmit, setLoadingSubmit] = React.useState<boolean>(false);
     const [messageApi, contextHolder] = message.useMessage();
@@ -27,7 +27,10 @@ function Login() {
             if(data.isSuccessed === true){
                 setAccessToken(data.resultObj.accessToken)
                 setTimeout(()=>{
-                    Navigate(-1)
+                    if(auth.isAuth === true){
+                        Navigate(auth.navigate)
+                    }
+                    
                 },200)
             }else{
                 setError(data);

@@ -211,7 +211,7 @@ function ProductList() {
             render: (_: any, record: Product) => (
                 <Space size="middle">
                     <Button icon={<DeleteOutlined />} onClick={() => showModalDel(record.id, record.name)}></Button>
-                    <Link to={`/admin/product-edit/${record.id}`}>
+                    <Link to={`/product-edit/${record.id}`}>
                         <Button icon={<EditOutlined />}></Button>
                     </Link>
                     <Button
@@ -269,7 +269,7 @@ function ProductList() {
         <div>
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
-                    <Link to={'/admin/product-add'}>
+                    <Link to={'/product-add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Thêm
                         </Button>
