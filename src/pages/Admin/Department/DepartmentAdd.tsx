@@ -20,7 +20,7 @@ function DepartmentAdd(){
         if (status == 'success') {
             if (department != undefined) {
                 openNotificationWithIcon('success');
-                Navigate('/admin/departments');
+                Navigate('/departments');
             }
         }
         if (status == 'error') {

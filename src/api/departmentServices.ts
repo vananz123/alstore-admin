@@ -44,8 +44,7 @@ export const createDepartment = async(data:Department)=>{
             phonenumber:data.phoneNumber,
             name:data.name,
             address:data.address,
-            description:data.description,
-            status: data.status
+            description:data.description
         }
         const res = await request.post(`/departments`,departments)
         const resultObj  = res.resultObj
@@ -66,6 +65,7 @@ export const createDepartment = async(data:Department)=>{
 export const updateDepartment = async(data:Department)=>{
     try{
         const departments = {
+            id: data.id,
             phonenumber:data.phoneNumber,
             name:data.name,
             address:data.address,
