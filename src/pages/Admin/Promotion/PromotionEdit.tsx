@@ -1,6 +1,6 @@
 import * as promotionServices from '@/api/promotionServices';
 import React, { useEffect } from 'react';
-import {  notification, Skeleton } from 'antd';
+import { notification, Skeleton } from 'antd';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 type NotificationType = 'success' | 'error';
@@ -22,18 +22,18 @@ function PromotionEdit() {
     useEffect(() => {
         if (id != undefined && status == 'loading') {
             const getPromotion = async () => {
-                const res = await promotionServices.getById(Number(id))
+                const res = await promotionServices.getById(Number(id));
                 if (res.isSuccessed === true) {
-                    const arr: Dayjs[] = []
+                    const arr: Dayjs[] = [];
 
-                    arr.push(dayjs(res.resultObj?.startDate))
-                    arr.push(dayjs(res.resultObj?.endDate))
-                    res.resultObj.arrDate = arr
-                    console.log(res.resultObj)
+                    arr.push(dayjs(res.resultObj?.startDate));
+                    arr.push(dayjs(res.resultObj?.endDate));
+                    res.resultObj.arrDate = arr;
+                    console.log(res.resultObj);
                     setPromotion(res.resultObj);
                 }
             };
-            getPromotion()
+            getPromotion();
         }
         if (status == 'success') {
             if (typeof promotion !== 'undefined') openNotificationWithIcon('success');
@@ -46,8 +46,11 @@ function PromotionEdit() {
     return (
         <>
             {contextHolder}
-            {typeof promotion !== 'undefined' ?  <PromotionForm promotion={promotion} onSetState={setPromotion} onSetStatus={setStatus} />:<Skeleton/>}
-           
+            {typeof promotion !== 'undefined' ? (
+                <PromotionForm promotion={promotion} onSetState={setPromotion} onSetStatus={setStatus} />
+            ) : (
+                <Skeleton />
+            )}
         </>
     );
 }
