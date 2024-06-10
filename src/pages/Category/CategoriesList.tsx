@@ -37,7 +37,7 @@ function CategoriesList() {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/admin/category-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/category-edit/${record.id}`}>Edit</Link>
                     <a onClick={() => showModalDel(record.id.toString(), record.name)}>Delete</a>
                 </Space>
             ),
@@ -67,7 +67,7 @@ function CategoriesList() {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/admin/category-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/category-edit/${record.id}`}>Edit</Link>
                     <a onClick={() => showModalDel(record.id.toString(), record.name)}>Delete</a>
                 </Space>
             ),
@@ -109,7 +109,7 @@ function CategoriesList() {
         <div>
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
-                    <Link to={'/admin/category-add'}>
+                    <Link to={'/category-add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Thêm
                         </Button>

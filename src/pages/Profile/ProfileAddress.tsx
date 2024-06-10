@@ -4,7 +4,7 @@ import { Button, Modal, Space } from 'antd';
 import React, { useEffect } from 'react';
 import * as userServices from '@/api/userServices';
 import { Address } from '@/api/ResType';
-import { TypeFormAddress } from '../Purchase';
+import { TypeFormAddress } from '@/type';
 import AddressForm from '@/conponents/AddressForm';
 import { StatusForm } from '@/type';
 import { useMutation, useQuery } from '@tanstack/react-query';

@@ -8,7 +8,7 @@ import { StatusForm } from '@/type';
 import { useAppSelector } from '@/app/hooks';
 import { selectUser } from '@/app/feature/user/reducer';
 import { Address, addressGHTK } from '@/api/ResType';
-import type { TypeFormAddress } from '@/pages/Purchase';
+import { TypeFormAddress } from '@/type';
 import { FORM_ITEM_LAYOUT, TAIL_FORM_ITEM_LAYOUT } from '@/common/common';
 interface Props {
     typeForm: TypeFormAddress | undefined;

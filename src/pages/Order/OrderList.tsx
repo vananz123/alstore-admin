@@ -60,7 +60,7 @@ function OrderList() {
             render: (_, record) => (
                 <Space size="middle">
                     {/* <Button icon={<DeleteOutlined />}></Button> */}
-                    <Link key={`a-${record.id}`} to={`/admin/order/detail/${record.id}`}>
+                    <Link key={`a-${record.id}`} to={`/order/detail/${record.id}`}>
                         <Button icon={<InfoCircleOutlined />}></Button>
                     </Link>
                 </Space>

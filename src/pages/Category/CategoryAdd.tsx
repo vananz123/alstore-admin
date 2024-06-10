@@ -1,15 +1,15 @@
+import CategoryForm from '@/conponents/CategoryForm';
 import React, { useEffect } from 'react';
-import { notification } from 'antd';
+import {  notification } from 'antd';
 type NotificationType = 'success' | 'error';
+import { Category } from '@/type';
 import { StatusForm } from '@/type';
 import { useNavigate } from 'react-router-dom';
-import { Guaranty } from '@/type';
-import GuarantyForm from '@/conponents/GuarantyForm';
-function GuarantiesAdd() {
-    const [guaranty, setGuaranty] = React.useState<Guaranty>();
+function CategoryAdd() {
+    const [category, setCategory] = React.useState<Category>();
     const [status, setStatus] = React.useState<StatusForm>('loading');
     const [api, contextHolder] = notification.useNotification();
-    const Navigate = useNavigate();
+const Navigate =useNavigate()
     const openNotificationWithIcon = (type: NotificationType) => {
         api[type]({
             message: 'Notification Title',
@@ -18,24 +18,25 @@ function GuarantiesAdd() {
     };
     useEffect(() => {
         if (status == 'success') {
-            if (guaranty != undefined) {
+            if (category != undefined) {
+                //dispatch(loadCategories());
                 openNotificationWithIcon('success');
-                Navigate('/admin/guaranties');
+                Navigate('/categories')
             }
         }
         if (status == 'error') {
             openNotificationWithIcon('error');
         }
         setStatus('loading');
-        setGuaranty(undefined);
+        setCategory(undefined)
     }, [status]);
 
     return (
         <>
             {contextHolder}
-            <GuarantyForm guaranty={guaranty} onSetState={setGuaranty} onSetStatus={setStatus} />
+            <CategoryForm category={category} onSetState={setCategory} onSetStatus={setStatus} />
         </>
     );
 }
 
-export default GuarantiesAdd;
+export default CategoryAdd;

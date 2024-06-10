@@ -1,81 +1,74 @@
-import { Table, Space, Modal, Button, Flex } from 'antd';
-import type { TableProps } from 'antd';
-import * as promotionServices from '@/api/promotionServices';
-import React, { useEffect } from 'react';
-import { PlusOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
-import type { Promotion } from '@/api/ResType';
-
-function PromotionList() {
-    const [data, setData] = React.useState<Promotion[]>();
+import { Guaranty } from "@/type";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Flex, Space, TableProps, Table, Modal } from "antd";
+import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+import * as guarantyServices from '@/api/guarantyServices'
+function GuaranriesList() {
+    const [data, setData] = React.useState<Guaranty[]>();
+    const [modalText, setModalText] = React.useState('Do you want delete!');
+    const [context, setContext] = React.useState<string>('OK');
     const [currentId, setCurrentId] = React.useState<number>(0);
     const [open, setOpen] = React.useState(false);
     const [confirmLoading, setConfirmLoading] = React.useState(false);
-    const [modalText, setModalText] = React.useState('Do you want delete!');
-    const [context, setContext] = React.useState<string>('OK');
-
-    const columns: TableProps<Promotion>['columns'] = [
+    const columns: TableProps<Guaranty>['columns'] = [
         {
             title: 'Id',
             dataIndex: 'id',
             key: 'id',
         },
         {
-            title: 'Loại Khuyến mãi',
+            title: 'Tên',
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: 'Phần Trăm Giảm',
-            dataIndex: 'discountRate',
-            key: 'name',
-            render: (_, record) => <p>{record.value}%</p>,
+            title: 'Ngày tạo',
+            dataIndex: 'dateCreate',
+            key: 'dateCreate',
+            render: (_, record) => <p>{new Date(record.dateCreated).toUTCString()}</p>,
         },
         {
-            title: 'Ngày Bắt Đầu',
-            dataIndex: 'startDate',
-            key: 'name',
-            render: (_, record) => <p>{new Date(record.startDate).toUTCString()}</p>,
-        },
-        {
-            title: 'Ngày Kết Thúc',
-            dataIndex: 'endDate',
-            key: 'name',
-            render: (_, record) => <p>{new Date(record.endDate).toUTCString()}</p>,
+            title: 'Ngày bắt đâu',
+            dataIndex: 'dateModify',
+            key: 'dateModify',
+            render: (_, record) => <p>{new Date(record.dateModify).toUTCString()}</p>,
         },
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/admin/promotion-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/guaranties-edit/${record.id}`}>Edit</Link>
                     <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
                 </Space>
             ),
         },
     ];
     const showModalDel = (id: number, name: string) => {
-        setModalText(`Bạn muốn xóa ${name}!`);
+        setModalText(`Do you want guaranty ${name}!`);
         setCurrentId(id);
         setOpen(true);
     };
-    const getAllPromotion = async () => {
-        const res = await promotionServices.getAllPromotion();
-        setData(res);
+    const getAllGuaranty = async () =>{
+        const res = await guarantyServices.getAllGuaranty();
+        console.log(res)
+        if(res.isSuccessed ===true){
+            setData(res.resultObj);
+        }
     };
-    useEffect(() => {
-        getAllPromotion();
-    }, []);
     const handleOkDel = () => {
         setModalText('deleting!');
         setConfirmLoading(true);
         setContext('');
         setTimeout(async () => {
-            const res = await promotionServices.DeletaPromotion(currentId)
+            const res = await guarantyServices.deleteGuaranty(currentId)
             if (res.isSuccessed === true) {
-                getAllPromotion()
+                getAllGuaranty()
                 setOpen(false);
                 setConfirmLoading(false);
+                setModalText('success')
+                setContext('OK')
             } else {
                 setModalText('error!');
                 setConfirmLoading(false);
@@ -83,11 +76,14 @@ function PromotionList() {
             }
         }, 300);
     };
-    return (
-        <div>
-            <Space direction="vertical" style={{ width: '100%' }}>
+    useEffect(()=>{
+        //load api voo dday 
+        getAllGuaranty();
+    },[])
+    return <div>
+        <Space direction="vertical" style={{width:"100%"}}>
                 <Flex justify="space-between">
-                    <Link to={'/admin/promotion-add'}>
+                    <Link to={'/admin/guaranties-add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Thêm
                         </Button>
@@ -106,8 +102,8 @@ function PromotionList() {
             >
                 <p>{modalText}</p>
             </Modal>
-        </div>
-    );
+        
+    </div>;
 }
 
-export default PromotionList;
+export default GuaranriesList;

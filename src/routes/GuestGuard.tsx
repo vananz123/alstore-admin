@@ -6,12 +6,10 @@ const GuestGuard: React.FC<{children:JSX.Element}> = ({children})=>{
     const {isAuthenticated ,data} = useAppSelector(selectUser)
     if(isAuthenticated === true && data !== undefined){
         if(data?.roles !== undefined ){
-            if(data.roles[0] === 'admin' || data?.roles[0] === 'sale'){
-                return <Navigate to={'/admin/product'}/>
+            if(data.roles[0] === 'admin'){
+                return <Navigate to={'/product'}/>
             }
-            if(data.roles[0] === 'customer'){
-                return <Navigate replace to={'/'}/>
-            }
+            if(data?.roles[0] === 'sale') return <Navigate to={'/order'}/>
         }
     }
     return <>{children}</>

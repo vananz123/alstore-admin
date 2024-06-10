@@ -85,7 +85,7 @@ const ProductForm: React.FC<{
         onSuccess: (res) => {
             if (res.isSuccessed === true) {
                 openNotificationWithIcon('error', "Thêm thành công");
-                navigate(`/admin/product-edit/${res.resultObj.id}`);
+                navigate(`/product-edit/${res.resultObj.id}`);
             } else {
                 openNotificationWithIcon('error', res.message);
             }
