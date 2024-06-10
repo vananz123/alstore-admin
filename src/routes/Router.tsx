@@ -16,6 +16,7 @@ import { PromotionAdd, PromotionEdit, PromotionList } from '@/pages/Promotion';
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 import UserList from '@/pages/User/UserList';
 import { GuarantiesAdd, GuarantiesList, GuarantiesEdit } from '@/pages/Guaranty';
+import { DepartmentAdd, DepartmentEdit, DepartmentList } from '@/pages/Admin/Department';
 const Page404 = lazy(() => import('@/pages/Page404/Page404'));
 const Router: React.FC = () => {
     return useRoutes([
@@ -237,6 +238,36 @@ const Router: React.FC = () => {
                         <AuthGuard>
                             <RoleGuard role={['admin', 'sale']}>
                                 <UserList />
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },
+                {
+                    path: 'departments',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin', 'sale']}>
+                                <DepartmentList />
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },
+                {
+                    path: 'departments-add',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin']}>
+                                <DepartmentAdd />
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },
+                {
+                    path: 'departments-edit/:id',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin']}>
+                                <DepartmentEdit />
                             </RoleGuard>
                         </AuthGuard>
                     ),

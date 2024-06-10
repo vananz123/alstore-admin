@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as request from '../utils/request'
 import { Result } from './ResType'
-import { Guaranty } from '@/type'
-export const getAllGuaranty = async(period:number =0)=>{ 
+import { Department } from '@/type'
+export const getAllDepartment = async()=>{ 
     try{
-        const res = await request.get(`/guaranties?period=${period}`)
-        const resultObj : Guaranty[]  = res.resultObj
+        const res = await request.get(`/departments`)
+        const resultObj : Department[]  = res.resultObj
         const resp: Result ={
             error :'',
             isSuccessed:res.isSuccessed,
@@ -20,10 +19,10 @@ export const getAllGuaranty = async(period:number =0)=>{
         return resError
     }
 }
-export const getGuarantyById = async(id:number)=>{
+export const getDepartmentById = async(id:number)=>{
     try{
-        const res = await request.get(`/guaranties/${encodeURIComponent(id)}`)
-        const resultObj : Guaranty  = res.resultObj
+        const res = await request.get(`/departments/${encodeURIComponent(id)}`)
+        const resultObj : Department  = res.resultObj
         const resp: Result ={
             error :'',
             isSuccessed:res.isSuccessed,
@@ -39,15 +38,15 @@ export const getGuarantyById = async(id:number)=>{
     }
 }
 
-export const createGuaranty = async(data:Guaranty)=>{
+export const createDepartment = async(data:Department)=>{
     try{
-        const guaranties = {
+        const departments = {
+            phonenumber:data.phoneNumber,
             name:data.name,
-            period: data.period,
-            sku: data.sku,
+            address:data.address,
             description:data.description
         }
-        const res = await request.post(`/guaranties`,guaranties)
+        const res = await request.post(`/departments`,departments)
         const resultObj  = res.resultObj
         const resp: Result ={
             error :'',
@@ -63,20 +62,20 @@ export const createGuaranty = async(data:Guaranty)=>{
         return resError
     }
 }
-export const updateGuaranty = async(data:Guaranty)=>{
+export const updateDepartment = async(data:Department)=>{
     try{
-        const pro = {
+        const departments = {
             id: data.id,
-            name : data.name,
+            phonenumber:data.phoneNumber,
+            name:data.name,
+            address:data.address,
             description:data.description,
-            sku: data.sku,
-            period : data.period,
             status: data.status
             
         }
-        console.log(pro)
-        const res = await request.put(`/guaranties`,pro)
-        const resultObj: Guaranty[] = res.resultObj
+        console.log(departments)
+        const res = await request.put(`/departments`,departments)
+        const resultObj: Department[] = res.resultObj
         const resp: Result = {
             error: '',
             isSuccessed: res.isSuccessed,
@@ -91,9 +90,9 @@ export const updateGuaranty = async(data:Guaranty)=>{
         return resError;
     }
 }
-export const deleteGuaranty = async(id:number)=>{
+export const deleteDepartment = async(id:number)=>{
     try{
-        const res = await request.del(`/guaranties/${encodeURIComponent(id)}`)
+        const res = await request.del(`/departments/${encodeURIComponent(id)}`)
         const resultObj  = res.resultObj
         const resp: Result ={
             error :'',
