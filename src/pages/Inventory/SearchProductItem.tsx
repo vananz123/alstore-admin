@@ -1,17 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useDebounce } from '@/hooks';
-import { Button, Input, Popover } from 'antd';
+import {  Input, Popover } from 'antd';
 import type { SearchProps } from 'antd/es/input/Search';
 import * as productServices from '@/api/productServices';
 import type { InputRef } from 'antd';
-import React, {  memo, useEffect, useRef } from 'react';
+import React, {  SetStateAction, useEffect, useRef } from 'react';
 import { ProductItemSearch } from '@/type';
-import { Link, useNavigate } from 'react-router-dom';
-import ProductItemCard from '../ProductItemCard';
-const SearchC: React.FC = memo(() => {
+import {  useNavigate } from 'react-router-dom';
+import ProductItemCard from '@/conponents/ProductItemCard';
+import useNotification from '@/hooks/useNotification';
+interface Props{
+    className?:string;
+    listProductItem:ProductItemSearch[];
+    onSetList:SetStateAction<any>;
+}
+const SearchProductItem: React.FC<Props> = ({className, onSetList , listProductItem}) => {
     const { Search } = Input;
     const [searchValue, setSearchValue] = React.useState('');
+    const {contextHolder,openNotification} = useNotification()
     const navigate = useNavigate();
     const [data, setData] = React.useState<ProductItemSearch[]>();
     const inputRef = useRef<InputRef>(null);
@@ -40,21 +47,24 @@ const SearchC: React.FC = memo(() => {
     return (
         <>
             <div>
+                {contextHolder}
                 <Popover
                     content={
                         <div className='popover-search'>
                             {data && data.length > 1 ? (
                                 <>
                                     {data.map((e: ProductItemSearch) => (
-                                        <div className='mb-2' key={e.id}>
+                                        <div className='mb-2 cursor-pointer' key={e.id} onClick={()=>{
+                                            const productCheck = listProductItem.find( s => s.id ===e.id)
+                                            if(productCheck === undefined){
+                                                onSetList((value:any) =>([...value, e]))
+                                            }else{
+                                                openNotification('error', `Đã tồn tại ${e.seoTitle} ${e.value}`)
+                                            }
+                                        }}>
                                             <ProductItemCard productItem={e}/>
                                         </div>
                                     ))}
-                                    <div className='w-full text-center'>
-                                        <Button>
-                                            <Link to={`/product/${searchValue}`}>Hiển thị tất cả</Link>
-                                        </Button>
-                                    </div>
                                 </>
                             ) : (
                                 <div style={{ textAlign: 'center' }}>Not found</div>
@@ -63,9 +73,9 @@ const SearchC: React.FC = memo(() => {
                     }
                     title={'Tìm kiếm'}
                     trigger={'click'}
-                    placement='bottom'
+                    placement='bottomLeft'
                 >
-                    <div className='mt-1 w-auto'>
+                    <div className={`${className}`}>
                         <Search
                             placeholder="Tên sản phẩm"
                             className='block'
@@ -81,5 +91,5 @@ const SearchC: React.FC = memo(() => {
             </div>
         </>
     );
-});
-export default SearchC;
+};
+export default SearchProductItem;

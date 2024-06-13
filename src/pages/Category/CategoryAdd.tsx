@@ -21,7 +21,7 @@ const Navigate =useNavigate()
             if (category != undefined) {
                 //dispatch(loadCategories());
                 openNotificationWithIcon('success');
-                Navigate('/categories')
+                Navigate('/category')
             }
         }
         if (status == 'error') {

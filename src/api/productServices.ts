@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as request from '../utils/request'
 import {  PagingResult, Promotion, Result } from './ResType'
-import {  Product ,Filter} from '@/type'
+import {  Product ,Filter, ProductItem, ProductItemSearch} from '@/type'
 import { UploadFile } from 'antd'
 export interface PagingProduct extends PagingResult{
     items:Product[]
@@ -19,19 +19,14 @@ export const getAllProduct = async()=>{
         return undefined
     }
 }
-export const getProductDetail = async(id:number)=>{
+export const getProductDetail = async(id:number ,departmentId:number)=>{
     try{
-        const res = await request.get(`/product/${encodeURIComponent(id)}`)
+        const params= {
+            DepartmentId : departmentId
+        }
+        const res = await request.get(`/product/admin/${encodeURIComponent(id)}`, {params})
         const resultObj : Product  = res.resultObj
         return resultObj
-        // const resp: Result ={
-        //     error :'',
-        //     isSuccessed:res.isSuccessed,
-        //     message:res.message,
-        //     statusCode:200,
-        //     resultObj : resultObj
-        // }
-        // return resp
     }catch(error){
         return undefined
     }
@@ -68,6 +63,7 @@ export const getProductPagingByFilter = async(filter:Filter)=>{
         }
         return resp
 }
+
 export const addProduct = async(data:Product)=>{
     try{
         const pro ={
@@ -209,44 +205,52 @@ export const deleteImage = async(id:number,name:string)=>{
         return resError
     }
 }
-export const addProductNoSize = async(id:number, price:number,stock:number)=>{
-    try{
-        const res= await request.post(`/product/${encodeURIComponent(id)}/product-item`,{price:price,stock:stock})
-        const resultObj :Product  = res.resultObj
-        const resp: Result ={
-            error :'',
-            isSuccessed:res.isSuccessed,
-            message:res.message,
-            statusCode:200,
-            resultObj : resultObj
-        }
-        return resp
-    }catch(error:any){
-        console.log(error.response.data)
-        const resError: Result =error.response.data
-        return resError
-    }
-}
 function randomNumber(min:number, max:number):number {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-export const addProductSize = async(id:number, data:any[])=>{
+export const searchProductItemBySeo = async(key:any)=>{
     try{
-        const pro:any[]= []
-        data.forEach((element:any) => {
-            const item ={
-                id:randomNumber(1,1000),
-                price:element.price,
-                stock:element.stock,
-                sku:element.sku,
-                value:element.value
+        const res= await request.get(`/product/product-item/search/${encodeURIComponent(key)}`)
+        const resultObj :ProductItemSearch[]  = res.resultObj
+        return resultObj
+    }catch(error:any){
+        return undefined
+    }
+}
+export const importInventory = async(departmentId:number, data:ProductItemSearch[])=>{
+    try{
+        const items:any[] = [];
+        data.forEach(element => {
+            const item = {
+                productItemId:element.id,
+                quantity:element.quantity,
             }
-            pro.push(item)
+            items.push(item)
         });
-
-        const res= await request.post(`/product/${encodeURIComponent(id)}/product-item-size`,pro)
+        const body ={
+            departmentId:departmentId,
+            items:items,
+        }
+        const res= await request.put(`/product/admin/import-inventory`,body )
+        const resultObj :Result  = res
+        return resultObj
+    }catch(error:any){
+        const resError: Result =error.response.data
+        return resError
+    }
+}
+export const addProductItem = async(isSize:boolean, data:ProductItem)=>{
+    try{
+        const productitem ={
+            productId:data.productId,
+            isSize:isSize,
+            price:data.price,
+            sku:data.sku || "",
+            value:data.value || ""
+        }
+        const res= await request.post(`/product/product-item`,productitem)
         const resultObj:Product   = res.resultObj
         const resp: Result ={
             error :'',
@@ -257,7 +261,49 @@ export const addProductSize = async(id:number, data:any[])=>{
         }
         return resp
     }catch(error:any){
-        console.log(error.response.data)
+        const resError: Result =error.response.data
+        return resError
+    }
+}
+export const updateProductItem = async(data:ProductItem)=>{
+    try{
+        const productitem ={
+            productItemId:data.id,
+            productId:data.productId,
+            price:data.price,
+            sku:data.sku,
+            value:data.value,
+            status : 1,
+        }
+
+        const res= await request.put(`/product/product-item`,productitem)
+        const resultObj:Product   = res.resultObj
+        const resp: Result ={
+            error :'',
+            isSuccessed:res.isSuccessed,
+            message:res.message,
+            statusCode:200,
+            resultObj : resultObj
+        }
+        return resp
+    }catch(error:any){
+        const resError: Result =error.response.data
+        return resError
+    }
+}
+export const deleteProductItem = async(id:number)=>{
+    try{
+        const res= await request.del(`/product/product-item/${id}`)
+        const resultObj:Product   = res.resultObj
+        const resp: Result ={
+            error :'',
+            isSuccessed:res.isSuccessed,
+            message:res.message,
+            statusCode:200,
+            resultObj : resultObj
+        }
+        return resp
+    }catch(error:any){
         const resError: Result =error.response.data
         return resError
     }

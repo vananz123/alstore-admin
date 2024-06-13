@@ -17,7 +17,7 @@ interface Props {
     openModalAssignPI: boolean;
     setStateOpenModalAssignPI: SetStateAction<any>;
     productItemProps: ProductItem | undefined;
-    setStateProduct:SetStateAction<any>;
+    refetch: ()=> void;
 }
 interface RequsetBody {
     id:number,
@@ -26,7 +26,7 @@ interface RequsetBody {
 const ModalAssginPromotionsProductItem: React.FC<Props> = ({
     openModalAssignPI,
     setStateOpenModalAssignPI,
-    productItemProps,setStateProduct,
+    productItemProps,refetch,
 }) => {
     const [confirmLoading, setConfirmLoading] = React.useState(false);
     const [listSelectRowKeys, setListSelectRowKeys] = React.useState<number[]>([]);
@@ -52,7 +52,7 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
         onSuccess:(data)=>{
             if (data.isSuccessed === true) {
                 openNotificationWithIcon('success', 'thêm bảo hành thành công');
-                setStateProduct(data.resultObj)
+                refetch()
             } else {
                 openNotificationWithIcon('error', 'lỗi');
             }

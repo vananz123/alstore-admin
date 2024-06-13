@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Department, StatusForm } from "@/type";
-import { Button, Form, FormProps, Input, InputNumber, Select } from "antd";
+import { Button, Form, FormProps, Input, Select } from "antd";
 import React, { SetStateAction, useEffect } from "react";
 import * as departmentServices from '@/api/departmentServices';
 import { useNavigate } from "react-router-dom";
@@ -7,9 +8,6 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { FORM_ITEM_LAYOUT, OPTIONS_STATUS, TAIL_FORM_ITEM_LAYOUT, editorConfiguration } from "@/common/common";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import { ClassicEditor } from "@ckeditor/ckeditor5-editor-classic";
-
-
-
 interface Props {
     department: Department | undefined;
     onSetState: SetStateAction<any> | undefined;
@@ -87,19 +85,31 @@ const DepartmentForm: React.FC<Props> = ({ department, onSetState,onSetStatus })
                     name="name"
                     label="Tên chi nhánh"
                     tooltip="What do you want others to call you?"
-                    //valuePropName='name'
-                    //initialValue={promotion?.name}
                     rules={[{ required: true, message: 'Please input department name!' }]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item<Department>
-                    name="description"
-                    label="Mô tả chi nhánh"
+                    name='address'
+                    label="Địa chỉ"
                     tooltip="What do you want others to call you?"
-                    //valuePropName='name'
-                    //initialValue={promotion?.seoTitle}
-                    rules={[{ required: true, message: 'Please input department description!', whitespace: true }]}
+                    rules={[{ required: true, message: 'Please input department address!', whitespace: true }]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item<Department>
+                    name='urbanDistrict'
+                    label="Quận/ huyện"
+                    tooltip="What do you want others to call you?"
+                    rules={[{ required: true, message: 'Please input department urbanDistrict!', whitespace: true }]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item<Department>
+                    name='province'
+                    label="Tĩnh/ TP"
+                    tooltip="What do you want others to call you?"
+                    rules={[{ required: true, message: 'Please input department province!', whitespace: true }]}
                 >
                     <Input />
                 </Form.Item>
@@ -107,30 +117,18 @@ const DepartmentForm: React.FC<Props> = ({ department, onSetState,onSetStatus })
                     name="phoneNumber"
                     label="SĐT"
                     tooltip="What do you want others to call you?"
-                    //valuePropName='name'
-                    //initialValue={promotion?.seoTitle}
-                    rules={[{ required: true, message: 'Please input department sdt!' }]}
+                    rules={[{ required: true,max:10, message: 'Please input department sdt!' }]}
                 >
-                    <InputNumber max={36} min={0} type="number" />
+                    <Input />
                 </Form.Item>
-                <Form.Item label="Thông tin" tooltip="What do you want others to call you?">
+                <Form.Item label="Mô tả chi nhánh" tooltip="What do you want others to call you?">
                     <CKEditor
                         editor={ClassicEditor}
                         config={editorConfiguration}
                         data={value || '<p></p>'}
-                        // onReady={(editor) => {
-                        //     // You can store the "editor" and use when it is needed.
-                        //     console.log('Editor is ready to use!', editor);
-                        // }}
                         onChange={(_, editor) => {
                             setValue(editor.getData());
                         }}
-                        // onBlur={(event, editor) => {
-                        //     console.log('Blur.', editor);
-                        // }}
-                        // onFocus={(event, editor) => {
-                        //     console.log('Focus.', editor);
-                        // }}
                     />
                 </Form.Item>
                 <Form.Item<Department>

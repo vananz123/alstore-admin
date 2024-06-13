@@ -1,4 +1,4 @@
-import { Table, Space, Modal, Button, Flex, Select } from 'antd';
+import { Table, Space, Modal, Button, Flex, Tag } from 'antd';
 import type { TableColumnsType } from 'antd';
 import * as categoryServices from '@/api/categoryServices';
 import React, { useEffect } from 'react';
@@ -13,6 +13,10 @@ function CategoriesList() {
     const [confirmLoading, setConfirmLoading] = React.useState(false);
     const [modalText, setModalText] = React.useState('Do you want delete!');
     const [context, setContext] = React.useState<string>('OK');
+    const renderTag = (status:number)=>{
+        const option = OPTIONS_STATUS?.find(x => x.value == status)
+        return <Tag color={option?.color}>{option?.label}</Tag>
+    }
     const columnss: TableColumnsType<Category> = [
         {
             title: 'Id',
@@ -29,7 +33,7 @@ function CategoriesList() {
             dataIndex: 'status',
             key: 'status',
             render:(_,record)=>(
-                <Select value={record.status} disabled options={OPTIONS_STATUS}/>
+                renderTag(record.status)
             )
         },
         {
@@ -37,7 +41,7 @@ function CategoriesList() {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/category-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/category/edit/${record.id}`}>Edit</Link>
                     <a onClick={() => showModalDel(record.id.toString(), record.name)}>Delete</a>
                 </Space>
             ),
@@ -59,7 +63,7 @@ function CategoriesList() {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',render:(_,record)=>(
-                <Select value={record.status} disabled options={OPTIONS_STATUS}/>
+                renderTag(record.status)
             )
         },
         {
@@ -67,7 +71,7 @@ function CategoriesList() {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/category-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/category/edit/${record.id}`}>Edit</Link>
                     <a onClick={() => showModalDel(record.id.toString(), record.name)}>Delete</a>
                 </Space>
             ),
@@ -109,7 +113,7 @@ function CategoriesList() {
         <div>
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
-                    <Link to={'/category-add'}>
+                    <Link to={'/category/add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Thêm
                         </Button>

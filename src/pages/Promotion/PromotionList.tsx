@@ -48,7 +48,7 @@ function PromotionList() {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/promotion-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/promotion/edit/${record.id}`}>Edit</Link>
                     <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
                 </Space>
             ),
@@ -87,7 +87,7 @@ function PromotionList() {
         <div>
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
-                    <Link to={'/promotion-add'}>
+                    <Link to={'/promotion/add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Thêm
                         </Button>

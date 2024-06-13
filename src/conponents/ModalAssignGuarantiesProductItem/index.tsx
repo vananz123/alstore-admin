@@ -14,13 +14,13 @@ interface Props {
     openModalAssignPI: boolean;
     setStateOpenModalAssignPI: SetStateAction<any>;
     productItemProps: ProductItem | undefined;
-    setStateProduct: SetStateAction<any>;
+    refetch: ()=> void;
 }
 const ModalAssignGuarantiesProductItem: React.FC<Props> = ({
     openModalAssignPI,
     setStateOpenModalAssignPI,
     productItemProps,
-    setStateProduct,
+    refetch,
 }) => {
     const [guaranties, setGuaranties] = React.useState<Guaranty[]>([]);
     const [confirmLoading, setConfirmLoading] = React.useState(false);
@@ -45,7 +45,7 @@ const ModalAssignGuarantiesProductItem: React.FC<Props> = ({
             const res = await productServices.assignGuaranties(productItemProps?.id, listSelectRowKeys[0]);
             if (res.isSuccessed === true) {
                 openNotificationWithIcon('success', 'thêm bảo hành thành công');
-                setStateProduct(res.resultObj);
+                refetch()
                 setConfirmLoading(false);
             } else {
                 openNotificationWithIcon('error', 'lỗi');

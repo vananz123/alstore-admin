@@ -24,6 +24,18 @@ export interface ProductItemStatisc {
     name: string,
     value: string
 }
+export interface ProductItemSearch {
+    id: number;
+    productId?: number;
+    seoTitle:string;
+    quantity:number;
+    urlThumbnailImage:string;
+    price: number;
+    sku: string;
+    status: number;
+    name: string;
+    value: string;
+}
 export type ProductItem = {
     id: number;
     productId?: number;

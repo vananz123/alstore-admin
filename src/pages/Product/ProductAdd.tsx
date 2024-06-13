@@ -1,16 +1,24 @@
 import ProductForm from '@/conponents/ProductForm';
-import React, { useEffect } from 'react';
-import { Product } from '@/type'
-import { StatusForm } from '@/type';
+import { Button } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 function ProductAdd() {
-    const [product, setProduct] = React.useState<Product>();
-    const [status,setStatus] = React.useState<StatusForm>('loading')
-    useEffect(()=>{
-        
-    },[status])
+    const navigate = useNavigate();
+    const product = undefined;
     return (
         <div>
-            <ProductForm product={product} onSetState={setProduct} onSetStatus={setStatus}/>
+            <Button
+                    type="text"
+                    icon={<ArrowLeftOutlined />}
+                    size="small"
+                    style={{ marginBottom: '10px' }}
+                    onClick={() => {
+                        navigate(-1);
+                    }}
+                >
+                    Quay lại
+                </Button>
+            <ProductForm product={product} refetch={()=> {}}/>
         </div>
     );
 }

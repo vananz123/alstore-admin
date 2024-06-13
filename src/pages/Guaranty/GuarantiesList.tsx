@@ -39,7 +39,7 @@ function GuaranriesList() {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/guaranties-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/guaranty/edit/${record.id}`}>Edit</Link>
                     <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
                 </Space>
             ),
@@ -83,7 +83,7 @@ function GuaranriesList() {
     return <div>
         <Space direction="vertical" style={{width:"100%"}}>
                 <Flex justify="space-between">
-                    <Link to={'/admin/guaranties-add'}>
+                    <Link to={'/guaranty/add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Thêm
                         </Button>
