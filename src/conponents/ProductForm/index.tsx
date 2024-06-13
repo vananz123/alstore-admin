@@ -115,7 +115,7 @@ const ProductForm: React.FC<{
                 <Form.Item<Product>
                     name="name"
                     label="Tên sản phẩm"
-                    tooltip="What do you want others to call you?"
+                    tooltip="Tên sản phẩm nội bộ?"
                     rules={[{ required: true, message: 'Please input product name!', whitespace: true }]}
                 >
                     <Input />
@@ -123,6 +123,7 @@ const ProductForm: React.FC<{
                 <Form.Item<Product>
                     name="seoTitle"
                     label="Tiêu đề"
+                    tooltip="Tên sản phẩm hiện thị công khai?"
                     //initialValue={product?.seoTitle}
                     rules={[{ required: true, message: 'Please input seo title' }]}
                 >
