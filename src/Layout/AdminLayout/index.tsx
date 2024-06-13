@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { HeaderA, SiderC } from '../components';
+import { HeaderA } from '../components';
 import { ConfigProvider, Layout, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
 const { Content } = Layout;
@@ -17,7 +17,6 @@ function AdminLayout() {
             }}
         >
             <Layout>
-                <SiderC />
                 <Layout>
                     <HeaderA />
                     <Content style={{ margin: '24px 16px 0' }}>

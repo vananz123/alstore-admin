@@ -1,21 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as request from '../utils/request'
 import { Result } from './ResType'
 import { Department } from '@/type'
+interface ListDepartments extends Result{
+    resultObj:Department[] 
+}
 export const getAllDepartment = async()=>{ 
     try{
-        const res = await request.get(`/departments`)
-        const resultObj : Department[]  = res.resultObj
-        const resp: Result ={
-            error :'',
-            isSuccessed:res.isSuccessed,
-            message:res.message,
-            statusCode:200,
-            resultObj : resultObj
-        }
-        return resp
+        const res = await request.get(`/departments/admin`)
+        const resultObj : ListDepartments  = res
+       
+        return resultObj
     }catch(error:any){
-        console.log(error.response.data)
-        const resError: Result =error.response.data
+        const resError: ListDepartments =error.response.data
         return resError
     }
 }
@@ -44,6 +41,8 @@ export const createDepartment = async(data:Department)=>{
             phonenumber:data.phoneNumber,
             name:data.name,
             address:data.address,
+            urbanDistrict:data.urbanDistrict,
+            province:data.province,
             description:data.description
         }
         const res = await request.post(`/departments`,departments)
@@ -69,6 +68,8 @@ export const updateDepartment = async(data:Department)=>{
             phonenumber:data.phoneNumber,
             name:data.name,
             address:data.address,
+            urbanDistrict:data.urbanDistrict,
+            province:data.province,
             description:data.description,
             status: data.status
             
@@ -103,7 +104,6 @@ export const deleteDepartment = async(id:number)=>{
         }
         return resp
     }catch(error:any){
-        console.log(error.response.data)
         const resError: Result =error.response.data
         return resError
     }

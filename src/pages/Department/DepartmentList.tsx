@@ -1,19 +1,33 @@
 import React from 'react';
 import { Department } from '@/type';
-import { TableProps, Space, Modal, Flex, Button,Table } from 'antd';
+import { TableProps, Space, Modal, Flex, Button,Table, Tag } from 'antd';
 import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import * as departmentServices from '@/api/departmentServices';
-import { useEffect } from 'react';
-
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { OPTIONS_STATUS } from '@/common/common';
 function DepartmentList() {
-    const [data, setData] = React.useState<Department[]>();
     const [currentId, setCurrentId] = React.useState<number>(0);
     const [open, setOpen] = React.useState(false);
-    const [confirmLoading, setConfirmLoading] = React.useState(false);
     const [modalText, setModalText] = React.useState('Do you want delete!');
     const [context, setContext] = React.useState<string>('OK');
-
+    const { isLoading, data , refetch} = useQuery({
+        queryKey:['load-departments'],
+        queryFn:()=>  departmentServices.getAllDepartment().then((data) => data.resultObj)
+    })
+    const deleteDepartment = useMutation({
+        mutationKey:[`delete-depaerment-${currentId}`],
+        mutationFn:(id:number)=> departmentServices.deleteDepartment(id),
+        onSuccess:(data)=>{
+            if(data.isSuccessed === true){
+                refetch()
+            }
+        }
+    })
+    const renderTag = (status:number)=>{
+        const option = OPTIONS_STATUS?.find(x => x.value == status)
+        return <Tag color={option?.color}>{option?.label}</Tag>
+    }
     const columns: TableProps<Department>['columns'] = [
         {
             title: 'Id',
@@ -31,11 +45,6 @@ function DepartmentList() {
             key: 'name',
         },
         {
-            title: 'Mô Tả',
-            dataIndex: 'description',
-            key: 'description',
-        },
-        {
             title: 'Địa Chỉ',
             dataIndex: 'address',
             key: 'address',
@@ -44,13 +53,16 @@ function DepartmentList() {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',
+            render:(_,record)=>(
+                renderTag(record.status)
+            )
         },
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/departments-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/department/edit/${record.id}`}>Edit</Link>
                     <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
                 </Space>
             ),
@@ -61,54 +73,29 @@ function DepartmentList() {
         setCurrentId(id);
         setOpen(true);
     };
-    const getAllDepartment = async () => {
-        const res = await departmentServices.getAllDepartment();
-        console.log(res);
-        if (res.isSuccessed === true) {
-            setData(res.resultObj);
-        }
-    };
     const handleOkDel = () => {
         setModalText('deleting!');
-        setConfirmLoading(true);
         setContext('');
-        setTimeout(async () => {
-            const res = await departmentServices.deleteDepartment(currentId);
-            if (res.isSuccessed === true) {
-                getAllDepartment();
-                setOpen(false);
-                setConfirmLoading(false);
-                setModalText('success');
-                setContext('OK');
-            } else {
-                setModalText('error!');
-                setConfirmLoading(false);
-                setContext('OK');
-            }
-        }, 300);
+        deleteDepartment.mutate(currentId)
     };
-    useEffect(() => {
-        //load api voo dday
-        getAllDepartment();
-    }, []);
     return (
         <div>
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
-                    <Link to={'/departments-add'}>
+                    <Link to={'/department/add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Thêm
                         </Button>
                     </Link>
                     {/* <SearchC typeSearch={2} onSetState={setData} /> */}
                 </Flex>
-                <Table pagination={{ position: ['bottomLeft'], pageSize: 4 }} columns={columns} dataSource={data} />
+                <Table loading={isLoading} pagination={{ position: ['bottomLeft'], pageSize: 4 }} columns={columns} dataSource={data} />
             </Space>
             <Modal
                 title="Delete"
                 open={open}
                 onOk={handleOkDel}
-                confirmLoading={confirmLoading}
+                confirmLoading={deleteDepartment.isPending}
                 onCancel={() => setOpen(false)}
                 okText={context}
             >

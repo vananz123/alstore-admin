@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Table, Space, Image, Modal, Upload, Button, Flex, Descriptions, Input } from 'antd';
+import { Table, Space, Image, Modal, Upload, Button, Flex, Descriptions, Input, Tag } from 'antd';
 import type { TableColumnsType, DescriptionsProps, InputRef, TableColumnType } from 'antd';
 import { Drawer } from 'antd';
 import type { GetProp, UploadFile, UploadProps } from 'antd';
@@ -9,10 +9,12 @@ import React from 'react';
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { Product } from '@/type';
-import { FILTERS_PRODUCT_STATUS } from '@/common/common';
+import { FILTERS_PRODUCT_STATUS, OPTIONS_PRODUCT_STATUS } from '@/common/common';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import Highlighter from 'react-highlight-words';
 import { useQuery } from '@tanstack/react-query';
+import { useAppSelector } from '@/app/hooks';
+import { selectDepartment } from '@/app/feature/department/reducer';
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 const getBase64 = (file: FileType): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -24,6 +26,7 @@ const getBase64 = (file: FileType): Promise<string> =>
 type DataIndex = keyof Product;
 function ProductList() {
     const baseUrl = import.meta.env.VITE_BASE_URL;
+    const {selected} = useAppSelector(selectDepartment)
     const [currentId, setCurrentId] = React.useState<number>(0);
     const [currentProductItem, setCurrentProductItem] = React.useState<Product>();
     const [modal2Open, setModal2Open] = React.useState(false);
@@ -130,7 +133,7 @@ function ProductList() {
     });
     const showDrawer = (id: number) => {
         const loadProductDetail = async () => {
-            const res = await productServices.getProductDetail(id);
+            const res = await productServices.getProductDetail(id,selected);
             setCurrentProductItem(res);
         };
         loadProductDetail();
@@ -156,6 +159,10 @@ function ProductList() {
             <div style={{ marginTop: 8 }}>Upload</div>
         </button>
     );
+    const renderTag = (status:number)=>{
+        const option = OPTIONS_PRODUCT_STATUS?.find(x => x.value == status)
+        return <Tag color={option?.color}>{option?.label}</Tag>
+    }
     const columns: TableColumnsType<Product> = [
         {
             title: 'Id',
@@ -193,6 +200,9 @@ function ProductList() {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',
+            render:(_,record)=>(
+                renderTag(record.status)
+            ),
             filters: FILTERS_PRODUCT_STATUS,
             onFilter: (value: any, record: Product) => record.status === value,
         },
@@ -211,7 +221,7 @@ function ProductList() {
             render: (_: any, record: Product) => (
                 <Space size="middle">
                     <Button icon={<DeleteOutlined />} onClick={() => showModalDel(record.id, record.name)}></Button>
-                    <Link to={`/product-edit/${record.id}`}>
+                    <Link to={`/product/edit/${record.id}`}>
                         <Button icon={<EditOutlined />}></Button>
                     </Link>
                     <Button
@@ -269,7 +279,7 @@ function ProductList() {
         <div>
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
-                    <Link to={'/product-add'}>
+                    <Link to={'/product/add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Thêm
                         </Button>

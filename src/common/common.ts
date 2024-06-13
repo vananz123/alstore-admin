@@ -1,5 +1,5 @@
-import { OptionPrice ,OptionBase,OptionSort} from "@/type";
-import { SelectProps } from "antd";
+import { OptionPrice, OptionBase, OptionSort } from '@/type';
+import { SelectProps } from 'antd';
 export const FORM_ITEM_LAYOUT = {
     labelCol: {
         xs: { span: 24 },
@@ -23,48 +23,57 @@ export const TAIL_FORM_ITEM_LAYOUT = {
         },
     },
 };
-export const OPTIONS_STATUS: SelectProps['options'] = [
+export const OPTIONS_STATUS = [
     {
         value: 0,
         label: 'InActive',
+        color: 'green',
     },
     {
         value: 1,
         label: 'Active',
+        color: 'gold',
     },
     {
         value: 2,
-        label: 'UnActive'
-    }
+        label: 'UnActive',
+        color: 'red',
+    },
 ];
-export const OPTIONS_PRODUCT_STATUS: SelectProps['options'] = [
+export const OPTIONS_PRODUCT_STATUS = [
     {
         value: 0,
         label: 'InActive',
+        color: 'green',
     },
     {
         value: 1,
         label: 'Active',
+        color: 'gold',
     },
     {
         value: 2,
         label: 'New',
+        color: 'green',
     },
     {
         value: 3,
         label: 'Hot',
+        color: 'green',
     },
     {
         value: 4,
         label: 'Sale',
         disabled: true,
+        color: 'green',
     },
     {
         value: 5,
         label: 'UnActive',
+        color: 'red',
     },
 ];
-export const FILTERS_PRODUCT_STATUS= [
+export const FILTERS_PRODUCT_STATUS = [
     {
         value: 0,
         text: 'InActive',
@@ -91,18 +100,18 @@ export const FILTERS_PRODUCT_STATUS= [
     },
 ];
 export const OPTIONS_PRICE: OptionPrice[] = [
-    {label:"Dưới 2 triệu",value:1},
-    {label:"2 triệu đến 6 triệu",value:2},
-    {label:"6 triệu đến 10 triệu",value:3},
-    {label:"Trên 10 triệu",value:4},
+    { label: 'Dưới 2 triệu', value: 1 },
+    { label: '2 triệu đến 6 triệu', value: 2 },
+    { label: '6 triệu đến 10 triệu', value: 3 },
+    { label: 'Trên 10 triệu', value: 4 },
 ];
-export const OPTIONS_MATERIAL :OptionBase[]= [
-    {label:"AL",value:"AL"},
-    {label:"ROLEX",value:"ROLEX"},
-    {label:"PNJ",value:"PNJ"},
-    {label:"Seiko",value:"Seiko"}
-]
-export const OPTIONS_SORT : OptionSort[]=[
+export const OPTIONS_MATERIAL: OptionBase[] = [
+    { label: 'AL', value: 'AL' },
+    { label: 'ROLEX', value: 'ROLEX' },
+    { label: 'PNJ', value: 'PNJ' },
+    { label: 'Seiko', value: 'Seiko' },
+];
+export const OPTIONS_SORT: OptionSort[] = [
     {
         value: 'ascending',
         label: 'Giá tăng dần',
@@ -110,9 +119,8 @@ export const OPTIONS_SORT : OptionSort[]=[
     {
         value: 'descending',
         label: 'Giá giảm dần',
-    }
-]
-
+    },
+];
 
 import { Autoformat } from '@ckeditor/ckeditor5-autoformat';
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote';
@@ -173,7 +181,7 @@ export const editorConfiguration = {
     language: 'en',
     table: {
         contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'],
-    }
+    },
 };
 export const OPTIONS_SKU: SelectProps['options'] = [
     {
@@ -185,7 +193,10 @@ export const OPTIONS_SKU: SelectProps['options'] = [
         label: 'Size',
     },
 ];
-export const OPTIONS_PROMOTION_TYPE = [{ label: 'percentage', value: 'percentage' },{ label: 'fixed', value: 'fixed' }];
+export const OPTIONS_PROMOTION_TYPE = [
+    { label: 'percentage', value: 'percentage' },
+    { label: 'fixed', value: 'fixed' },
+];
 export const STATUS_ORDER = [
     {
         key: 'Đang xử lý',

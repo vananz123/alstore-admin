@@ -20,7 +20,7 @@ function GuarantiesAdd() {
         if (status == 'success') {
             if (guaranty != undefined) {
                 openNotificationWithIcon('success');
-                Navigate('/guaranties');
+                Navigate('/guaranty');
             }
         }
         if (status == 'error') {

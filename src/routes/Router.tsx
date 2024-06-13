@@ -5,8 +5,7 @@ import { CategoriesList, CategoryEdit, CategoryAdd } from '@/pages/Category';
 const Login = lazy(() => import('@/pages/Login'));
 const Register = lazy(() => import('@/pages/Register'));
 import { useRoutes } from 'react-router-dom';
-import DefaultLayout from '@/conponents/Layout/DefaultLayout';
-import AdminLayout from '@/conponents/Layout/AdminLayout';
+import AdminLayout from '@/Layout/AdminLayout';
 import AuthGuard from './AuthGuard';
 import GuestGuard from './GuestGuard';
 import RoleGuard from './RoleGuard';
@@ -16,8 +15,9 @@ import { PromotionAdd, PromotionEdit, PromotionList } from '@/pages/Promotion';
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 import UserList from '@/pages/User/UserList';
 import { GuarantiesAdd, GuarantiesList, GuarantiesEdit } from '@/pages/Guaranty';
-import { DepartmentAdd, DepartmentEdit, DepartmentList } from '@/pages/Admin/Department';
+import { DepartmentAdd, DepartmentEdit, DepartmentList } from '@/pages/Department';
 const Page404 = lazy(() => import('@/pages/Page404/Page404'));
+const Inventory = lazy(()=> import("@/pages/Inventory"));
 const Router: React.FC = () => {
     return useRoutes([
         {
@@ -60,24 +60,26 @@ const Router: React.FC = () => {
         },
         {
             path: '*',
-            element: <DefaultLayout />,
+            element: <AdminLayout />,
             children: [{ path: '*', element: <Page404 /> }],
         },
         {
             path: '/',
-            element: <AdminLayout />,
+            element: (
+                <AuthGuard>
+                    <AdminLayout />
+                </AuthGuard>
+            ),
             children: [
                 {
                     path: '/',
                     element: (
-                        <AuthGuard>
-                            <RoleGuard role={['admin']}>
-                                <Suspense>
-                                    {' '}
-                                    <Home />
-                                </Suspense>
-                            </RoleGuard>
-                        </AuthGuard>
+                        <RoleGuard role={['admin']}>
+                            <Suspense>
+                                {' '}
+                                <Home />
+                            </Suspense>
+                        </RoleGuard>
                     ),
                 },
                 {
@@ -103,7 +105,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'product-add',
+                    path: 'product/add',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -113,7 +115,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'product-edit/:id',
+                    path: 'product/edit/:id',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -123,7 +125,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'categories',
+                    path: 'category',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin', 'sale']}>
@@ -133,7 +135,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'category-add',
+                    path: 'category/add',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -143,7 +145,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'category-edit/:id',
+                    path: 'category/edit/:id',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -183,7 +185,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'promotion-add',
+                    path: 'promotion/add',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -193,7 +195,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'promotion-edit/:id',
+                    path: 'promotion/edit/:id',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -203,7 +205,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'guaranties',
+                    path: 'guaranty',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin', 'sale']}>
@@ -213,7 +215,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'guaranties-add',
+                    path: 'guaranty/add',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -223,7 +225,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'guaranties-edit/:id',
+                    path: 'guaranty/edit/:id',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -243,7 +245,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'departments',
+                    path: 'department',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin', 'sale']}>
@@ -253,7 +255,7 @@ const Router: React.FC = () => {
                     ),
                 },
                 {
-                    path: 'departments-add',
+                    path: 'department/add',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -261,9 +263,9 @@ const Router: React.FC = () => {
                             </RoleGuard>
                         </AuthGuard>
                     ),
-                },
+                }, 
                 {
-                    path: 'departments-edit/:id',
+                    path: 'department/edit/:id',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -271,7 +273,16 @@ const Router: React.FC = () => {
                             </RoleGuard>
                         </AuthGuard>
                     ),
-                },
+                },{
+                    path: 'translation/inventory',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin']}>
+                               <Suspense> <Inventory /></Suspense>
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                }
             ],
         },
     ]);

@@ -9,7 +9,7 @@ const AuthGuard: React.FC<{ children: JSX.Element }> = ({ children }) => {
     const { isToken } = useAuthStore();
     console.log(isInitialized, isAuthenticated, isToken);
     if (isLoading === true) return <Loading />;
-    if (isAuthenticated === false && isInitialized === false && isToken === false)
+    if (isAuthenticated === false && isToken === false)
         return <Navigate to={'/auth/login'} />;
     return <>{children}</>;
 };
