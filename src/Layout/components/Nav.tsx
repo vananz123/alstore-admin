@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useSkin } from '@/hooks';
-import { AppstoreOutlined, GroupOutlined, PieChartOutlined, ProductOutlined, ShoppingOutlined, TagOutlined, ToolOutlined, TranslationOutlined, UserOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, DiffOutlined, GroupOutlined, PieChartOutlined, ProductOutlined, ShoppingOutlined, TagOutlined, ToolOutlined, TranslationOutlined, UserOutlined } from '@ant-design/icons';
 type MenuItem = Required<MenuProps>['items'][number];
 
 function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, children?: MenuItem[]): MenuItem {
@@ -34,7 +34,7 @@ function Nav() {
         getItem('Loại Sản Phẩm', '/category' , <AppstoreOutlined />),
         getItem('Sản Phẩm', '/product' , <ProductOutlined />),
         getItem('Giao dịch', '/translation', <TranslationOutlined/>, [
-            getItem('Nhập hàng', '/translation/inventory' , <ProductOutlined />),
+            getItem('Nhập hàng', '/translation/inventory' , <DiffOutlined />),
         ]),
         getItem('Đơn Hàng', '/order' , <ShoppingOutlined />),
         getItem('Giảm Giá', '/promotion', <TagOutlined />),
