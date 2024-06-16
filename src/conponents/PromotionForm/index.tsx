@@ -9,6 +9,13 @@ import { FORM_ITEM_LAYOUT, TAIL_FORM_ITEM_LAYOUT, OPTIONS_PROMOTION_TYPE } from 
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 const { RangePicker } = DatePicker;
+import type { GetProps } from 'antd';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
+dayjs.extend(customParseFormat);
+const disabledDate: RangePickerProps['disabledDate'] = (current) => {
+  return current && current < dayjs().endOf('day');
+};
 const PromotionForm: React.FC<{
     promotion: Promotion | undefined;
     onSetState: SetStateAction<any> | undefined;
@@ -149,7 +156,7 @@ const PromotionForm: React.FC<{
                     //initialValue={promotion?.arrDate}
                     rules={[{ required: true, message: 'Please input category name!' }]}
                 >
-                    <RangePicker />
+                    <RangePicker disabledDate={disabledDate}/>
                 </Form.Item>
                 <Form.Item {...TAIL_FORM_ITEM_LAYOUT}>
                     <Button type="primary" htmlType="submit" loading={isLoading} style={{ width: '100px' }}>

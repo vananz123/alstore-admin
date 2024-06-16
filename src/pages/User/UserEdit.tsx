@@ -15,7 +15,6 @@ interface Body {
     userId: string;
     data: string[];
 }
-
 function UserEdit() {
     const { id } = useParams();
     const { showBoundary } = useErrorBoundary();
@@ -144,6 +143,7 @@ function UserEdit() {
                         />
                     </div>
                     <Button
+                    loading={assginRoles.isPending}
                         type="primary"
                         onClick={() => {
                             addRoles();
@@ -179,7 +179,8 @@ function UserEdit() {
             {isAddClaims && (
                 <>
                     <Space className="mt-3">
-                        <Button
+                        <Button 
+                        loading={assginClaims.isPending}
                             type="primary"
                             onClick={() => {
                                 addClaims();

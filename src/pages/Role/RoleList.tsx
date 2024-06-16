@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 function RoleList() {
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
-    const {data:roles} = useAppSelector(selectRoles)
+    const {data:roles , isLoading} = useAppSelector(selectRoles)
     useEffect(() => {
         dispatch(loadRoles())
     }, [dispatch]);
@@ -30,7 +30,7 @@ function RoleList() {
         }
     ]
     return <div>
-        <Table columns={columns} dataSource={roles}/>
+        <Table loading={isLoading} columns={columns} dataSource={roles}/>
     </div>;
 }
 

@@ -246,7 +246,7 @@ function ImportInventory() {
                     <Card title="Thông tin nhập hàng">
                     <p className='text-base mb-3'>Chi nhánh trung tâm</p>
                         <p className='text-base mb-3'>Số sản phẩm: {listProductItem.length}</p>
-                        <Button block type='primary' onClick={()=> ImportInventory()} disabled={listProductItem.length <= 0}>Nhập hàng</Button>
+                        <Button block type='primary' loading={importInventory.isPending} onClick={()=> ImportInventory()} disabled={listProductItem.length <= 0}>Nhập hàng</Button>
                     </Card>
                 </Col>
             </Row>

@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import type { Promotion } from '@/api/ResType';
+import useSearchIndexTable from '@/hooks/useSearchIndexTable';
 
 function PromotionList() {
     const [data, setData] = React.useState<Promotion[]>();
@@ -13,7 +14,7 @@ function PromotionList() {
     const [confirmLoading, setConfirmLoading] = React.useState(false);
     const [modalText, setModalText] = React.useState('Do you want delete!');
     const [context, setContext] = React.useState<string>('OK');
-
+const {getColumnSearchProps} = useSearchIndexTable()
     const columns: TableProps<Promotion>['columns'] = [
         {
             title: 'Id',
@@ -24,6 +25,7 @@ function PromotionList() {
             title: 'Loại Khuyến mãi',
             dataIndex: 'name',
             key: 'name',
+            ...getColumnSearchProps<Promotion>('name')
         },
         {
             title: 'Phần Trăm Giảm',

@@ -4,6 +4,7 @@ import { Button, Flex, Space, TableProps, Table, Modal } from "antd";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import * as guarantyServices from '@/api/guarantyServices'
+import useSearchIndexTable from "@/hooks/useSearchIndexTable";
 function GuaranriesList() {
     const [data, setData] = React.useState<Guaranty[]>();
     const [modalText, setModalText] = React.useState('Do you want delete!');
@@ -11,6 +12,7 @@ function GuaranriesList() {
     const [currentId, setCurrentId] = React.useState<number>(0);
     const [open, setOpen] = React.useState(false);
     const [confirmLoading, setConfirmLoading] = React.useState(false);
+    const {getColumnSearchProps} = useSearchIndexTable()
     const columns: TableProps<Guaranty>['columns'] = [
         {
             title: 'Id',
@@ -21,6 +23,7 @@ function GuaranriesList() {
             title: 'Tên',
             dataIndex: 'name',
             key: 'name',
+            ...getColumnSearchProps<Guaranty>("name")
         },
         {
             title: 'Ngày tạo',

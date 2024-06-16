@@ -5,7 +5,7 @@ import { selectUser } from '@/app/feature/user/reducer';
 import { Navigate } from 'react-router-dom';
 interface Props {
     children: JSX.Element;
-    role: Role[];
+    role?: Role[];
 }
 const RoleGuard: React.FC<Props> = ({ children }) => {
     const {  data } = useAppSelector(selectUser);

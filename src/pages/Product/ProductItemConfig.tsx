@@ -16,7 +16,6 @@ import {
     Table,
     TableColumnsType,
 } from 'antd';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import ModalAssignGuarantiesProductItem from '@/conponents/ModalAssignGuarantiesProductItem';
 import ModalAssginPromotionsProductItem from '@/conponents/ModalAssginPromotionsProductItem';
 import { OPTIONS_SKU, FORM_ITEM_LAYOUT, TAIL_FORM_ITEM_LAYOUT } from '@/common/common';
@@ -38,7 +37,7 @@ type StatusForm = 'EDIT' | 'ADD';
 const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) => {
     const [form] = useForm();
     const { contextHolder, openNotification } = useNotification();
-    const {showBoundary} = useErrorBoundary()
+    const { showBoundary } = useErrorBoundary();
     const [openProductItem, setOpenProductItem] = React.useState(false);
     const [openModalDel, setOpenModalDel] = React.useState(false);
     const [isSize, setIsSize] = React.useState<boolean>(false);
@@ -101,44 +100,40 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <Space size={'small'} direction="vertical">
-                    <Button
-                        icon={<DeleteOutlined />}
+                <Space size={'small'}>
+                    <a
                         onClick={() => {
                             setCurrentProductItem(record);
-                            setOpenModalDel(true)
+                            setOpenModalDel(true);
                         }}
                     >
-                        Del
-                    </Button>
-                    <Button
-                        icon={<EditOutlined />}
+                        Xóa
+                    </a>
+                    <a
                         onClick={() => {
                             setCurrentProductItem(record);
                             setOpenProductItem(true);
                             SetStatusForm('EDIT');
                         }}
                     >
-                        Edit
-                    </Button>
-                    <Button
-                        icon={<EditOutlined />}
+                        Sửa
+                    </a>
+                    <a
                         onClick={() => {
                             setCurrentProductItem(record);
                             setOpenModalAssignPI(true);
                         }}
                     >
-                        Guaranties
-                    </Button>
-                    <Button
-                        icon={<EditOutlined />}
+                        Bảo hành
+                    </a>
+                    <a
                         onClick={() => {
                             setCurrentProductItem(record);
                             setOpenModalAssignPromotionPI(true);
                         }}
                     >
-                        Promotion
-                    </Button>
+                        Khuyến mãi
+                    </a>
                 </Space>
             ),
         },
@@ -154,11 +149,11 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
                 openNotification('error', data.message);
             }
         },
-        onError:((error:AxiosError)=>{
-            if(error.response?.status === 403){
-                showBoundary(error)
+        onError: (error: AxiosError) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
             }
-        })
+        },
     });
     const updateProductItem = useMutation({
         mutationKey: ['update-product-item'],
@@ -170,11 +165,12 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             } else {
                 openNotification('error', data.message);
             }
-        },onError:((error:AxiosError)=>{
-            if(error.response?.status === 403){
-                showBoundary(error)
+        },
+        onError: (error: AxiosError) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
             }
-        })
+        },
     });
     const deleteProductItem = useMutation({
         mutationKey: ['delete-product-item'],
@@ -186,11 +182,12 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             } else {
                 openNotification('error', data.message);
             }
-        },onError:((error:AxiosError)=>{
-            if(error.response?.status === 403){
-                showBoundary(error)
+        },
+        onError: (error: AxiosError) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
             }
-        })
+        },
     });
     const onFinishProductItem = async (values: ProductItem) => {
         if (productItem != undefined && product != undefined) {
@@ -217,7 +214,7 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
                     <>
                         <Button
                             type="primary"
-                            disabled={isSize ===false && productItem && productItem.length == 1}
+                            disabled={isSize === false && productItem && productItem.length == 1}
                             onClick={() => {
                                 form.resetFields();
                                 showDrawerProductItem();

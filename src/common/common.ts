@@ -40,6 +40,23 @@ export const OPTIONS_STATUS = [
         color: 'red',
     },
 ];
+export const OPTIONS_STATUS_INVENTORY = [
+    {
+        value: 0,
+        label: 'InProccess',
+        color: 'green',
+    },
+    {
+        value: 1,
+        label: 'Successed',
+        color: 'gold',
+    },
+    {
+        value: 2,
+        label: 'Canceled',
+        color: 'red',
+    },
+];
 export const OPTIONS_PRODUCT_STATUS = [
     {
         value: 0,
@@ -219,3 +236,21 @@ export const STATUS_ORDER = [
         label: 'Trả hàng',
     },
 ];
+export const OPTIONS_SHIPPING =[
+    {
+        value:"Giao hàng tận nơi",
+        text:"Giao hàng tận nơi"
+    }, {
+        value:"Nhận hàng cửa hàng",
+        text:"Nhận hàng cửa hàng"
+    }
+] 
+export const OPTIONS_TYPE_INVENTORY =[
+    {
+        value:"import",
+        text:"import"
+    }, {
+        value:"export",
+        text:"export"
+    }
+] 

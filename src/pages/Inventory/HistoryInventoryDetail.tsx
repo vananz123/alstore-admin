@@ -1,18 +1,19 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import * as inventoryServices from '@/api/inventoryServices';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Descriptions, DescriptionsProps, Popconfirm, Table, TableColumnsType } from 'antd';
+import { Button, Descriptions, DescriptionsProps, Popconfirm, Space, Spin, Table, TableColumnsType, Tag } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { InventoryDetail } from '@/api/ResType';
 import dayjs from 'dayjs';
 import useNotification from '@/hooks/useNotification';
 import { useErrorBoundary } from 'react-error-boundary';
 import { AxiosError } from 'axios';
+import {  OPTIONS_STATUS_INVENTORY} from '@/common/common';
 function HistoryInventoryDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const baseUrl = import.meta.env.VITE_BASE_URL;
-    const { data: inventoty } = useQuery({
+    const { data: inventoty, isLoading } = useQuery({
         queryKey: [`load-his-inventory-${id}`],
         queryFn: () => inventoryServices.getById(id ? Number(id) : 0),
         enabled: !!id,
@@ -48,6 +49,10 @@ function HistoryInventoryDetail() {
             if (error.response?.status === 403) showBoundary(error);
         },
     });
+    const renderTag = (status:number)=>{
+        const option = OPTIONS_STATUS_INVENTORY?.find(x => x.value == status)
+        return <Tag color={option?.color}>{option?.label}</Tag>
+    }
     const desInventory: DescriptionsProps['items'] = [
         {
             key: 'Type',
@@ -70,7 +75,7 @@ function HistoryInventoryDetail() {
         {
             key: 'status',
             label: 'Trạng Thái',
-            children: inventoty?.status,
+            children: <>{inventoty && renderTag(inventoty?.status)}</>,
         },
     ];
     const columns: TableColumnsType<InventoryDetail> = [
@@ -111,46 +116,59 @@ function HistoryInventoryDetail() {
     return (
         <div>
             {contextHolder}
-            <Button
-                type="text"
-                icon={<ArrowLeftOutlined />}
-                size="small"
-                style={{ marginBottom: '10px' }}
-                onClick={() => {
-                    navigate(-1);
-                }}
-            >
-                Quay lại
-            </Button>
-            <div className="flex justify-end gap-3">
-                <Popconfirm
-                    title="Xóa"
-                    okButtonProps={{ loading: successed.isPending }}
-                    onConfirm={() => {
-                        if (inventoty) successed.mutateAsync(inventoty.id);
+            <div className="flex justify-between gap-3">
+                <Button
+                    type="text"
+                    icon={<ArrowLeftOutlined />}
+                    size="small"
+                    style={{ marginBottom: '10px' }}
+                    onClick={() => {
+                        navigate(-1);
                     }}
                 >
-                    <Button>Xác nhận</Button>
-                </Popconfirm>
+                    Quay lại
+                </Button>
+                <div>
+                    {inventoty?.type === 'export' && (
+                        <>
+                            <Space>
+                                <Popconfirm
+                                    title="Xóa"
+                                    okButtonProps={{ loading: successed.isPending }}
+                                    
+                                    onConfirm={() => {
+                                        if (inventoty) successed.mutateAsync(inventoty.id);
+                                    }}
+                                >
+                                    <Button disabled ={inventoty.status === 1 || inventoty.status ===2}>Xác nhận</Button>
+                                </Popconfirm>
 
-                <Popconfirm
-                    title="Xóa"
-                    okButtonProps={{ loading: canceled.isPending }}
-                    onConfirm={() => {
-                        if (inventoty) canceled.mutateAsync(inventoty.id);
-                    }}
-                >
-                    <Button>Hủy</Button>
-                </Popconfirm>
+                                <Popconfirm
+                                    title="Xóa"
+                                    okButtonProps={{ loading: canceled.isPending }}
+                                    onConfirm={() => {
+                                        if (inventoty) canceled.mutateAsync(inventoty.id);
+                                    }}
+                                >
+                                    <Button disabled ={inventoty.status === 1 || inventoty.status ===2} danger type="primary">
+                                        Hủy
+                                    </Button>
+                                </Popconfirm>
+                            </Space>
+                        </>
+                    )}
+                </div>
             </div>
-            <Descriptions title="Thông Tin Đơn Hàng" column={2} size="middle" items={desInventory} bordered />
+            <Spin spinning={isLoading}>
+                <Descriptions title="Thông Tin Đơn Hàng" column={2} size="middle" items={desInventory} bordered />
 
-            <Table
-                title={() => <p>inventory detail</p>}
-                pagination={{ position: ['none'] }}
-                columns={columns}
-                dataSource={inventoty?.items}
-            />
+                <Table
+                    title={() => <p>inventory detail</p>}
+                    pagination={{ position: ['none'] }}
+                    columns={columns}
+                    dataSource={inventoty?.items}
+                />
+            </Spin>
         </div>
     );
 }

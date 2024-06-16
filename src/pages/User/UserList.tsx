@@ -11,7 +11,7 @@ function UserList() {
     const {getColumnSearchProps} = useSearchIndexTable()
     //search
     //product search
-    const { data } = useQuery({
+    const { data , isLoading } = useQuery({
         queryKey: ['load-user-list'],
         queryFn: () => userServices.getAllUserForAdmin(),
     });
@@ -69,7 +69,7 @@ function UserList() {
     ];
     return (
         <div>
-            <Table pagination={{ position: ['bottomLeft'], pageSize: 4 }} columns={columns} dataSource={data} />
+            <Table loading={isLoading} pagination={{ position: ['bottomLeft'], pageSize: 4 }} columns={columns} dataSource={data} />
         </div>
     );
 }

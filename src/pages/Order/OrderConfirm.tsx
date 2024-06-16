@@ -1,14 +1,15 @@
-import { Order, OrderDetail, OrderStatus, Review } from '@/api/ResType';
-import React, { useEffect } from 'react';
+import {  OrderDetail, OrderStatus, Review } from '@/api/ResType';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import * as orderServices from '@/api/orderServices';
-import { Descriptions, Timeline, Space, Popconfirm, Button, Table, TableColumnsType } from 'antd';
+import { Descriptions, Timeline, Space, Popconfirm, Button, Table, TableColumnsType, Spin } from 'antd';
 import { DescriptionsProps } from 'antd';
 import dayjs from 'dayjs';
 import ModalFeedback from '@/view/order/ModalFeedback';
 import OrderWarranty from './OrderWarranty';
 import useNotification from '@/hooks/useNotification';
+import { useQuery } from '@tanstack/react-query';
 type TimeLineProps = {
     label?: string;
     children: string;
@@ -18,10 +19,21 @@ function OrderConfirm() {
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const [openModalFb, setOpenModalFb] = React.useState<boolean>(false);
     const [review, setReview] = React.useState<Review>();
-    const {contextHolder, openNotification} = useNotification()
-
-    const [order, setOrder] = React.useState<Order>();
-    const [statusTimeLine, setStatusTimeLine] = React.useState<TimeLineProps[]>([]);
+    const { contextHolder, openNotification } = useNotification();
+    const statusTimeLine:TimeLineProps[] =[];
+    const {data:order ,refetch , isLoading} = useQuery({
+        queryKey:[`load-order-detail-${id}`],
+        queryFn:()=> orderServices.getOrderAdminByOrderId(Number(id)),
+        enabled:!!id
+    })
+    if (order) {
+        order.status?.forEach((element: OrderStatus) => {
+            const line: TimeLineProps = {
+                children: `${element.name}` + ' ' + dayjs(element.createAt).format('MM/DD/YYYY, HH:MM'),
+            };
+            statusTimeLine.push(line);
+        });
+    }
     const desOrder: DescriptionsProps['items'] = [
         {
             key: 'address',
@@ -47,10 +59,11 @@ function OrderConfirm() {
             label: 'Loại Thanh Toán',
             children: `${order?.paymentMethod?.paymentType}`,
             span: 1,
-        },{
+        },
+        {
             key: 'shippingMethod',
             label: `Loại nhận hàng`,
-            children: `${order?.shippingName}: ${order?.department.name}`,
+            children: `${order?.shippingName}: ${order?.department ? order.department.name : ''}`,
             span: 1,
         },
         {
@@ -91,6 +104,7 @@ function OrderConfirm() {
     const [orderDetail, setOrderDetail] = React.useState<OrderDetail>();
     const [openCancel, setOpenCancel] = React.useState(false);
     const [confirmLoading, setConfirmLoading] = React.useState(false);
+    
     const showPopconfirmCancel = () => {
         setOpenCancel(true);
     };
@@ -103,7 +117,7 @@ function OrderConfirm() {
             const res = await orderServices.canceled(order.id);
             if (res.isSuccessed === true) {
                 openNotification('success', res.message);
-                getOrderAdminByOrderId();
+                refetch();
             } else {
                 openNotification('error', res.message);
             }
@@ -117,7 +131,7 @@ function OrderConfirm() {
             const res = await orderServices.comfirm(order.id);
             if (res.isSuccessed === true) {
                 openNotification('success', res.message);
-                getOrderAdminByOrderId();
+                refetch();
             } else {
                 openNotification('error', res.message);
             }
@@ -125,25 +139,6 @@ function OrderConfirm() {
         setOpenConfrim(false);
         setConfirmLoading(false);
     };
-    const getOrderAdminByOrderId = async () => {
-        if (typeof id != 'undefined') {
-            const res = await orderServices.getOrderAdminByOrderId(Number(id));
-            if (res.isSuccessed === true) {
-                setOrder(res.resultObj);
-                const arr: TimeLineProps[] = [];
-                res.resultObj.status?.forEach((element: OrderStatus) => {
-                    const line: TimeLineProps = {
-                        children: `${element.name}` + ' ' + dayjs(element.createAt).format('MM/DD/YYYY, HH:MM'),
-                    };
-                    arr.push(line);
-                });
-                setStatusTimeLine(arr);
-            }
-        }
-    };
-    useEffect(() => {
-        getOrderAdminByOrderId();
-    }, [id]);
     const columns: TableColumnsType<OrderDetail> = [
         {
             title: 'Id',
@@ -191,7 +186,7 @@ function OrderConfirm() {
             key: 'review',
             render: (_, record) => (
                 <>
-                    <Space direction='vertical'>
+                    <Space direction="vertical">
                         <Button
                             disabled={record.review == null}
                             onClick={() => {
@@ -202,7 +197,7 @@ function OrderConfirm() {
                             Phản hồi
                         </Button>
                         <Button
-                            disabled={order?.status?.some(s => s.name === "Đã hoàn thành") ===false}
+                            disabled={order?.status?.some((s) => s.name === 'Đã hoàn thành') === false}
                             onClick={() => {
                                 setOrderDetail(record);
                                 setOpenWarranty(true);
@@ -217,25 +212,19 @@ function OrderConfirm() {
     ];
     return (
         <div>
-            <Button
-                type="text"
-                icon={<ArrowLeftOutlined />}
-                size="small"
-                style={{ marginBottom: '10px' }}
-                onClick={() => {
-                    navigate(-1);
-                }}
-            >
-                Quay lại
-            </Button>
-            {contextHolder}
-            <Descriptions
-                title="Thông Tin Khách Hàng"
-                column={3}
-                size="middle"
-                items={desUser}
-                bordered
-                extra={
+            <div className='flex justify-between'>
+                <Button
+                    type="text"
+                    icon={<ArrowLeftOutlined />}
+                    size="small"
+                    style={{ marginBottom: '10px' }}
+                    onClick={() => {
+                        navigate(-1);
+                    }}
+                >
+                    Quay lại
+                </Button>
+                <div>
                     <Space>
                         <Popconfirm
                             title="Xác nhận"
@@ -269,6 +258,7 @@ function OrderConfirm() {
                         >
                             <Button
                                 danger
+                                type="primary"
                                 onClick={() => {
                                     showPopconfirmCancel();
                                 }}
@@ -277,17 +267,26 @@ function OrderConfirm() {
                             </Button>
                         </Popconfirm>
                     </Space>
-                }
-            />
-            <Descriptions title="Thông Tin Đơn Hàng" column={2} size="middle" items={desOrder} bordered />
-
-            <Table
-                title={() => <p>Order detail</p>}
-                pagination={{ position: ['none'] }}
-                columns={columns}
-                dataSource={order?.orderDetail}
-                rowKey={(record) => record.id}
-            />
+                </div>
+            </div>
+            {contextHolder}
+            <Spin spinning={isLoading}>
+                <Descriptions
+                    title="Thông Tin Khách Hàng"
+                    column={3}
+                    size="middle"
+                    items={desUser}
+                    bordered
+                />
+                <Descriptions title="Thông Tin Đơn Hàng" column={2} size="middle" items={desOrder} bordered />
+                <Table
+                    title={() => <p>Order detail</p>}
+                    pagination={{ position: ['none'] }}
+                    columns={columns}
+                    dataSource={order?.orderDetail}
+                    rowKey={(record) => record.id}
+                />
+            </Spin>
             <ModalFeedback openModalFb={openModalFb} review={review} setOpenModalFb={setOpenModalFb} />
             <OrderWarranty orderDetail={orderDetail} open={openWarranty} setOpen={setOpenWarranty} />
         </div>

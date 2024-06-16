@@ -174,7 +174,7 @@ const Router: React.FC = () => {
                     path: 'order/detail/:id',
                     element: (
                         <AuthGuard>
-                            <RoleGuard role={['admin', 'sale']}>
+                            <RoleGuard>
                                 <OrderConfirm />
                             </RoleGuard>
                         </AuthGuard>

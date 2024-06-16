@@ -57,7 +57,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
             inputRef.current?.focus();
         }
     }, [editing]);
-
     const toggleEdit = () => {
         setEditing(!editing);
         form.setFieldsValue({ [dataIndex]: record[dataIndex] });
@@ -261,6 +260,7 @@ function ExportInventory() {
                         <Button
                             block
                             type="primary"
+                            loading={exportInventory.isPending}
                             onClick={() => ImportInventory()}
                             disabled={listProductItem.length <= 0 || selected ===1}
                         >

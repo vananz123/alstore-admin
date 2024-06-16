@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useSkin } from '@/hooks';
-import { AppstoreOutlined, DiffOutlined, GroupOutlined, PieChartOutlined, ProductOutlined, ShoppingOutlined, TagOutlined, ToolOutlined, TranslationOutlined, UserOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, AuditOutlined, DiffOutlined, GroupOutlined, PieChartOutlined, ProductOutlined, ReconciliationOutlined, ShoppingOutlined, TagOutlined, ToolOutlined, TranslationOutlined, UserOutlined } from '@ant-design/icons';
 type MenuItem = Required<MenuProps>['items'][number];
 
 function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, children?: MenuItem[]): MenuItem {
@@ -36,13 +36,13 @@ function Nav() {
         getItem('Giao dịch', '/translation', <TranslationOutlined/>, [
             getItem('Nhập hàng', '/translation/inventory/import' , <DiffOutlined />),
             getItem('Chuyển hàng', '/translation/inventory/export' , <DiffOutlined />),
-            getItem('Lịch sử', '/translation/inventory' , <DiffOutlined />),
+            getItem('Lịch sử', '/translation/inventory' , <ReconciliationOutlined />),
         ]),
         getItem('Đơn Hàng', '/order' , <ShoppingOutlined />),
         getItem('Giảm Giá', '/promotion', <TagOutlined />),
         getItem('Bảo Hành', '/guaranty' , <ToolOutlined />),
         getItem('Người Dùng', '/user' , <UserOutlined />),
-        getItem('Vai trò', '/role' , <UserOutlined />),
+        getItem('Vai trò', '/role' , <AuditOutlined />),
         getItem('Dashboard', '/', <PieChartOutlined />),
     ];
     return (

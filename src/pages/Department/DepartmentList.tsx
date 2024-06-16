@@ -6,6 +6,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import * as departmentServices from '@/api/departmentServices';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { OPTIONS_STATUS } from '@/common/common';
+import useSearchIndexTable from '@/hooks/useSearchIndexTable';
 function DepartmentList() {
     const [currentId, setCurrentId] = React.useState<number>(0);
     const [open, setOpen] = React.useState(false);
@@ -28,6 +29,7 @@ function DepartmentList() {
         const option = OPTIONS_STATUS?.find(x => x.value == status)
         return <Tag color={option?.color}>{option?.label}</Tag>
     }
+    const {getColumnSearchProps} = useSearchIndexTable()
     const columns: TableProps<Department>['columns'] = [
         {
             title: 'Id',
@@ -38,16 +40,19 @@ function DepartmentList() {
             title: 'Số Điện Thoại',
             dataIndex: 'phoneNumber',
             key: 'phoneNumber',
+            ...getColumnSearchProps<Department>('phoneNumber')
         },
         {
             title: 'Tên Chi Nhánh',
             dataIndex: 'name',
             key: 'name',
+            ...getColumnSearchProps<Department>('name')
         },
         {
             title: 'Địa Chỉ',
             dataIndex: 'address',
             key: 'address',
+            ...getColumnSearchProps<Department>('address')
         },
         {
             title: 'Trạng Thái',
@@ -55,7 +60,7 @@ function DepartmentList() {
             key: 'status',
             render:(_,record)=>(
                 renderTag(record.status)
-            )
+            ),
         },
         {
             title: 'Action',
