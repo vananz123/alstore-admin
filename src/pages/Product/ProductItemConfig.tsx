@@ -24,6 +24,7 @@ import { useForm } from 'antd/es/form/Form';
 import { useMutation } from '@tanstack/react-query';
 import { useErrorBoundary } from 'react-error-boundary';
 import { AxiosError } from 'axios';
+import { Result } from '@/api/ResType';
 interface Body {
     isSize: boolean;
     data: ProductItem;
@@ -145,13 +146,13 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             if (data.isSuccessed === true) {
                 refetch();
                 openNotification('success', data.message);
-            } else {
-                openNotification('error', data.message);
             }
         },
-        onError: (error: AxiosError) => {
+        onError: (error: AxiosError<Result>) => {
             if (error.response?.status === 403) {
                 showBoundary(error);
+            }else{
+                openNotification('error', error.response?.data.message);
             }
         },
     });
@@ -162,13 +163,13 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             if (data.isSuccessed === true) {
                 refetch();
                 openNotification('success', data.message);
-            } else {
-                openNotification('error', data.message);
             }
         },
-        onError: (error: AxiosError) => {
+        onError: (error: AxiosError<Result>) => {
             if (error.response?.status === 403) {
                 showBoundary(error);
+            }else{
+                openNotification('error', error.response?.data.message);
             }
         },
     });
@@ -179,13 +180,13 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             if (data.isSuccessed === true) {
                 refetch();
                 openNotification('success', data.message);
-            } else {
-                openNotification('error', data.message);
             }
         },
-        onError: (error: AxiosError) => {
+        onError: (error: AxiosError<Result>) => {
             if (error.response?.status === 403) {
                 showBoundary(error);
+            }else{
+                openNotification('error', error.response?.data.message);
             }
         },
     });
@@ -291,7 +292,7 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
                         </>
                     )}
                     <Form.Item {...TAIL_FORM_ITEM_LAYOUT}>
-                        <Button type="primary" htmlType="submit">
+                        <Button loading={statusForm ==='ADD' ? createProductItem.isPending: updateProductItem.isPending} type="primary" htmlType="submit">
                             Submit
                         </Button>
                     </Form.Item>

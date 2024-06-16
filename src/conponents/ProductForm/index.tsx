@@ -15,6 +15,7 @@ import { useMutation } from '@tanstack/react-query';
 import useNotification from '@/hooks/useNotification';
 import { AxiosError } from 'axios';
 import { useErrorBoundary } from 'react-error-boundary';
+import { Result } from '@/api/ResType';
 const normFile = (e: any) => {
     if (Array.isArray(e)) {
         return e;
@@ -74,13 +75,13 @@ const ProductForm: React.FC<{
             if (res.isSuccessed === true) {
                 openNotification('error', 'Thêm thành công');
                 navigate(`/product/edit/${res.resultObj.id}`);
-            } else {
-                openNotification('error', res.message);
             }
         },
-        onError: (error: AxiosError) => {
+        onError: (error: AxiosError<Result> ) => {
             if (error.response?.status === 403) {
                 showBoundary(error);
+            }else{
+                openNotification('error', error.response?.data.message);
             }
         },
     });
@@ -91,13 +92,13 @@ const ProductForm: React.FC<{
             if (res.isSuccessed === true) {
                 refetch()
                 openNotification('success', 'Edit Product success');
-            } else {
-                openNotification('error', res.message);
             }
         },
-        onError:((error:AxiosError)=>{
+        onError:((error:AxiosError<Result>)=>{
             if(error.response?.status === 403){
                 showBoundary(error)
+            }else{
+                openNotification('error', error.response?.data.message);
             }
         })
     });
