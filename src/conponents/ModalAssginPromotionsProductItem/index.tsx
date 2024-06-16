@@ -8,13 +8,12 @@ import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { TableRowSelection } from 'antd/es/table/interface';
 export type ModePromotionType = 'EDIT' | 'DEL';
-import { notification } from 'antd';
 import { Promotion } from '@/api/ResType';
 import dayjs from 'dayjs';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useErrorBoundary } from 'react-error-boundary';
-type NotificationType = 'success' | 'error';
+import useNotification from '@/hooks/useNotification';
 interface Props {
     openModalAssignPI: boolean;
     setStateOpenModalAssignPI: SetStateAction<any>;
@@ -32,13 +31,7 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
 }) => {
     const [confirmLoading, setConfirmLoading] = React.useState(false);
     const [listSelectRowKeys, setListSelectRowKeys] = React.useState<number[]>([]);
-    const [api, contextHolder] = notification.useNotification();
-    const openNotificationWithIcon = (type: NotificationType, mess: string) => {
-        api[type]({
-            message: 'Notification Title',
-            description: mess,
-        });
-    };
+    const {contextHolder,openNotification} = useNotification()
     const {data:promotions} = useQuery({
         queryKey:['load-all-promotion'],
         queryFn:()=> promotionServices.getAllPromotion()
@@ -54,10 +47,10 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
         mutationFn:(body:RequsetBody)=> productServices.assignPromotion(body.id,body.data),
         onSuccess:(data)=>{
             if (data.isSuccessed === true) {
-                openNotificationWithIcon('success', 'thêm bảo hành thành công');
+                openNotification('success',data.message);
                 refetch()
             } else {
-                openNotificationWithIcon('error', 'lỗi');
+                openNotification('error', data.message);
             }
         },
         onError:((error:AxiosError)=>{
