@@ -1,20 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Table, Space, Image, Modal, Upload, Button, Flex, Descriptions, Input, Tag } from 'antd';
-import type { TableColumnsType, DescriptionsProps, InputRef, TableColumnType } from 'antd';
+import { Table, Space, Image, Modal, Upload, Button, Flex, Descriptions, Tag } from 'antd';
+import type { TableColumnsType, DescriptionsProps } from 'antd';
 import { Drawer } from 'antd';
 import type { GetProp, UploadFile, UploadProps } from 'antd';
 import * as productServices from '@/api/productServices';
 import React from 'react';
-import { DeleteOutlined, EditOutlined, InfoCircleOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { Product } from '@/type';
 import { FILTERS_PRODUCT_STATUS, OPTIONS_PRODUCT_STATUS } from '@/common/common';
-import { FilterDropdownProps } from 'antd/es/table/interface';
-import Highlighter from 'react-highlight-words';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
+import useSearchIndexTable from '@/hooks/useSearchIndexTable';
+import { AxiosError } from 'axios';
+import { useErrorBoundary } from 'react-error-boundary';
+import useNotification from '@/hooks/useNotification';
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 const getBase64 = (file: FileType): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -23,117 +25,28 @@ const getBase64 = (file: FileType): Promise<string> =>
         reader.onload = () => resolve(reader.result as string);
         reader.onerror = (error) => reject(error);
     });
-type DataIndex = keyof Product;
 function ProductList() {
     const baseUrl = import.meta.env.VITE_BASE_URL;
-    const {selected} = useAppSelector(selectDepartment)
+    const { showBoundary } = useErrorBoundary();
+    const { contextHolder, openNotification } = useNotification();
+    const { selected } = useAppSelector(selectDepartment);
     const [currentId, setCurrentId] = React.useState<number>(0);
     const [currentProductItem, setCurrentProductItem] = React.useState<Product>();
     const [modal2Open, setModal2Open] = React.useState(false);
     const [confirmLoadinModal2, setConfirmLoadingModal2] = React.useState(false);
     const [open, setOpen] = React.useState(false);
-    const [modalText, setModalText] = React.useState('Do you want delete!');
     const [previewOpen, setPreviewOpen] = React.useState(false);
     const [previewImage, setPreviewImage] = React.useState('');
     const [fileList, setFileList] = React.useState<UploadFile[]>([]);
     const [openDrawer, setOpenDrawer] = React.useState(false);
-    const {data ,isLoading , refetch} = useQuery({
-        queryKey:['load-product-list'],
-        queryFn:()=> productServices.getAllProduct()
-    })
-    //product search
-    const [searchText, setSearchText] = React.useState('');
-    const [searchedColumn, setSearchedColumn] = React.useState('');
-    const searchInput = React.useRef<InputRef>(null);
-
-    const handleSearch = (selectedKeys: string[], confirm: FilterDropdownProps['confirm'], dataIndex: DataIndex) => {
-        confirm();
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-    };
-
-    const handleReset = (clearFilters: () => void) => {
-        clearFilters();
-        setSearchText('');
-    };
-    //
-    const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<Product> => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
-                    style={{ marginBottom: 8, display: 'block' }}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Search
-                    </Button>
-                    <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Reset
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({ closeDropdown: false });
-                            setSearchText((selectedKeys as string[])[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
-        onFilter: (value, record) =>
-            record[dataIndex]
-                .toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
-        onFilterDropdownOpenChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
-            }
-        },
-        render: (text) =>
-            searchedColumn === dataIndex ? (
-                <Highlighter
-                    highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                />
-            ) : (
-                text
-            ),
+    const { data, isLoading, refetch } = useQuery({
+        queryKey: [`load-product-list`],
+        queryFn: () => productServices.getAllProduct(),
     });
+    const { getColumnSearchProps } = useSearchIndexTable();
     const showDrawer = (id: number) => {
         const loadProductDetail = async () => {
-            const res = await productServices.getProductDetail(id,selected);
+            const res = await productServices.getProductDetail(id, selected);
             setCurrentProductItem(res);
         };
         loadProductDetail();
@@ -150,7 +63,6 @@ function ProductList() {
         setPreviewImage(file.url || (file.preview as string));
         setPreviewOpen(true);
     };
-
     const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) => setFileList(newFileList);
 
     const uploadButton = (
@@ -159,10 +71,10 @@ function ProductList() {
             <div style={{ marginTop: 8 }}>Upload</div>
         </button>
     );
-    const renderTag = (status:number)=>{
-        const option = OPTIONS_PRODUCT_STATUS?.find(x => x.value == status)
-        return <Tag color={option?.color}>{option?.label}</Tag>
-    }
+    const renderTag = (status: number) => {
+        const option = OPTIONS_PRODUCT_STATUS?.find((x) => x.value == status);
+        return <Tag color={option?.color}>{option?.label}</Tag>;
+    };
     const columns: TableColumnsType<Product> = [
         {
             title: 'Id',
@@ -173,7 +85,7 @@ function ProductList() {
             title: 'Tiêu Đề',
             dataIndex: 'seoTitle',
             key: 'seoTitle',
-            ...getColumnSearchProps('seoTitle'),
+            ...getColumnSearchProps<Product>('seoTitle'),
         },
         {
             title: 'Giá',
@@ -200,9 +112,7 @@ function ProductList() {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',
-            render:(_,record)=>(
-                renderTag(record.status)
-            ),
+            render: (_, record) => renderTag(record.status),
             filters: FILTERS_PRODUCT_STATUS,
             onFilter: (value: any, record: Product) => record.status === value,
         },
@@ -220,7 +130,7 @@ function ProductList() {
             key: 'action',
             render: (_: any, record: Product) => (
                 <Space size="middle">
-                    <Button icon={<DeleteOutlined />} onClick={() => showModalDel(record.id, record.name)}></Button>
+                    <Button icon={<DeleteOutlined />} onClick={() => showModalDel(record.id)}></Button>
                     <Link to={`/product/edit/${record.id}`}>
                         <Button icon={<EditOutlined />}></Button>
                     </Link>
@@ -249,21 +159,31 @@ function ProductList() {
         setCurrentId(id);
         setModal2Open(true);
     };
-    const showModalDel = (id: number, name: string) => {
-        setModalText(`Do you want product ${name}!`);
+    const showModalDel = (id: number) => {
         setCurrentId(id);
         setOpen(true);
     };
-    const handleOkDel = async () => {
-        setModalText('deleting!');
-        const res = await productServices.deleteProduct(currentId);
-        if (res.statusCode == 204) {
-            refetch()
-            setOpen(false);
-            setFileList([]);
-        } else {
-            setModalText('error!');
-        }
+    const deleteProduct = useMutation({
+        mutationKey: [`delete-product`],
+        mutationFn: (id: number) => productServices.deleteProduct(id),
+        onSuccess: (data) => {
+            if(data.isSuccessed === true){
+                refetch();
+                setOpen(false);
+                setFileList([]);
+                openNotification('success', data.message);
+            }else{
+                openNotification('success', data.message);
+            }
+        },
+        onError: (error: AxiosError) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
+            }
+        },
+    });
+    const handleOkDel = () => {
+        deleteProduct.mutateAsync(currentId);
     };
     const uploadImageAPI = async () => {
         setConfirmLoadingModal2(true);
@@ -271,12 +191,13 @@ function ProductList() {
         if (res != null) {
             setConfirmLoadingModal2(false);
             setModal2Open(false);
-            refetch()
+            refetch();
             setFileList([]);
         }
     };
     return (
         <div>
+            {contextHolder}
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
                     <Link to={'/product/add'}>
@@ -335,7 +256,7 @@ function ProductList() {
                 confirmLoading={isLoading}
                 onCancel={() => setOpen(false)}
             >
-                <p>{modalText}</p>
+                <p>Xóa sản phẩm này!</p>
             </Modal>
         </div>
     );

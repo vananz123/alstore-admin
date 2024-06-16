@@ -34,12 +34,15 @@ function Nav() {
         getItem('Loại Sản Phẩm', '/category' , <AppstoreOutlined />),
         getItem('Sản Phẩm', '/product' , <ProductOutlined />),
         getItem('Giao dịch', '/translation', <TranslationOutlined/>, [
-            getItem('Nhập hàng', '/translation/inventory' , <DiffOutlined />),
+            getItem('Nhập hàng', '/translation/inventory/import' , <DiffOutlined />),
+            getItem('Chuyển hàng', '/translation/inventory/export' , <DiffOutlined />),
+            getItem('Lịch sử', '/translation/inventory' , <DiffOutlined />),
         ]),
         getItem('Đơn Hàng', '/order' , <ShoppingOutlined />),
         getItem('Giảm Giá', '/promotion', <TagOutlined />),
         getItem('Bảo Hành', '/guaranty' , <ToolOutlined />),
         getItem('Người Dùng', '/user' , <UserOutlined />),
+        getItem('Vai trò', '/role' , <UserOutlined />),
         getItem('Dashboard', '/', <PieChartOutlined />),
     ];
     return (

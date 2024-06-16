@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Department } from '@/type'
 import * as request from '../utils/request'
 import { Result, PurchaseResult, Order, PagingResult } from './ResType'
 
@@ -116,34 +117,37 @@ export const returned = async(id:number)=>{
         return resError
     }
 }
-export const getOrderAdmin = async(statusName:string)=>{
+export const getOrderAdmin = async(statusName:string , departmants:Department[] | undefined)=>{
     try{ 
-        let res;
-        if(statusName == "All"){
-            res = await request.get(`/order/admin?PageIndex=1&PageSize=100`)
-        }else{
-            res = await request.get(`order/admin?StatusName=${encodeURIComponent(statusName)}&PageIndex=1&PageSize=100`)
+        if(departmants){
+            const departmentId :string[]= []
+            departmants.forEach(e => {
+                departmentId.push(e.id.toString())
+            })
+            const params = {
+                StatusName:statusName,
+                DepartmentId:departmentId,
+                PageIndex:1,
+                PageSize:100
+            }
+            const res = await request.get(`order/admin`,{
+                params,
+                paramsSerializer: {
+                    indexes: null, // by default: false
+                },
+            })
+            const resultObj :Order[] = res.resultObj.items
+            const paging: PagingResult = {
+                items: resultObj,
+                pageIndex : res.resultObj.pageIndex,
+                pageCount:res.resultObj.pageCount,
+                pageSize:res.resultObj.pageSize,
+                totalRecords:res.resultObj.totalRecords
+            }
+            return paging
         }
-        
-        const resultObj :Order[] = res.resultObj.items
-        const paging: PagingResult = {
-            items: resultObj,
-            pageIndex : res.resultObj.pageIndex,
-            pageCount:res.resultObj.pageCount,
-            pageSize:res.resultObj.pageSize,
-            totalRecords:res.resultObj.totalRecords
-        }
-        // const resp: Result ={
-        //     error :'',
-        //     isSuccessed:res.isSuccessed,
-        //     message:res.message,
-        //     statusCode:200,
-        //     resultObj : paging,
-        // }
-        return paging
+        return undefined
     }catch(error:any){
-        // console.log(error.response.data)
-        // const resError: Result =error.response.data
         return undefined
     }
 }

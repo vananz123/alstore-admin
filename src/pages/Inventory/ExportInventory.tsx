@@ -1,17 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ArrowLeftOutlined, DeleteOutlined } from '@ant-design/icons';
-import {
-    Button,
-    Col,
-    Form,
-    GetRef,
-    Input,
-    InputRef,
-    Popconfirm,
-    Row,
-    Space,
-    Table,
-} from 'antd';
+import { Button, Card, Col, Form, GetRef, Input, InputRef, Popconfirm, Row, Space, Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
@@ -19,8 +8,9 @@ import SearchProductItem from './SearchProductItem';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ProductItemSearch } from '@/type';
 import { useMutation } from '@tanstack/react-query';
-import * as productServices from '@/api/productServices';
-import useNotification from '@/hooks/useNotification';
+import * as inventoryServices from '@/api/inventoryServices';
+import useNotification from '@/hooks/useNotification';import { AxiosError } from 'axios';
+import { useErrorBoundary } from 'react-error-boundary';
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
@@ -31,7 +21,7 @@ interface EditableRowProps {
 
 const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
     const [form] = Form.useForm();
-    console.log(index)
+    console.log(index);
     return (
         <Form form={form} component={false}>
             <EditableContext.Provider value={form}>
@@ -113,11 +103,11 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 type EditableTableProps = Parameters<typeof Table>[0];
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
-function Inventory() {
+function ExportInventory() {
     const navigate = useNavigate();
-    const {contextHolder,openNotification} = useNotification()
+    const { contextHolder, openNotification } = useNotification();
     const [listProductItem, setListProductItem] = React.useState<ProductItemSearch[]>([]);
-    const { data: department  , selected} = useAppSelector(selectDepartment);
+    const { data: department, selected } = useAppSelector(selectDepartment);
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[] = [
         {
             title: 'Id',
@@ -131,11 +121,19 @@ function Inventory() {
             title: 'Mô tả',
             dataIndex: 'name',
             render: (_, record) => <>{record.name && <span>{`${record.name}: ${record.value}`}</span>}</>,
+        },{
+            title: 'Tồn kho',
+            dataIndex: 'stock',
+        },{
+            title: 'Giá (edit)',
+            dataIndex: 'price',
+            width: '20%',
+            editable: true,
         },
         {
             title: 'Số lượng (edit)',
             dataIndex: 'quantity',
-            width:'20%',
+            width: '20%',
             editable: true,
         },
         {
@@ -189,31 +187,38 @@ function Inventory() {
             }),
         };
     });
-    interface Body{
-        departmentId:number;
-        data:ProductItemSearch[];
+    interface Body {
+        departmentId: number;
+        data: ProductItemSearch[];
     }
-    const importInventory = useMutation({
-        mutationKey:['import-inventory'],
-        mutationFn:(body:Body)=> productServices.importInventory(body.departmentId, body.data),
-        onSuccess:((data)=>{
-            if(data.isSuccessed === true){
-                openNotification('success',data.message)
-                setListProductItem([])
-            }else{
-                openNotification('error',data.message)
+    const {showBoundary} = useErrorBoundary()
+    const exportInventory = useMutation({
+        mutationKey: ['import-inventory'],
+        mutationFn: (body: Body) => inventoryServices.exportInventory(body.departmentId, body.data),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                openNotification('success', data.message);
+                setListProductItem([]);
+            } else {
+                openNotification('error', data.message);
             }
-        })
-    })
-    const ImportInventory = ()=>{
-        const body:Body={
-            departmentId:selected,
-            data:listProductItem
+        },
+        onError(error: AxiosError) {
+            if(error.response?.status === 403){
+                showBoundary(error)
+            }
+        },
+    });
+    const ImportInventory = () => {
+        const body: Body = {
+            departmentId: selected,
+            data: listProductItem,
+        };
+        if (listProductItem.length > 0 && selected !== 1) {
+            exportInventory.mutateAsync(body);
         }
-        if(listProductItem.length > 0){
-            importInventory.mutateAsync(body)
-        }
-    }
+    };
+    console.log(department, selected);
     return (
         <div>
             {contextHolder}
@@ -230,9 +235,14 @@ function Inventory() {
             </Button>
             <Row gutter={16}>
                 <Col xl={18}>
-                    <SearchProductItem className="my-3 w-auto" listProductItem={listProductItem} onSetList={setListProductItem} />
+                    <SearchProductItem
+                        className="my-3 w-auto"
+                        listProductItem={listProductItem}
+                        onSetList={setListProductItem}
+                        type="export"
+                    />
                     <Table
-                    style={{width:'100%'}}
+                        style={{ width: '100%' }}
                         components={components}
                         rowClassName={() => 'editable-row'}
                         rowKey={(e) => e.id}
@@ -241,18 +251,26 @@ function Inventory() {
                     />
                 </Col>
                 <Col xl={6}>
-                    <div className='w-full rounded bg-[#fafafa] p-3'>
-                        <p className='text-[18px] font-bold mb-3'>Thông tin nhập hàng</p>
-                        {department && department.length > 0 &&(
-                            <p className='text-base mb-3'>Chi nhánh: {department[selected].name}</p>
+                    <Card title="Thông tin chuyển hàng">
+                        {department && selected > 0 && (
+                            <p className="text-base mb-3">
+                                Chi nhánh: {department.find((s) => s.id === selected)?.name}
+                            </p>
                         )}
-                        <p className='text-base mb-3'>Số sản phẩm: {listProductItem.length}</p>
-                        <Button block type='primary' onClick={()=> ImportInventory()} disabled={listProductItem.length <= 0}>Nhập hàng</Button>
-                    </div>
+                        <p className="text-base mb-3">Số sản phẩm: {listProductItem.length}</p>
+                        <Button
+                            block
+                            type="primary"
+                            onClick={() => ImportInventory()}
+                            disabled={listProductItem.length <= 0 || selected ===1}
+                        >
+                            Chuyển hàng
+                        </Button>
+                    </Card>
                 </Col>
             </Row>
         </div>
     );
 }
 
-export default Inventory;
+export default ExportInventory;

@@ -57,9 +57,9 @@ function Home() {
                 <div>
                     {productItem &&
                         productItem.length > 0 &&
-                        productItem.map((item,index) => (
-                            <div key={item.id} style={{ display: 'flex', alignItems:'center', gap:5}}>
-                                <p>{index+1}</p>
+                        productItem.map((item, index) => (
+                            <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                                <p>{index + 1}</p>
                                 <div style={{ width: 100, height: 100 }}>
                                     <img
                                         style={{ width: '100%', height: '100%' }}

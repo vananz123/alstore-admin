@@ -41,6 +41,7 @@ export const createDepartment = async(data:Department)=>{
             phonenumber:data.phoneNumber,
             name:data.name,
             address:data.address,
+            linkGoogleMap:data.linkGoogleMap,
             urbanDistrict:data.urbanDistrict,
             province:data.province,
             description:data.description
@@ -68,6 +69,7 @@ export const updateDepartment = async(data:Department)=>{
             phonenumber:data.phoneNumber,
             name:data.name,
             address:data.address,
+            linkGoogleMap:data.linkGoogleMap,
             urbanDistrict:data.urbanDistrict,
             province:data.province,
             description:data.description,

@@ -23,6 +23,8 @@ import { OPTIONS_SKU, FORM_ITEM_LAYOUT, TAIL_FORM_ITEM_LAYOUT } from '@/common/c
 import useNotification from '@/hooks/useNotification';
 import { useForm } from 'antd/es/form/Form';
 import { useMutation } from '@tanstack/react-query';
+import { useErrorBoundary } from 'react-error-boundary';
+import { AxiosError } from 'axios';
 interface Body {
     isSize: boolean;
     data: ProductItem;
@@ -36,6 +38,7 @@ type StatusForm = 'EDIT' | 'ADD';
 const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) => {
     const [form] = useForm();
     const { contextHolder, openNotification } = useNotification();
+    const {showBoundary} = useErrorBoundary()
     const [openProductItem, setOpenProductItem] = React.useState(false);
     const [openModalDel, setOpenModalDel] = React.useState(false);
     const [isSize, setIsSize] = React.useState<boolean>(false);
@@ -151,6 +154,11 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
                 openNotification('error', data.message);
             }
         },
+        onError:((error:AxiosError)=>{
+            if(error.response?.status === 403){
+                showBoundary(error)
+            }
+        })
     });
     const updateProductItem = useMutation({
         mutationKey: ['update-product-item'],
@@ -162,7 +170,11 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             } else {
                 openNotification('error', data.message);
             }
-        },
+        },onError:((error:AxiosError)=>{
+            if(error.response?.status === 403){
+                showBoundary(error)
+            }
+        })
     });
     const deleteProductItem = useMutation({
         mutationKey: ['delete-product-item'],
@@ -174,9 +186,12 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             } else {
                 openNotification('error', data.message);
             }
-        },
+        },onError:((error:AxiosError)=>{
+            if(error.response?.status === 403){
+                showBoundary(error)
+            }
+        })
     });
-    console.log(product);
     const onFinishProductItem = async (values: ProductItem) => {
         if (productItem != undefined && product != undefined) {
             values.productId = product.id;

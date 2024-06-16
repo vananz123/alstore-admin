@@ -9,6 +9,7 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { STATUS_ORDER } from '@/common/common';
 import { useQuery } from '@tanstack/react-query';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
+import { selectDepartment } from '@/app/feature/department/reducer';
 const items = [
     ...STATUS_ORDER,
     {
@@ -19,10 +20,11 @@ const items = [
 function OrderList() {
     const dispatch  = useAppDispatch()
     const {name:statusName} = useAppSelector(selectOrderStatus);
+    const {data:departments} = useAppSelector(selectDepartment)
     const { data, isLoading } = useQuery({
         queryKey: [`load-user-order-list-${statusName}`],
-        queryFn: () => orderServices.getOrderAdmin(statusName),
-        enabled: !!statusName,
+        queryFn: () => orderServices.getOrderAdmin(statusName , departments),
+        enabled: !!statusName && !!departments,
     });
     const columns: TableProps<Order>['columns'] = [
         {
@@ -53,6 +55,11 @@ function OrderList() {
             dataIndex: 'status',
             key: 'status',
             render: (_, record) => <Badge status="processing" text={record.status?.pop()?.name} />,
+        },{
+            title: 'Nhận hàng',
+            dataIndex: 'shippingName',
+            key: 'shippingName',
+            render: (_, record) => <Badge status="processing" text={record.shippingName} />,
         },
         {
             title: 'Action',

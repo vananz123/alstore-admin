@@ -14,8 +14,9 @@ interface Props{
     className?:string;
     listProductItem:ProductItemSearch[];
     onSetList:SetStateAction<any>;
+    type?:string;
 }
-const SearchProductItem: React.FC<Props> = ({className, onSetList , listProductItem}) => {
+const SearchProductItem: React.FC<Props> = ({className, onSetList , listProductItem , type}) => {
     const { Search } = Input;
     const [searchValue, setSearchValue] = React.useState('');
     const {contextHolder,openNotification} = useNotification()
@@ -37,7 +38,7 @@ const SearchProductItem: React.FC<Props> = ({className, onSetList , listProductI
     useEffect(() => {
         const Search = async () => {
             if (debounce != '') {
-                const result = await productServices.searchProductItemBySeo(debounce);
+                const result = await productServices.searchProductItemBySeo(debounce ,type);
                 console.log(result)
                 setData(result);
             }

@@ -98,6 +98,14 @@ const DepartmentForm: React.FC<Props> = ({ department, onSetState,onSetStatus })
                     <Input />
                 </Form.Item>
                 <Form.Item<Department>
+                    name="linkGoogleMap"
+                    label="Link"
+                    tooltip="What do you want others to call you?"
+                    rules={[{ required: true, message: 'Please input department address!', whitespace: true }]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item<Department>
                     name='urbanDistrict'
                     label="Quận/ huyện"
                     tooltip="What do you want others to call you?"

@@ -16,8 +16,14 @@ const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 import UserList from '@/pages/User/UserList';
 import { GuarantiesAdd, GuarantiesList, GuarantiesEdit } from '@/pages/Guaranty';
 import { DepartmentAdd, DepartmentEdit, DepartmentList } from '@/pages/Department';
+import RoleList from '@/pages/Role/RoleList';
+const RoleEdit = lazy(()=> import("@/pages/Role/RoleEdit"))
+import UserEdit from '@/pages/User/UserEdit';
 const Page404 = lazy(() => import('@/pages/Page404/Page404'));
-const Inventory = lazy(()=> import("@/pages/Inventory"));
+const ImportInventory = lazy(()=> import("@/pages/Inventory/ImportInventory"));
+const ExportInventory = lazy(()=> import("@/pages/Inventory/ExportInventory"));
+const HistoryInventory = lazy(()=> import("@/pages/Inventory/HistoryInventory"));
+const HistoryInventoryDetail = lazy(()=> import("@/pages/Inventory/HistoryInventoryDetail"));
 const Router: React.FC = () => {
     return useRoutes([
         {
@@ -238,8 +244,37 @@ const Router: React.FC = () => {
                     path: 'user',
                     element: (
                         <AuthGuard>
-                            <RoleGuard role={['admin', 'sale']}>
+                            <RoleGuard role={['super-admin','admin', 'sale']}>
                                 <UserList />
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },{
+                    path: 'user/edit/:id',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['super-admin','admin', 'sale']}>
+                                <UserEdit />
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },{
+                    path: 'role',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin']}>
+                                <RoleList />
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },{
+                    path: 'role/edit/:id',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['super-admin','admin']}>
+                                <Suspense>
+                                    <RoleEdit/>
+                                </Suspense>
                             </RoleGuard>
                         </AuthGuard>
                     ),
@@ -278,7 +313,34 @@ const Router: React.FC = () => {
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
-                               <Suspense> <Inventory /></Suspense>
+                               <Suspense> <HistoryInventory /></Suspense>
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },{
+                    path: 'translation/inventory/:id',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin']}>
+                               <Suspense> <HistoryInventoryDetail /></Suspense>
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },{
+                    path: 'translation/inventory/import',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin']}>
+                               <Suspense> <ImportInventory /></Suspense>
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },{
+                    path: 'translation/inventory/export',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin']}>
+                               <Suspense> <ExportInventory /></Suspense>
                             </RoleGuard>
                         </AuthGuard>
                     ),

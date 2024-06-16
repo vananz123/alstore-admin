@@ -140,3 +140,4 @@ const ChangeCurrence = (number: number | undefined) => {
     return 0;
 };
 export default ProductCard;
+

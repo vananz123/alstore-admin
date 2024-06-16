@@ -8,13 +8,15 @@ import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { RowSelectMethod, TableRowSelection } from 'antd/es/table/interface';
 export type ModePromotionType = 'EDIT' | 'DEL';
-import { notification } from 'antd';
-type NotificationType = 'success' | 'error';
+import { useErrorBoundary } from 'react-error-boundary';
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import useNotification from '@/hooks/useNotification';
 interface Props {
     openModalAssignPI: boolean;
     setStateOpenModalAssignPI: SetStateAction<any>;
     productItemProps: ProductItem | undefined;
-    refetch: ()=> void;
+    refetch: () => void;
 }
 const ModalAssignGuarantiesProductItem: React.FC<Props> = ({
     openModalAssignPI,
@@ -22,35 +24,43 @@ const ModalAssignGuarantiesProductItem: React.FC<Props> = ({
     productItemProps,
     refetch,
 }) => {
+    const { showBoundary } = useErrorBoundary();
     const [guaranties, setGuaranties] = React.useState<Guaranty[]>([]);
-    const [confirmLoading, setConfirmLoading] = React.useState(false);
     const [listSelectRowKeys, setListSelectRowKeys] = React.useState<number[]>([]);
     //const [listSelectRow, setListSelectRow] = React.useState<Guaranty[]>([]);
-    const [api, contextHolder] = notification.useNotification();
-    const openNotificationWithIcon = (type: NotificationType, mess: string) => {
-        api[type]({
-            message: 'Notification Title',
-            description: mess,
-        });
-    };
+    const {contextHolder,openNotification} = useNotification()
     const getAllGuaranty = async () => {
         const res = await guarantyServieces.getAllGuaranty();
         if (res.isSuccessed === true) {
             setGuaranties(res.resultObj);
         }
     };
-    const handleSaveGuaranties = async () => {
-        setConfirmLoading(true);
-        if (productItemProps != undefined) {
-            const res = await productServices.assignGuaranties(productItemProps?.id, listSelectRowKeys[0]);
-            if (res.isSuccessed === true) {
-                openNotificationWithIcon('success', 'thêm bảo hành thành công');
-                refetch()
-                setConfirmLoading(false);
+    interface RequsetBody {
+        id: number;
+        data: number;
+    }
+    const mutation = useMutation({
+        mutationKey: ['assgin-guaranty'],
+        mutationFn: (body: RequsetBody) => productServices.assignGuaranties(body.id, body.data),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                openNotification('success', data.message);
+                refetch();
             } else {
-                openNotificationWithIcon('error', 'lỗi');
-                setConfirmLoading(false);
+                openNotification('error',  data.message);
             }
+        },
+        onError: (error: AxiosError) => {
+            if (error.response?.status === 403) showBoundary(error);
+        },
+    });
+    const handleSaveGuaranties = async () => {
+        if (productItemProps != undefined) {
+            const body: RequsetBody = {
+                id: productItemProps?.id,
+                data: listSelectRowKeys[0],
+            };
+            mutation.mutateAsync(body);
         }
     };
     useEffect(() => {
@@ -115,7 +125,7 @@ const ModalAssignGuarantiesProductItem: React.FC<Props> = ({
             <Modal
                 title="Thêm bảo hành"
                 open={openModalAssignPI}
-                confirmLoading={confirmLoading}
+                confirmLoading={mutation.isPending}
                 onCancel={() => setStateOpenModalAssignPI(false)}
                 footer=""
             >
@@ -138,7 +148,6 @@ const ModalAssignGuarantiesProductItem: React.FC<Props> = ({
                     </Space>
                 </Flex>
                 <Table
-                    loading={confirmLoading}
                     pagination={{ position: ['none'] }}
                     columns={columns}
                     dataSource={guaranties}

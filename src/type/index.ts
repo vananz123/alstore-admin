@@ -32,6 +32,7 @@ export interface ProductItemSearch {
     urlThumbnailImage:string;
     price: number;
     sku: string;
+    stock:number;
     status: number;
     name: string;
     value: string;
@@ -99,6 +100,7 @@ export interface Department{
     id: number;
     phoneNumber: string;
     name: string;
+    linkGoogleMap:string;
     description: string;
     address:string;
     urbanDistrict: string;

@@ -21,58 +21,40 @@ export const getUser = async () => {
         return resError;
     }
 };
+export const getUserById = async (userId:string) => {
+    try {
+        const res = await request.get(`/user/${encodeURIComponent(userId)}`);
+        const resultObj: ResponseUser = res.resultObj;
+       
+        return resultObj;
+    } catch {
+        return undefined;
+    }
+};
 export const getRoles = async () => {
     try {
         const res = await request.get(`/role`);
         const resultObj: RoleType[] = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
+        return resultObj;
+    } catch {
+        return undefined;
     }
 };
-export const assginRoles = async (id:string,value:string) => {
-    try {
-        const res = await request.put(`/user/roles`,{id:id,roleName:value});
-        const resultObj: RoleType[] = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+export const assginRoles = async (id:string,value:string[]) => {
+    const res:Result = await request.put(`/user/roles`,{id:id,roleName:value});
+    return res;
 };
-export const getAllUser = async (roleName:string) => {
+export const assginClaims = async (id:string,value:string[]) => {
+    const res:Result = await request.post(`/user/claims`,{userId:id,claims:value});
+    return res;
+};
+export const getAllUserForAdmin = async () => {
     try {
-        const res = await request.get(`/user/role/${encodeURIComponent(roleName)}`);
+        const res = await request.get(`/user/admin`);
         const resultObj :ResponseUser[] = res.resultObj
-        const resp: Result ={
-            error :'',
-            isSuccessed:res.isSuccessed,
-            message:res.message,
-            statusCode:200,
-            resultObj : resultObj,
-        }
-        return resp
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
+        return resultObj
+    } catch  {
+        return undefined;
     }
 };
 export const Register = async (data: RegisterUser) => {

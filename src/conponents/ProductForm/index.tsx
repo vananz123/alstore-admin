@@ -13,6 +13,8 @@ import { ClassicEditor } from '@ckeditor/ckeditor5-editor-classic';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import useNotification from '@/hooks/useNotification';
+import { AxiosError } from 'axios';
+import { useErrorBoundary } from 'react-error-boundary';
 const normFile = (e: any) => {
     if (Array.isArray(e)) {
         return e;
@@ -64,6 +66,7 @@ const ProductForm: React.FC<{
     useEffect(() => {
         getAllCate();
     }, [getAllCate]);
+    const {showBoundary} = useErrorBoundary()
     const createProduct = useMutation({
         mutationKey: ['ceate-product'],
         mutationFn: (body: Product) => productServices.addProduct(body),
@@ -73,6 +76,11 @@ const ProductForm: React.FC<{
                 navigate(`/product/edit/${res.resultObj.id}`);
             } else {
                 openNotification('error', res.message);
+            }
+        },
+        onError: (error: AxiosError) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
             }
         },
     });
@@ -87,6 +95,11 @@ const ProductForm: React.FC<{
                 openNotification('error', res.message);
             }
         },
+        onError:((error:AxiosError)=>{
+            if(error.response?.status === 403){
+                showBoundary(error)
+            }
+        })
     });
     const onFinish: FormProps<Product>['onFinish'] = async (values) => {
         if (product != undefined) {

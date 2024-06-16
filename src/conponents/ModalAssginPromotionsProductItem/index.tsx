@@ -12,6 +12,8 @@ import { notification } from 'antd';
 import { Promotion } from '@/api/ResType';
 import dayjs from 'dayjs';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { useErrorBoundary } from 'react-error-boundary';
 type NotificationType = 'success' | 'error';
 interface Props {
     openModalAssignPI: boolean;
@@ -46,6 +48,7 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
         queryFn:()=> promotionServices.getAllPromotionByPI(productItemProps ? productItemProps.id : 0),
         enabled:!!productItemProps
     }) 
+    const {showBoundary} = useErrorBoundary()
     const mutation = useMutation({
         mutationKey:['assgin-promotion'],
         mutationFn:(body:RequsetBody)=> productServices.assignPromotion(body.id,body.data),
@@ -56,7 +59,10 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
             } else {
                 openNotificationWithIcon('error', 'lỗi');
             }
-        }
+        },
+        onError:((error:AxiosError)=>{
+            if(error.response?.status === 403) showBoundary(error)
+        })
     })
     const handleSaveGuaranties = async () => {
         setConfirmLoading(true);

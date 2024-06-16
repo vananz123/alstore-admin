@@ -7,9 +7,9 @@ interface Props {
     children: JSX.Element;
     role: Role[];
 }
-const RoleGuard: React.FC<Props> = ({ children, role }) => {
-    const { isAuthenticated, data } = useAppSelector(selectUser);
-    if (role.indexOf(data?.roles[0]) < 0 && isAuthenticated === true) {
+const RoleGuard: React.FC<Props> = ({ children }) => {
+    const {  data } = useAppSelector(selectUser);
+    if (data?.roles.includes("customer") ===true) {
         return <Navigate to={'*'} />;
     }
     return <>{children}</>;

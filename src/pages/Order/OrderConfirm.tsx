@@ -3,12 +3,12 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import * as orderServices from '@/api/orderServices';
-import { Descriptions, Timeline, notification, Space, Popconfirm, Button, Table, TableColumnsType } from 'antd';
+import { Descriptions, Timeline, Space, Popconfirm, Button, Table, TableColumnsType } from 'antd';
 import { DescriptionsProps } from 'antd';
 import dayjs from 'dayjs';
 import ModalFeedback from '@/view/order/ModalFeedback';
 import OrderWarranty from './OrderWarranty';
-type NotificationType = 'success' | 'error';
+import useNotification from '@/hooks/useNotification';
 type TimeLineProps = {
     label?: string;
     children: string;
@@ -18,13 +18,7 @@ function OrderConfirm() {
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const [openModalFb, setOpenModalFb] = React.useState<boolean>(false);
     const [review, setReview] = React.useState<Review>();
-    const [api, contextHolder] = notification.useNotification();
-    const openNotificationWithIcon = (type: NotificationType, mess: string) => {
-        api[type]({
-            message: 'Notification Title',
-            description: mess,
-        });
-    };
+    const {contextHolder, openNotification} = useNotification()
 
     const [order, setOrder] = React.useState<Order>();
     const [statusTimeLine, setStatusTimeLine] = React.useState<TimeLineProps[]>([]);
@@ -52,6 +46,11 @@ function OrderConfirm() {
             key: 'paymentMethod',
             label: 'Loại Thanh Toán',
             children: `${order?.paymentMethod?.paymentType}`,
+            span: 1,
+        },{
+            key: 'shippingMethod',
+            label: `Loại nhận hàng`,
+            children: `${order?.shippingName}: ${order?.department.name}`,
             span: 1,
         },
         {
@@ -103,10 +102,10 @@ function OrderConfirm() {
         if (typeof order != 'undefined') {
             const res = await orderServices.canceled(order.id);
             if (res.isSuccessed === true) {
-                openNotificationWithIcon('success', res.message);
+                openNotification('success', res.message);
                 getOrderAdminByOrderId();
             } else {
-                openNotificationWithIcon('error', res.message);
+                openNotification('error', res.message);
             }
         }
         setOpenConfrim(false);
@@ -117,10 +116,10 @@ function OrderConfirm() {
         if (typeof order != 'undefined') {
             const res = await orderServices.comfirm(order.id);
             if (res.isSuccessed === true) {
-                openNotificationWithIcon('success', res.message);
+                openNotification('success', res.message);
                 getOrderAdminByOrderId();
             } else {
-                openNotificationWithIcon('error', res.message);
+                openNotification('error', res.message);
             }
         }
         setOpenConfrim(false);

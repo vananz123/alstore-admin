@@ -17,7 +17,7 @@ function ProductEdit() {
     const [openUploadImage, setUploadImage] = React.useState(false);
     const [openVariaton, setOpenVariaton] = React.useState(false);
     const { data: product, refetch } = useQuery({
-        queryKey: [`load-product-detail-${id}`],
+        queryKey: [`load-product-detail-${id}-${selected}`],
         queryFn: () => productServices.getProductDetail(Number(id), selected),
         enabled: !!id,
     });
