@@ -2,9 +2,9 @@
 import { Product, ProductItemStatisc } from '@/type';
 import * as request from '../utils/request';
 import {  Result } from './ResType';
-export const getAnalysis = async () => {
+export const getAnalysis = async (departmentId:number) => {
     try {
-        const res = await request.get(`/statistic`);
+        const res = await request.get(`/statistic`,{departmentId});
         const resp: Result ={
             error :'',
             isSuccessed:res.isSuccessed,

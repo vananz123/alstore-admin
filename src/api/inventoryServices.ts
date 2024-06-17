@@ -39,7 +39,7 @@ export const exportInventory = async (toDepartmentId:number, data: ProductItemSe
     const items: any[] = [];
     data.forEach((element) => {
         const item = {
-            price: 0,
+            price: element.price,
             productItemId: element.id,
             quantity: element.quantity,
         };

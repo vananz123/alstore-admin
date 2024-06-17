@@ -147,6 +147,10 @@ import { Image, ImageCaption, ImageStyle } from '@ckeditor/ckeditor5-image';
 import { Indent } from '@ckeditor/ckeditor5-indent';
 import { Link } from '@ckeditor/ckeditor5-link';
 import { List } from '@ckeditor/ckeditor5-list';
+import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
+import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
+import FontBackgroundColor from '@ckeditor/ckeditor5-font/src/fontbackgroundcolor';
+import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import { PasteFromOffice } from '@ckeditor/ckeditor5-paste-from-office';
 import { Table, TableToolbar } from '@ckeditor/ckeditor5-table';
 import { TextTransformation } from '@ckeditor/ckeditor5-typing';
@@ -159,6 +163,10 @@ export const editorConfiguration = {
         Autoformat,
         BlockQuote,
         Bold,
+        FontSize,
+        FontColor,
+        FontFamily,
+        FontBackgroundColor,
         CloudServices,
         Essentials,
         Heading,
@@ -179,6 +187,11 @@ export const editorConfiguration = {
     toolbar: {
         items: [
             'heading',
+            '|',
+            'fontFamily',
+            'fontSize',
+            'fontColor',
+            'fontBackgroundColor',
             '|',
             'bold',
             'italic',

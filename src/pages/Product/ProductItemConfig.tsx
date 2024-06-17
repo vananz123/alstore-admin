@@ -90,7 +90,11 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
         {
             title: 'Giá',
             dataIndex: 'price',
-            key: 'description',
+            key: 'price',
+        },{
+            title: 'Giá vốn',
+            dataIndex: 'capitalPrice',
+            key: 'capitalPrice',
         },
         {
             title: 'Tồn kho',

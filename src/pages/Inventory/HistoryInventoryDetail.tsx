@@ -3,17 +3,21 @@ import * as inventoryServices from '@/api/inventoryServices';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Descriptions, DescriptionsProps, Popconfirm, Space, Spin, Table, TableColumnsType, Tag } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { InventoryDetail } from '@/api/ResType';
+import { InventoryDetail, Result } from '@/api/ResType';
 import dayjs from 'dayjs';
 import useNotification from '@/hooks/useNotification';
 import { useErrorBoundary } from 'react-error-boundary';
 import { AxiosError } from 'axios';
-import {  OPTIONS_STATUS_INVENTORY} from '@/common/common';
+import { OPTIONS_STATUS_INVENTORY } from '@/common/common';
 function HistoryInventoryDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const baseUrl = import.meta.env.VITE_BASE_URL;
-    const { data: inventoty, isLoading } = useQuery({
+    const {
+        data: inventoty,
+        isLoading,
+        refetch,
+    } = useQuery({
         queryKey: [`load-his-inventory-${id}`],
         queryFn: () => inventoryServices.getById(id ? Number(id) : 0),
         enabled: !!id,
@@ -26,13 +30,16 @@ function HistoryInventoryDetail() {
         mutationFn: (id: number) => inventoryServices.successed(id),
         onSuccess: (data) => {
             if (data.isSuccessed === true) {
+                refetch();
                 openNotification('success', data.message);
-            } else {
-                openNotification('error', data.message);
             }
         },
-        onError: (error: AxiosError) => {
-            if (error.response?.status === 403) showBoundary(error);
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
+            } else {
+                openNotification('error', error.response?.data.message);
+            }
         },
     });
     const canceled = useMutation({
@@ -40,19 +47,22 @@ function HistoryInventoryDetail() {
         mutationFn: (id: number) => inventoryServices.canceled(id),
         onSuccess: (data) => {
             if (data.isSuccessed === true) {
+                refetch();
                 openNotification('success', data.message);
-            } else {
-                openNotification('error', data.message);
             }
         },
-        onError: (error: AxiosError) => {
-            if (error.response?.status === 403) showBoundary(error);
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
+            } else {
+                openNotification('error', error.response?.data.message);
+            }
         },
     });
-    const renderTag = (status:number)=>{
-        const option = OPTIONS_STATUS_INVENTORY?.find(x => x.value == status)
-        return <Tag color={option?.color}>{option?.label}</Tag>
-    }
+    const renderTag = (status: number) => {
+        const option = OPTIONS_STATUS_INVENTORY?.find((x) => x.value == status);
+        return <Tag color={option?.color}>{option?.label}</Tag>;
+    };
     const desInventory: DescriptionsProps['items'] = [
         {
             key: 'Type',
@@ -135,12 +145,13 @@ function HistoryInventoryDetail() {
                                 <Popconfirm
                                     title="Xóa"
                                     okButtonProps={{ loading: successed.isPending }}
-                                    
                                     onConfirm={() => {
                                         if (inventoty) successed.mutateAsync(inventoty.id);
                                     }}
                                 >
-                                    <Button disabled ={inventoty.status === 1 || inventoty.status ===2}>Xác nhận</Button>
+                                    <Button disabled={inventoty.status === 1 || inventoty.status === 2}>
+                                        Xác nhận
+                                    </Button>
                                 </Popconfirm>
 
                                 <Popconfirm
@@ -150,7 +161,11 @@ function HistoryInventoryDetail() {
                                         if (inventoty) canceled.mutateAsync(inventoty.id);
                                     }}
                                 >
-                                    <Button disabled ={inventoty.status === 1 || inventoty.status ===2} danger type="primary">
+                                    <Button
+                                        disabled={inventoty.status === 1 || inventoty.status === 2}
+                                        danger
+                                        type="primary"
+                                    >
                                         Hủy
                                     </Button>
                                 </Popconfirm>

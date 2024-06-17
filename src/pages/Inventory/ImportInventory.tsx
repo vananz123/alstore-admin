@@ -22,6 +22,7 @@ import * as inventoryServices from '@/api/inventoryServices';
 import useNotification from '@/hooks/useNotification';
 import { AxiosError } from 'axios';
 import { useErrorBoundary } from 'react-error-boundary';
+import { Result } from '@/api/ResType';
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
@@ -200,13 +201,13 @@ function ImportInventory() {
             if(data.isSuccessed === true){
                 openNotification('success',data.message)
                 setListProductItem([])
-            }else{
-                openNotification('error',data.message)
             }
         }),
-        onError:(error:AxiosError)=>{
+        onError:(error:AxiosError<Result>)=>{
             if(error.response?.status === 403){
                 showBoundary(error)
+            }else {
+                openNotification('error', error.response?.data.message);
             }
         }
     })

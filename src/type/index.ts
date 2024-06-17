@@ -45,6 +45,7 @@ export type ProductItem = {
     valuePromotion?:number;
     type?:string;
     stock: number;
+    capitalPrice:number;
     sku: string;
     isCombo:boolean;
     viewCount: number;

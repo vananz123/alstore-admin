@@ -175,7 +175,7 @@ const ProductForm: React.FC<{
                     rules={[{ required: true, message: 'Please select Status!' }]}
                 >
                     <Select
-                        disabled={(product?.items && product.items.length < 1) || typeof product === 'undefined'}
+                        disabled={(product?.items && product.items.length < 1) || typeof product === 'undefined' || product.variation && product.variation.length <= 0}
                         size={'middle'}
                         style={{ width: 200 }}
                         options={OPTIONS_PRODUCT_STATUS}
