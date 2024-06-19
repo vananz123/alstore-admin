@@ -1,62 +1,58 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect } from 'react';
-import type { StatisticProps } from 'antd';
-import { Col, Row, Statistic, Typography } from 'antd';
+import React from 'react';
+import type { GetProps, StatisticProps } from 'antd';
+import { Col, Empty, Row, Statistic, Typography } from 'antd';
 import CountUp from 'react-countup';
 import * as statisticServices from '@/api/statisticServices';
-import { Pie } from '@ant-design/plots';
 import { Column } from '@ant-design/plots';
-import { ProductItemStatisc } from '@/type';
 import { useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
 const { Paragraph } = Typography;
-const configg = {
-    data: [
-      { type: '分类一', value: 27 },
-      { type: '分类二', value: 25 },
-      { type: '分类三', value: 18 },
-      { type: '分类四', value: 15 },
-      { type: '分类五', value: 10 },
-      { type: '其他', value: 5 },
-    ],
-    angleField: 'value',
-    colorField: 'type',
-    paddingRight: 80,
-    label: {
-      text: 'value',
-      position: 'outside',
-    },
-    legend: {
-      color: {
-        title: false,
-        position: 'right',
-        rowPadding: 5,
-      },
-    },
-  };
+import { DatePicker } from 'antd';
+import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+const timeMonth = new Date(Date.now());
+timeMonth.setMonth(timeMonth.getMonth() - 1);
+const { RangePicker } = DatePicker;
+const dateRan = {
+    dateB: timeMonth,
+    dateE: new Date(Date.now()),
+};
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
+dayjs.extend(customParseFormat);
+const disabledDate: RangePickerProps['disabledDate'] = (current) => {
+  return current && current > dayjs().endOf('day');
+};
+const dateFormat = 'MM-DD-YYYY';
 const formatter: StatisticProps['formatter'] = (value) => <CountUp end={value as number} separator="," />;
 function Home() {
-    const {selected} = useAppSelector(selectDepartment)
+    const { selected } = useAppSelector(selectDepartment);
     const baseUrl = import.meta.env.VITE_BASE_URL;
-    const [analysis, setAnalysis] = React.useState<any>();
-    const [productItem, setProductItem] = React.useState<ProductItemStatisc[]>();
-    const [data, setData] = React.useState<any[]>([]);
-    const getData = async () => {
-        const res = await statisticServices.getSaleOfDate();
-        const res1 = await statisticServices.getAnalysis(selected);
-        const res2 = await statisticServices.getProductItemSaleTop();
-        console.log(res2);
-        setData(res.resultObj);
-        setAnalysis(res1.resultObj);
-        setProductItem(res2.resultObj);
-    };
-    useEffect(() => {
-        getData();
-    }, []);
+    const [dateBegin, setDateBegin] = React.useState<Date>(dateRan.dateB);
+    const [dateEnd, setDateEnd] = React.useState<Date>(dateRan.dateE);
+    const { data } = useQuery({
+        queryKey: [`get-sale-of-date-${dateBegin}-${dateEnd}`],
+        queryFn: () => statisticServices.getSaleOfDate(selected, dateEnd, dateBegin),
+        enabled: selected !== 0 && dateBegin < dateEnd,
+    });
+    const { data: productTopSale } = useQuery({
+        queryKey: ['get-sale-top'],
+        queryFn: () => statisticServices.getProductItemSaleTop(),
+    });
+    const { data: analysis } = useQuery({
+        queryKey: ['get-analysis'],
+        queryFn: () => statisticServices.getAnalysis(selected),
+    });
     const config = {
         data,
         xField: 'day',
         yField: 'sales',
+    };
+    const onChange = (date: any, dateString: string | string[]) => {
+        console.log(date, dateString);
+        setDateBegin(date[0]);
+        setDateEnd(date[1]);
     };
     return (
         <div>
@@ -76,17 +72,24 @@ function Home() {
                     />
                 </Col>
             </Row>
-
-            {/* <Area {...config} /> */}
+            <div className="mt-3">
+                <RangePicker
+                    defaultValue={[
+                        dayjs(dayjs(dateBegin).format('MM/DD/YYYY'), dateFormat),
+                        dayjs(dayjs(dateEnd).format('MM/DD/YYYY'), dateFormat),
+                    ]}
+                    format={dateFormat}
+                    onChange={onChange}
+                    disabledDate={disabledDate}
+                />
+            </div>
             <div className="flex ">
-                <div className='w-2/3'>
-                    <Column {...config} />
-                </div>
+                <div className="w-5/6">{data && data.length > 0 ? <Column {...config} /> : <Empty />}</div>
                 <div>
                     <p>Top sale</p>
-                    {productItem &&
-                        productItem.length > 0 &&
-                        productItem.map((item, index) => (
+                    {productTopSale &&
+                        productTopSale.length > 0 &&
+                        productTopSale.map((item, index) => (
                             <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                                 <p>{index + 1}</p>
                                 <div style={{ width: 100, height: 100 }}>
@@ -108,7 +111,6 @@ function Home() {
                         ))}
                 </div>
             </div>
-            <Pie {...configg} />
         </div>
     );
 }

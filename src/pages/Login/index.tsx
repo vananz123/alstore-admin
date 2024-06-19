@@ -31,7 +31,7 @@ function Login() {
                         Navigate(auth.navigate)
                     }
                     
-                },200)
+                },100)
             }else{
                 setError(data);
             }
