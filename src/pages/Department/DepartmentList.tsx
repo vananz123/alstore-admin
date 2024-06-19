@@ -92,7 +92,6 @@ function DepartmentList() {
                             Thêm
                         </Button>
                     </Link>
-                    {/* <SearchC typeSearch={2} onSetState={setData} /> */}
                 </Flex>
                 <Table loading={isLoading} pagination={{ position: ['bottomLeft'], pageSize: 4 }} columns={columns} dataSource={data} />
             </Space>
