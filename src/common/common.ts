@@ -44,12 +44,12 @@ export const OPTIONS_STATUS_INVENTORY = [
     {
         value: 0,
         label: 'InProccess',
-        color: 'green',
+        color: 'gold',
     },
     {
         value: 1,
         label: 'Successed',
-        color: 'gold',
+        color: 'green',
     },
     {
         value: 2,

@@ -32,16 +32,16 @@ function Home() {
     const [dateBegin, setDateBegin] = React.useState<Date>(dateRan.dateB);
     const [dateEnd, setDateEnd] = React.useState<Date>(dateRan.dateE);
     const { data } = useQuery({
-        queryKey: [`get-sale-of-date-${dateBegin}-${dateEnd}`],
+        queryKey: [`get-sale-of-date-${selected}-${dateBegin}-${dateEnd}`],
         queryFn: () => statisticServices.getSaleOfDate(selected, dateEnd, dateBegin),
         enabled: selected !== 0 && dateBegin < dateEnd,
     });
     const { data: productTopSale } = useQuery({
-        queryKey: ['get-sale-top'],
+        queryKey: [`get-sale-top`],
         queryFn: () => statisticServices.getProductItemSaleTop(),
     });
     const { data: analysis } = useQuery({
-        queryKey: ['get-analysis'],
+        queryKey: [`get-analysis-${selected}`],
         queryFn: () => statisticServices.getAnalysis(selected),
     });
     const config = {
@@ -83,8 +83,8 @@ function Home() {
                     disabledDate={disabledDate}
                 />
             </div>
-            <div className="flex ">
-                <div className="w-5/6">{data && data.length > 0 ? <Column {...config} /> : <Empty />}</div>
+            <div>
+                <div>{data && data.length > 0 ? <Column {...config} /> : <Empty />}</div>
                 <div>
                     <p>Top sale</p>
                     {productTopSale &&
