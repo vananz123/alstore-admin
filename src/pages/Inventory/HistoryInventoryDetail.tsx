@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import * as inventoryServices from '@/api/inventoryServices';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Descriptions, DescriptionsProps, Popconfirm, Space, Spin, Table, TableColumnsType, Tag } from 'antd';
@@ -18,11 +18,10 @@ function HistoryInventoryDetail() {
         isLoading,
         refetch,
     } = useQuery({
-        queryKey: [`load-his-inventory-${id}`],
-        queryFn: () => inventoryServices.getById(id ? Number(id) : 0),
+        queryKey: [`load-his-inventory`,id],
+        queryFn: () => inventoryServices.getById(Number(id)),
         enabled: !!id,
     });
-    console.log(inventoty);
     const { contextHolder, openNotification } = useNotification();
     const { showBoundary } = useErrorBoundary();
     const successed = useMutation({
@@ -91,8 +90,8 @@ function HistoryInventoryDetail() {
     const columns: TableColumnsType<InventoryDetail> = [
         {
             title: 'Id',
-            dataIndex: 'id',
-            key: 'id',
+            dataIndex: 'productItemId',
+            key: 'productItemId',
         },
         {
             title: 'seoTitle',
@@ -139,9 +138,13 @@ function HistoryInventoryDetail() {
                     Quay lại
                 </Button>
                 <div>
+                    {inventoty?.type ==='import' && (
+                        <Link to={`/translation/export/${id}`}><Button type='primary' >Chuyển hàng</Button></Link>
+                    )}
                     {inventoty?.type === 'export' && (
                         <>
                             <Space>
+                                {}
                                 <Popconfirm
                                     title="Xóa"
                                     okButtonProps={{ loading: successed.isPending }}

@@ -34,8 +34,8 @@ function Nav() {
         getItem('Loại Sản Phẩm', '/category' , <AppstoreOutlined />),
         getItem('Sản Phẩm', '/product' , <ProductOutlined />),
         getItem('Giao dịch', '/translation', <TranslationOutlined/>, [
-            getItem('Nhập hàng', '/translation/inventory/import' , <DiffOutlined />),
-            getItem('Chuyển hàng', '/translation/inventory/export' , <DiffOutlined />),
+            getItem('Nhập hàng', '/translation/import' , <DiffOutlined />),
+            getItem('Chuyển hàng', '/translation/export' , <DiffOutlined />),
             getItem('Lịch sử', '/translation/inventory' , <ReconciliationOutlined />),
         ]),
         getItem('Đơn Hàng', '/order' , <ShoppingOutlined />),

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Order, OrderStatus } from '@/api/ResType';
 import { Table, Space, Badge, Tabs, Button } from 'antd';
-import type { TableProps } from 'antd';
+import type { TableColumnsType } from 'antd';
 import { selectOrderStatus ,changeOrderStatus} from '@/app/feature/order-status/reducer';
 import * as orderServices from '@/api/orderServices';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
 import {OPTIONS_SHIPPING} from "@/common/common"
+import useSearchIndexTable from '@/hooks/useSearchIndexTable';
 const items = [
     ...STATUS_ORDER,
     {
@@ -23,12 +24,13 @@ function OrderList() {
     const dispatch  = useAppDispatch()
     const {name:statusName} = useAppSelector(selectOrderStatus);
     const {selected } = useAppSelector(selectDepartment)
+    const {getColumnSearchProps} = useSearchIndexTable()
     const { data, isLoading } = useQuery({
         queryKey: [`load-user-order-list-${statusName}-${selected}`],
         queryFn: () => orderServices.getOrderAdmin(statusName , selected),
         enabled: !!statusName && !!selected,
     });
-    const columns: TableProps<Order>['columns'] = [
+    const columns: TableColumnsType<Order> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -36,15 +38,17 @@ function OrderList() {
         },
         {
             title: 'Email',
-            dataIndex: 'user',
-            key: 'user',
-            render: (_, record) => <p>{record.user.email}</p>
+            dataIndex: 'email',
+            key: 'email',
+            ...getColumnSearchProps<Order>('email')
         },
         {
             title: 'Tổng Tiền Hóa Đơn',
             dataIndex: 'orderTotal',
             key: 'orderTotal',
             render: (_, record) => <p>{ChangeCurrence(record.orderTotal)}</p>,
+            
+            
         },
         {
             title: 'Ngày Tạo',

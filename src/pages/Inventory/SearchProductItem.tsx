@@ -51,7 +51,7 @@ const SearchProductItem: React.FC<Props> = ({className, onSetList , listProductI
                 {contextHolder}
                 <Popover
                     content={
-                        <div className='popover-search'>
+                        <div className='max-h-[500px] overflow-y-auto'>
                             {data && data.length > 1 ? (
                                 <>
                                     {data.map((e: ProductItemSearch) => (

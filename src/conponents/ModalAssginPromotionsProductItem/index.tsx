@@ -122,7 +122,7 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/admin/promotion-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/promotion/edit/${record.id}`}>Edit</Link>
                 </Space>
             ),
         },
@@ -161,7 +161,7 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
                 footer=""
             >
                 <Flex justify="space-between" style={{ marginBottom: 10 }}>
-                    <Link to={'/admin/promotion-add'}>
+                    <Link to={'/promotion/add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Add
                         </Button>

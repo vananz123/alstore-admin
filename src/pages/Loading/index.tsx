@@ -1,28 +1,33 @@
-
-import { Layout, theme } from 'antd';
-const { Content, Header, } = Layout;
+import { useSkin } from '@/hooks';
+import { Layout, theme, ConfigProvider } from 'antd';
+const { Content, Header } = Layout;
 function Loading() {
     const {
-        token: { colorBgContainer, borderRadiusLG },
+        token: { borderRadiusLG },
     } = theme.useToken();
-
+    const { style, skin } = useSkin();
     return (
-        <Layout>
+        <ConfigProvider
+            theme={{
+                algorithm: skin == 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
+            }}
+        >
             <Layout>
-                <Header style={{ background: colorBgContainer,}}></Header>
-                <Content style={{ margin: '24px 16px 0' }}>
-                    <div
-                        style={{
-                            padding: 24,
-                            minHeight: 360,
-                            background: colorBgContainer,
-                            borderRadius: borderRadiusLG,
-                        }}
-                    >
-                    </div>
-                </Content>
+                <Layout>
+                    <Header style={style}></Header>
+                    <Content style={{ margin: '24px 16px 0' }}>
+                        <div
+                            style={{
+                                ...style,
+                                padding: 24,
+                                minHeight: '100vh',
+                                borderRadius: borderRadiusLG,
+                            }}
+                        ></div>
+                    </Content>
+                </Layout>
             </Layout>
-        </Layout>
+        </ConfigProvider>
     );
 }
 

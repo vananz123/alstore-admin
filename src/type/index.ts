@@ -33,7 +33,7 @@ export interface ProductItemSearch {
     price: number;
     sku: string;
     stock:number;
-    status: number;
+    status?: number;
     name: string;
     value: string;
 }

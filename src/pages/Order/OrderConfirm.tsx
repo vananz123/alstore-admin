@@ -22,7 +22,7 @@ function OrderConfirm() {
     const { contextHolder, openNotification } = useNotification();
     const statusTimeLine:TimeLineProps[] =[];
     const {data:order ,refetch , isLoading} = useQuery({
-        queryKey:[`load-order-detail-${id}`],
+        queryKey:[`load-order-detail`,id],
         queryFn:()=> orderServices.getOrderAdminByOrderId(Number(id)),
         enabled:!!id
     })

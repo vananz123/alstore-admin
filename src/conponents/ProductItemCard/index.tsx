@@ -1,11 +1,13 @@
+import { useSkin } from '@/hooks';
 import { ProductItemSearch } from '@/type';
 import { Typography } from 'antd';
 import React from 'react';
 const { Paragraph } = Typography;
 const ProductItemCard: React.FC<{ productItem: ProductItemSearch }> = ({ productItem }) => {
     const baseUrl = import.meta.env.VITE_BASE_URL;
+    const { skin} = useSkin()
     return (
-        <div className="rounded p-2 bg-[#fafafa]">
+        <div className={`rounded p-2 ${skin === "light"? "bg-[#fafafa]": "bg-[#141414]"}`}>
             <div className="flex items-center gap-3">
                 <div className="w-[70px]">
                     <img className="w-full h-auto" src={baseUrl + productItem?.urlThumbnailImage} />

@@ -69,7 +69,7 @@ function UserList() {
     ];
     return (
         <div>
-            <Table loading={isLoading} pagination={{ position: ['bottomLeft'], pageSize: 4 }} columns={columns} dataSource={data} />
+            <Table loading={isLoading} pagination={{ position: ['bottomLeft'], pageSize: 10 }} columns={columns} dataSource={data} />
         </div>
     );
 }

@@ -92,7 +92,7 @@ const ModalAssignGuarantiesProductItem: React.FC<Props> = ({
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/admin/guaranties-edit/${record.id}`}>Edit</Link>
+                    <Link to={`/guaranty/edit/${record.id}`}>Edit</Link>
                 </Space>
             ),
         },
@@ -130,7 +130,7 @@ const ModalAssignGuarantiesProductItem: React.FC<Props> = ({
                 footer=""
             >
                 <Flex justify="space-between" style={{ marginBottom: 10 }}>
-                    <Link to={'/admin/guaranties-add'}>
+                    <Link to={'/guaranty/add'}>
                         <Button type="primary" icon={<PlusOutlined />} size="large">
                             Add
                         </Button>

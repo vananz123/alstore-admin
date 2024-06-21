@@ -44,6 +44,7 @@ export interface InventoryDetail {
     productItemId: number;
     price: number;
     quantity: number;
+    stock:number;
     dateCreate: string;
     productId: number;
     sku: string;
@@ -168,6 +169,8 @@ export type Order = {
     isCanceledButton: boolean;
     isReturnedButton: boolean;
     user: ResponseUser;
+    email:string;
+    name:string;
     orderDate: string;
     orderTotal: number;
     totalProduct: number;

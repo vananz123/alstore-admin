@@ -103,7 +103,7 @@ function ProductList() {
             render: (_: any, record: Product) => (
                 <img
                     src={`${baseUrl + record.urlThumbnailImage}`}
-                    style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
+                    className='w-[80px] h-auto cursor-pointer'
                     onClick={() => showModalImage(record.id)}
                 />
             ),

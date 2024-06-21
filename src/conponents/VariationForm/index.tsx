@@ -1,32 +1,56 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Drawer, Form, Input, Space } from 'antd';
-import { FORM_ITEM_LAYOUT, TAIL_FORM_ITEM_LAYOUT } from '@/common/common';
+import { FORM_ITEM_LAYOUT } from '@/common/common';
 import { SetStateAction } from 'react';
 import * as productServices from '@/api/productServices';
 import { Product } from '@/type';
 import useNotification from '@/hooks/useNotification';
-interface Props{
-    product:Product;
-    open:boolean;
-    onSetStateOpen:SetStateAction<any>;
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { useErrorBoundary } from 'react-error-boundary';
+import { Result } from '@/api/ResType';
+interface Props {
+    product: Product;
+    open: boolean;
+    onSetStateOpen: SetStateAction<any>;
 }
-const VariationFrom :React.FC<Props> =({product, open ,onSetStateOpen})=> {
-    const {contextHolder , openNotification} = useNotification()
+interface Body {
+    id: number;
+    data: any;
+}
+const VariationFrom: React.FC<Props> = ({ product, open, onSetStateOpen }) => {
+    const { showBoundary } = useErrorBoundary();
+    const assignVariation = useMutation({
+        mutationKey: ['assign-varition'],
+        mutationFn: (body: Body) => productServices.addVariation(body.id, body.data),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                onSetStateOpen(false);
+                openNotification('success', data.message);
+            }
+        },
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
+            } else {
+                openNotification('error', error.response?.data.message);
+            }
+        },
+    });
+    const { contextHolder, openNotification } = useNotification();
     const onFinishVariation = async (values: any) => {
         if (product != undefined) {
-            console.log(values);
-            const res = await productServices.addVariation(product.id, values.variations);
-            if (res.isSuccessed === true) {
-              //  onSetState(res.resultObj);
-                onSetStateOpen(false);
-               openNotification('success', 'Add variation success');
-            }
+            const body: Body = {
+                id: product.id,
+                data: values.variations,
+            };
+            assignVariation.mutateAsync(body)
         }
     };
     return (
         <>
-        {contextHolder}
+            {contextHolder}
             <Drawer title="Create variation" width={600} onClose={() => onSetStateOpen(false)} open={open}>
                 <Form
                     {...FORM_ITEM_LAYOUT}
@@ -65,8 +89,8 @@ const VariationFrom :React.FC<Props> =({product, open ,onSetStateOpen})=> {
                             </>
                         )}
                     </Form.List>
-                    <Form.Item {...TAIL_FORM_ITEM_LAYOUT}>
-                        <Button type="primary" htmlType="submit">
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" loading={assignVariation.isPending}>
                             Submit
                         </Button>
                     </Form.Item>
@@ -74,6 +98,6 @@ const VariationFrom :React.FC<Props> =({product, open ,onSetStateOpen})=> {
             </Drawer>
         </>
     );
-}
+};
 
 export default VariationFrom;

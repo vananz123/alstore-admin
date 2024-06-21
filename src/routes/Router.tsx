@@ -327,7 +327,7 @@ const Router: React.FC = () => {
                         </AuthGuard>
                     ),
                 },{
-                    path: 'translation/inventory/import',
+                    path: 'translation/import',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>
@@ -336,7 +336,16 @@ const Router: React.FC = () => {
                         </AuthGuard>
                     ),
                 },{
-                    path: 'translation/inventory/export',
+                    path: 'translation/export',
+                    element: (
+                        <AuthGuard>
+                            <RoleGuard role={['admin']}>
+                               <Suspense> <ExportInventory /></Suspense>
+                            </RoleGuard>
+                        </AuthGuard>
+                    ),
+                },{
+                    path: 'translation/export/:id',
                     element: (
                         <AuthGuard>
                             <RoleGuard role={['admin']}>

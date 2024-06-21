@@ -244,32 +244,26 @@ export const deleteProductItem = async (id: number) => {
     return resp;
 };
 export const addVariation = async (id: number, data: any[]) => {
-    try {
-        const pro: any[] = [];
-        data.forEach((element: any) => {
-            const item = {
-                id: randomNumber(1, 1000),
-                name: element.name,
-                value: element.value,
-                selected: true,
-            };
-            pro.push(item);
-        });
-        const res = await request.put(`/product/${encodeURIComponent(id)}/variation`, { variations: pro });
-        const resultObj: Product = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
+    const pro: any[] = [];
+    data.forEach((element: any) => {
+        const item = {
+            id: randomNumber(1, 1000),
+            name: element.name,
+            value: element.value,
+            selected: true,
         };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+        pro.push(item);
+    });
+    const res = await request.put(`/product/${encodeURIComponent(id)}/variation`, { variations: pro });
+    const resultObj: Product = res.resultObj;
+    const resp: Result = {
+        error: '',
+        isSuccessed: res.isSuccessed,
+        message: res.message,
+        statusCode: 200,
+        resultObj: resultObj,
+    };
+    return resp;
 };
 export const assignGuaranties = async (id: number, guarantyId: number) => {
     const res = await request.put(`/product/product-item/guaranties`, {
