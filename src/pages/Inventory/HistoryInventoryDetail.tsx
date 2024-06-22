@@ -152,7 +152,7 @@ function HistoryInventoryDetail() {
                                         if (inventoty) successed.mutateAsync(inventoty.id);
                                     }}
                                 >
-                                    <Button disabled={inventoty.status === 1 || inventoty.status === 2}>
+                                    <Button loading={successed.isPending} disabled={inventoty.status === 1 || inventoty.status === 2}>
                                         Xác nhận
                                     </Button>
                                 </Popconfirm>
@@ -165,6 +165,7 @@ function HistoryInventoryDetail() {
                                     }}
                                 >
                                     <Button
+                                    loading={canceled.isPending}
                                         disabled={inventoty.status === 1 || inventoty.status === 2}
                                         danger
                                         type="primary"

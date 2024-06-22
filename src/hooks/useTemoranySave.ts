@@ -10,12 +10,12 @@ function useTemoranySave(type: TemoranySaveInventory) {
     const setListProduct = useCallback(
         (listProductItem: ProductItemSearch[]) => {
             if (type === 'import') {
-                const resulf = Storage(temporanySaveImport,'temporanySaveImport', listProductItem )
-                setData(resulf)
+                const resulf = Storage(temporanySaveImport, 'temporanySaveImport', listProductItem);
+                setData(resulf);
             }
-            if(type ==='export'){
-                const resulf = Storage(temporanySaveExport,'temporanySaveExport', listProductItem )
-                setData(resulf)
+            if (type === 'export') {
+                const resulf = Storage(temporanySaveExport, 'temporanySaveExport', listProductItem);
+                setData(resulf);
             }
         },
         [temporanySaveImport, type, temporanySaveExport],
@@ -23,34 +23,36 @@ function useTemoranySave(type: TemoranySaveInventory) {
     const removeItemProduct = useCallback(
         (index: number) => {
             if (type === 'import') {
-                const resulf = removeStorageItem(temporanySaveImport,'temporanySaveImport', index )
-                setData(resulf ? resulf: [])
+                const resulf = removeStorageItem(temporanySaveImport, 'temporanySaveImport', index);
+                setData(resulf ? resulf : []);
             }
-            if(type ==='export'){
-                const resulf = removeStorageItem(temporanySaveExport,'temporanySaveExport', index )
-                setData(resulf ? resulf: [])
+            if (type === 'export') {
+                const resulf = removeStorageItem(temporanySaveExport, 'temporanySaveExport', index);
+                setData(resulf ? resulf : []);
             }
         },
-        [temporanySaveImport,temporanySaveExport,type],
+        [temporanySaveImport, temporanySaveExport, type],
     );
-    if (data) {
-        for (let i = 0; i < data.length; i++) {
-            const item = {
-                label: `Lưu tạm ${i+1}`,
-                value: i,
-            };
-            optionTemoranySave.push(item);
-        }
+    for (let i = 0; i < data.length; i++) {
+        const item = {
+            label: `Lưu tạm ${i + 1}`,
+            value: i,
+        };
+        optionTemoranySave.push(item);
     }
     useEffect(() => {
         if (temporanySaveImport !== null) {
             const arrParse: Array<ProductItemSearch[]> = JSON.parse(temporanySaveImport);
             setData(arrParse);
         }
-    }, [setListProduct, temporanySaveImport, removeItemProduct]);
+        if (temporanySaveExport !== null) {
+            const arrParse: Array<ProductItemSearch[]> = JSON.parse(temporanySaveExport);
+            setData(arrParse);
+        }
+    }, [setListProduct, temporanySaveImport, temporanySaveExport, removeItemProduct]);
     return { data: data, generateOption: optionTemoranySave, setListProduct, removeItemProduct };
 }
-const removeStorageItem =(storageData: string | null, storageName: string,index:number)=>{
+const removeStorageItem = (storageData: string | null, storageName: string, index: number) => {
     if (storageData != null) {
         const listProductStringifyOld: Array<ProductItemSearch[]> = JSON.parse(storageData);
         listProductStringifyOld.splice(index, 1);
@@ -59,9 +61,9 @@ const removeStorageItem =(storageData: string | null, storageName: string,index:
         } else {
             localStorage.setItem(storageName, JSON.stringify(listProductStringifyOld));
         }
-        return listProductStringifyOld
+        return listProductStringifyOld;
     }
-}
+};
 const Storage = (storageData: string | null, storageName: string, listProductItem: ProductItemSearch[]) => {
     if (storageData == null) {
         const temporanySaveImportArr: Array<ProductItemSearch[]> = [];
