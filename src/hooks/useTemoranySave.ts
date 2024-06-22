@@ -1,10 +1,9 @@
 import { ProductItemSearch } from '@/type';
-import { SelectProps } from 'antd';
 import React, { useCallback, useEffect } from 'react';
 type TemoranySaveInventory = 'import' | 'export';
 function useTemoranySave(type: TemoranySaveInventory) {
     const [data, setData] = React.useState<Array<ProductItemSearch[]>>([]);
-    const optionTemoranySave: SelectProps['options'] = [{ label: `Chọn bản lưu tạm-(NONE)`, value: -1 }];
+    const optionTemoranySave = [{ label: `Chọn bản lưu tạm-(NONE)`, value: -1 }];
     const temporanySaveImport = localStorage.getItem('temporanySaveImport');
     const temporanySaveExport = localStorage.getItem('temporanySaveExport');
     const setListProduct = useCallback(
@@ -33,12 +32,25 @@ function useTemoranySave(type: TemoranySaveInventory) {
         },
         [temporanySaveImport, temporanySaveExport, type],
     );
-    for (let i = 0; i < data.length; i++) {
-        const item = {
-            label: `Lưu tạm ${i + 1}`,
-            value: i,
-        };
-        optionTemoranySave.push(item);
+    if(temporanySaveImport !== null && type==='import'){
+        const arrParse: Array<ProductItemSearch[]> = JSON.parse(temporanySaveImport);
+        for (let i = 0; i < arrParse.length; i++) {
+            const item = {
+                label: `Lưu tạm ${i + 1}`,
+                value: i,
+            };
+            optionTemoranySave.push(item);
+        }
+    }
+    if(temporanySaveExport !== null && type==='export'){
+        const arrParse: Array<ProductItemSearch[]> = JSON.parse(temporanySaveExport);
+        for (let i = 0; i < arrParse.length; i++) {
+            const item = {
+                label: `Lưu tạm ${i + 1}`,
+                value: i,
+            };
+            optionTemoranySave.push(item);
+        }
     }
     useEffect(() => {
         if (temporanySaveImport !== null) {
