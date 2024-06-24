@@ -1,4 +1,4 @@
-import {  OrderDetail, OrderStatus, Review } from '@/api/ResType';
+import { OrderDetail, OrderStatus, Result, Review } from '@/api/ResType';
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -9,23 +9,31 @@ import dayjs from 'dayjs';
 import ModalFeedback from '@/view/order/ModalFeedback';
 import OrderWarranty from './OrderWarranty';
 import useNotification from '@/hooks/useNotification';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import {  useErrorBoundary } from 'react-error-boundary';
+import { useImmer } from 'use-immer';
+import { columnsOrderConfirm } from './TableColumnsBase';
+import { ChangeCurrence } from "@/utils/utils";
 type TimeLineProps = {
     label?: string;
     children: string;
 };
 function OrderConfirm() {
     const { id } = useParams();
-    const baseUrl = import.meta.env.VITE_BASE_URL;
-    const [openModalFb, setOpenModalFb] = React.useState<boolean>(false);
-    const [review, setReview] = React.useState<Review>();
+    const [openModalFb, setOpenModalFb] = useImmer<boolean>(false);
+    const [review, setReview] = useImmer<Review | undefined>(undefined);
     const { contextHolder, openNotification } = useNotification();
-    const statusTimeLine:TimeLineProps[] =[];
-    const {data:order ,refetch , isLoading} = useQuery({
-        queryKey:[`load-order-detail`,id],
-        queryFn:()=> orderServices.getOrderAdminByOrderId(Number(id)),
-        enabled:!!id
-    })
+    const statusTimeLine: TimeLineProps[] = [];
+    const {
+        data: order,
+        refetch,
+        isLoading,
+    } = useQuery({
+        queryKey: [`load-order-detail`, id],
+        queryFn: () => orderServices.getOrderAdminByOrderId(Number(id)),
+        enabled: !!id,
+    });
     if (order) {
         order.status?.forEach((element: OrderStatus) => {
             const line: TimeLineProps = {
@@ -99,87 +107,63 @@ function OrderConfirm() {
         },
     ];
     const navigate = useNavigate();
-    const [openConfrim, setOpenConfrim] = React.useState(false);
     const [openWarranty, setOpenWarranty] = React.useState(false);
     const [orderDetail, setOrderDetail] = React.useState<OrderDetail>();
-    const [openCancel, setOpenCancel] = React.useState(false);
-    const [confirmLoading, setConfirmLoading] = React.useState(false);
-    
-    const showPopconfirmCancel = () => {
-        setOpenCancel(true);
-    };
-    const showPopconfirm = () => {
-        setOpenConfrim(true);
-    };
-    const handleOkCancel = async () => {
-        setConfirmLoading(true);
-        if (typeof order != 'undefined') {
-            const res = await orderServices.canceled(order.id);
-            if (res.isSuccessed === true) {
-                openNotification('success', res.message);
-                refetch();
-            } else {
-                openNotification('error', res.message);
+
+    const {showBoundary}= useErrorBoundary()
+    const canceled = useMutation({
+        mutationKey:['canceled'],
+        mutationFn:(id:number)=> orderServices.canceled(id),
+        onSuccess:((data)=> {
+            if(data?.isSuccessed === true){
+                refetch()
+                openNotification('success', data.message);
             }
-        }
-        setOpenConfrim(false);
-        setConfirmLoading(false);
-    };
-    const handleOk = async () => {
-        setConfirmLoading(true);
-        if (typeof order != 'undefined') {
-            const res = await orderServices.comfirm(order.id);
-            if (res.isSuccessed === true) {
-                openNotification('success', res.message);
-                refetch();
-            } else {
-                openNotification('error', res.message);
+        }),
+        onError:((error:AxiosError<Result>)=>{
+            if(error.response?.status === 403){
+                showBoundary(error)
+            }else{
+                openNotification('error', error.response?.data.message);
             }
-        }
-        setOpenConfrim(false);
-        setConfirmLoading(false);
-    };
+        })
+    })
+    const confirmed = useMutation({
+        mutationKey:['confirmed'],
+        mutationFn:(id:number)=> orderServices.comfirm(id),
+        onSuccess:((data)=> {
+            if(data?.isSuccessed === true){
+                refetch()
+                openNotification('success', data.message);
+            }
+        }),
+        onError:((error:AxiosError<Result>)=>{
+            if(error.response?.status === 403){
+                showBoundary(error)
+            }else{
+                openNotification('error', error.response?.data.message);
+            }
+        })
+    })
+    const successed = useMutation({
+        mutationKey:['successed'],
+        mutationFn:(id:number)=> orderServices.successed(id),
+        onSuccess:((data)=> {
+            if(data?.isSuccessed === true){
+                refetch()
+                openNotification('success', data.message);
+            }
+        }),
+        onError:((error:AxiosError<Result>)=>{
+            if(error.response?.status === 403){
+                showBoundary(error)
+            }else{
+                openNotification('error', error.response?.data.message);
+            }
+        })
+    })
     const columns: TableColumnsType<OrderDetail> = [
-        {
-            title: 'Id',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
-            title: 'seoTitle',
-            dataIndex: 'seoTitle',
-            key: 'seoTitle',
-        },
-        {
-            title: 'Image',
-            dataIndex: 'urlThumbnailImage',
-            key: 'urlThumbnailImage',
-            render: (_, record) => <img style={{ width: 70 }} src={baseUrl + record.urlThumbnailImage} />,
-        },
-        {
-            title: 'Size',
-            dataIndex: 'value',
-            key: 'value',
-            render: (_, record) => <p>{record.value === null ? 'not' : `${record.value} ${record.sku}`}</p>,
-        },
-        {
-            title: 'price',
-            dataIndex: 'price',
-            key: 'price',
-            render: (_, record) => <p>{ChangeCurrence(record.price)}</p>,
-        },
-        {
-            title: 'Bảo hành',
-            dataIndex: 'guaranty',
-            key: 'guaranty',
-            render: (_, record) => (
-                <div>
-                    <p>{record.guaranty.name}</p>
-                    <p>{record.guaranty.period + ' ' + record.guaranty.sku}</p>
-                    <p>{dayjs(record.guaranty.datePeriod).format('MM/DD/YYYY')}</p>
-                </div>
-            ),
-        },
+        ...columnsOrderConfirm,
         {
             title: 'Action',
             dataIndex: 'review',
@@ -212,7 +196,7 @@ function OrderConfirm() {
     ];
     return (
         <div>
-            <div className='flex justify-between'>
+            <div className="flex justify-between">
                 <Button
                     type="text"
                     icon={<ArrowLeftOutlined />}
@@ -225,59 +209,57 @@ function OrderConfirm() {
                     Quay lại
                 </Button>
                 <div>
-                    <Space>
-                        <Popconfirm
-                            title="Xác nhận"
-                            description="Thao táo này không thể hoàn tác!"
-                            open={openConfrim}
-                            onConfirm={handleOk}
-                            okButtonProps={{ loading: confirmLoading }}
-                            onCancel={() => {
-                                setOpenConfrim(false);
-                            }}
-                        >
-                            <Button
-                                disabled={order?.status?.some((s) => s.name == 'Đã tiếp nhận' || s.name === 'Đã hủy')}
-                                onClick={() => {
-                                    showPopconfirm();
-                                }}
-                            >
-                                Confrim
-                            </Button>
-                        </Popconfirm>
-                        <Popconfirm
-                            title="Xác nhận"
-                            description="Thao táo này không thể hoàn tác!"
-                            placement="bottomLeft"
-                            open={openCancel}
-                            onConfirm={handleOkCancel}
-                            okButtonProps={{ loading: confirmLoading }}
-                            onCancel={() => {
-                                setOpenCancel(false);
-                            }}
-                        >
-                            <Button
-                                danger
-                                type="primary"
-                                onClick={() => {
-                                    showPopconfirmCancel();
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                        </Popconfirm>
-                    </Space>
+                    {order && (
+                        <Space>
+                            {order.isSuccsessedButton && (
+                                <Popconfirm
+                                    title="Xác nhận"
+                                    description="Thao táo này không thể hoàn tác!"
+                                    onConfirm={()=> successed.mutateAsync(order.id)}
+                                    okButtonProps={{ loading: successed.isPending }}
+                                >
+                                    <Button
+                                    >
+                                        Hoàn thành
+                                    </Button>
+                                </Popconfirm>
+                            )}
+                            {order.isConfirmeddButton && (
+                                <Popconfirm
+                                    title="Xác nhận"
+                                    description="Thao táo này không thể hoàn tác!"
+                                    onConfirm={()=> confirmed.mutateAsync(order.id)}
+                                    okButtonProps={{ loading: confirmed.isPending }}
+                                >
+                                    <Button
+                                    >
+                                        Xác nhận
+                                    </Button>
+                                </Popconfirm>
+                            )}
+                            {order.status?.some(s=> s.name ==="Đã hủy" || s.name ==="Đã hoàn thành" || s.name ==="Trả hàng") ===false && (
+                                <Popconfirm
+                                    title="Xác nhận"
+                                    description="Thao táo này không thể hoàn tác!"
+                                    placement="bottomLeft"
+                                    onConfirm={()=> canceled.mutateAsync(order.id)}
+                                    okButtonProps={{ loading: canceled.isPending }}
+                                >
+                                    <Button
+                                        danger
+                                        type="primary"
+                                    >
+                                        Hủy
+                                    </Button>
+                                </Popconfirm>
+                            )}
+                        </Space>
+                    )}
                 </div>
             </div>
             {contextHolder}
             <Spin spinning={isLoading}>
-                <Descriptions
-                    title="Thông Tin Khách Hàng"
-                    column={3}
-                    size="middle"
-                    items={desUser}
-                    bordered
-                />
+                <Descriptions title="Thông Tin Khách Hàng" column={3} size="middle" items={desUser} bordered />
                 <Descriptions title="Thông Tin Đơn Hàng" column={2} size="middle" items={desOrder} bordered />
                 <Table
                     title={() => <p>Order detail</p>}
@@ -292,15 +274,4 @@ function OrderConfirm() {
         </div>
     );
 }
-const ChangeCurrence = (number: number | undefined) => {
-    if (number) {
-        const formattedNumber = number.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            currencyDisplay: 'code',
-        });
-        return formattedNumber;
-    }
-    return 0;
-};
 export default OrderConfirm;

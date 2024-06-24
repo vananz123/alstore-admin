@@ -17,6 +17,7 @@ import useSearchIndexTable from '@/hooks/useSearchIndexTable';
 import { AxiosError } from 'axios';
 import { useErrorBoundary } from 'react-error-boundary';
 import useNotification from '@/hooks/useNotification';
+import { ChangeCurrence } from '@/utils/utils';
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 const getBase64 = (file: FileType): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -25,6 +26,16 @@ const getBase64 = (file: FileType): Promise<string> =>
         reader.onload = () => resolve(reader.result as string);
         reader.onerror = (error) => reject(error);
     });
+const uploadButton = (
+    <button style={{ border: 0, background: 'none' }} type="button">
+        <PlusOutlined />
+        <div style={{ marginTop: 8 }}>Upload</div>
+    </button>
+);
+const renderTag = (status: number) => {
+    const option = OPTIONS_PRODUCT_STATUS?.find((x) => x.value == status);
+    return <Tag color={option?.color}>{option?.label}</Tag>;
+};
 function ProductList() {
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const { showBoundary } = useErrorBoundary();
@@ -64,17 +75,6 @@ function ProductList() {
         setPreviewOpen(true);
     };
     const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) => setFileList(newFileList);
-
-    const uploadButton = (
-        <button style={{ border: 0, background: 'none' }} type="button">
-            <PlusOutlined />
-            <div style={{ marginTop: 8 }}>Upload</div>
-        </button>
-    );
-    const renderTag = (status: number) => {
-        const option = OPTIONS_PRODUCT_STATUS?.find((x) => x.value == status);
-        return <Tag color={option?.color}>{option?.label}</Tag>;
-    };
     const columns: TableColumnsType<Product> = [
         {
             title: 'Id',
@@ -103,7 +103,7 @@ function ProductList() {
             render: (_: any, record: Product) => (
                 <img
                     src={`${baseUrl + record.urlThumbnailImage}`}
-                    className='w-[80px] h-auto cursor-pointer'
+                    className="w-[80px] h-auto cursor-pointer"
                     onClick={() => showModalImage(record.id)}
                 />
             ),
@@ -167,12 +167,12 @@ function ProductList() {
         mutationKey: [`delete-product`],
         mutationFn: (id: number) => productServices.deleteProduct(id),
         onSuccess: (data) => {
-            if(data.isSuccessed === true){
+            if (data.isSuccessed === true) {
                 refetch();
                 setOpen(false);
                 setFileList([]);
                 openNotification('success', data.message);
-            }else{
+            } else {
                 openNotification('success', data.message);
             }
         },
@@ -261,15 +261,4 @@ function ProductList() {
         </div>
     );
 }
-const ChangeCurrence = (number: number | undefined) => {
-    if (number) {
-        const formattedNumber = number.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            currencyDisplay: 'code',
-        });
-        return formattedNumber;
-    }
-    return 0;
-};
 export default ProductList;

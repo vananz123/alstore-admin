@@ -1,72 +1,97 @@
 import { ProductItemSearch } from '@/type';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 type TemoranySaveInventory = 'import' | 'export';
+import { useImmer } from 'use-immer';
+interface TemoranySaveType{
+    name:string;
+    items:ProductItemSearch[]
+}
 function useTemoranySave(type: TemoranySaveInventory) {
-    const [data, setData] = React.useState<Array<ProductItemSearch[]>>([]);
-    const optionTemoranySave = [{ label: `Chọn bản lưu tạm-(NONE)`, value: -1 }];
+    const [data, setData] = useImmer<Array<TemoranySaveType>>([]);
     const temporanySaveImport = localStorage.getItem('temporanySaveImport');
     const temporanySaveExport = localStorage.getItem('temporanySaveExport');
     const setListProduct = useCallback(
-        (listProductItem: ProductItemSearch[]) => {
+        (listProductItem: ProductItemSearch[], name?:string) => {
             if (type === 'import') {
-                const resulf = Storage(temporanySaveImport, 'temporanySaveImport', listProductItem);
-                setData(resulf);
+                const item:TemoranySaveType = {
+                    name:name ? name : `Lưu tạm ${data.length+1}`,
+                    items:listProductItem
+                }
+                setData((draft) => {
+                    draft.push(item);
+                });
+                Storage(temporanySaveImport, 'temporanySaveImport', item);
             }
             if (type === 'export') {
-                const resulf = Storage(temporanySaveExport, 'temporanySaveExport', listProductItem);
-                setData(resulf);
+                const item:TemoranySaveType = {
+                    name:name ? name : `Lưu tạm ${data.length+1}`,
+                    items:listProductItem
+                }
+                setData((draft) => {
+                    draft.push(item);
+                });
+                Storage(temporanySaveExport, 'temporanySaveExport', item);
             }
         },
-        [temporanySaveImport, type, temporanySaveExport],
+        [type, setData, temporanySaveExport, temporanySaveImport,data.length],
     );
     const removeItemProduct = useCallback(
         (index: number) => {
             if (type === 'import') {
-                const resulf = removeStorageItem(temporanySaveImport, 'temporanySaveImport', index);
-                setData(resulf ? resulf : []);
+                setData((draft) => {
+                    draft.splice(index, 1);
+                });
+                removeStorageItem(temporanySaveImport, 'temporanySaveImport', index);
             }
             if (type === 'export') {
-                const resulf = removeStorageItem(temporanySaveExport, 'temporanySaveExport', index);
-                setData(resulf ? resulf : []);
+                setData((draft) => {
+                    draft.splice(index, 1);
+                });
+                removeStorageItem(temporanySaveExport, 'temporanySaveExport', index);
             }
         },
-        [temporanySaveImport, temporanySaveExport, type],
+        [type, setData, temporanySaveExport, temporanySaveImport],
     );
-    if(temporanySaveImport !== null && type==='import'){
-        const arrParse: Array<ProductItemSearch[]> = JSON.parse(temporanySaveImport);
-        for (let i = 0; i < arrParse.length; i++) {
-            const item = {
-                label: `Lưu tạm ${i + 1}`,
-                value: i,
-            };
-            optionTemoranySave.push(item);
+    const optionTemoranySave = [{ label: `Chọn bản lưu tạm-(NONE)`, value: -1 }];
+    if (type === 'import') {
+        if (temporanySaveImport !== null) {
+            const arrParse: Array<TemoranySaveType> = JSON.parse(temporanySaveImport);
+            for (let i = 0; i < arrParse.length; i++) {
+                const item = {
+                    label: arrParse[i].name,
+                    value: i,
+                };
+                optionTemoranySave.push(item);
+            }
         }
     }
-    if(temporanySaveExport !== null && type==='export'){
-        const arrParse: Array<ProductItemSearch[]> = JSON.parse(temporanySaveExport);
-        for (let i = 0; i < arrParse.length; i++) {
-            const item = {
-                label: `Lưu tạm ${i + 1}`,
-                value: i,
-            };
-            optionTemoranySave.push(item);
+    if (type === 'export') {
+        if (temporanySaveExport !== null) {
+            const arrParse: Array<TemoranySaveType> = JSON.parse(temporanySaveExport);
+            for (let i = 0; i < arrParse.length; i++) {
+                const item = {
+                    label: arrParse[i].name,
+                    value: i,
+                };
+                optionTemoranySave.push(item);
+            }
         }
     }
     useEffect(() => {
-        if (temporanySaveImport !== null) {
-            const arrParse: Array<ProductItemSearch[]> = JSON.parse(temporanySaveImport);
+        if (temporanySaveImport !== null && type === 'import') {
+            const arrParse: Array<TemoranySaveType> = JSON.parse(temporanySaveImport);
             setData(arrParse);
         }
-        if (temporanySaveExport !== null) {
-            const arrParse: Array<ProductItemSearch[]> = JSON.parse(temporanySaveExport);
+        if (temporanySaveExport !== null && type === 'export') {
+            const arrParse: Array<TemoranySaveType> = JSON.parse(temporanySaveExport);
             setData(arrParse);
         }
-    }, [setListProduct, temporanySaveImport, temporanySaveExport, removeItemProduct]);
+    }, [type, setData, temporanySaveExport, temporanySaveImport]);
     return { data: data, generateOption: optionTemoranySave, setListProduct, removeItemProduct };
 }
 const removeStorageItem = (storageData: string | null, storageName: string, index: number) => {
     if (storageData != null) {
-        const listProductStringifyOld: Array<ProductItemSearch[]> = JSON.parse(storageData);
+        const listProductStringifyOld: Array<TemoranySaveType> = JSON.parse(storageData);
         listProductStringifyOld.splice(index, 1);
         if (listProductStringifyOld.length <= 0) {
             localStorage.removeItem(storageName);
@@ -76,23 +101,14 @@ const removeStorageItem = (storageData: string | null, storageName: string, inde
         return listProductStringifyOld;
     }
 };
-const Storage = (storageData: string | null, storageName: string, listProductItem: ProductItemSearch[]) => {
+const Storage = (storageData: string | null, storageName: string, data: TemoranySaveType) => {
     if (storageData == null) {
-        const temporanySaveImportArr: Array<ProductItemSearch[]> = [];
-        const listProductStringify: ProductItemSearch[] = [];
-        listProductItem.forEach((e) => {
-            listProductStringify.push(e);
-        });
-        temporanySaveImportArr.push(listProductStringify);
+        const temporanySaveImportArr: Array<TemoranySaveType> = [data];
         localStorage.setItem(storageName, JSON.stringify(temporanySaveImportArr));
         return temporanySaveImportArr;
     } else {
-        const listProductStringifyOld: Array<ProductItemSearch[]> = JSON.parse(storageData);
-        const listProductStringify: ProductItemSearch[] = [];
-        listProductItem.forEach((e) => {
-            listProductStringify.push(e);
-        });
-        listProductStringifyOld.push(listProductStringify);
+        const listProductStringifyOld: Array<TemoranySaveType> = JSON.parse(storageData);
+        listProductStringifyOld.push(data);
         localStorage.setItem(storageName, JSON.stringify(listProductStringifyOld));
         return listProductStringifyOld;
     }

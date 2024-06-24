@@ -2,11 +2,11 @@
 import { OrderDetail, Warranty } from '@/api/ResType';
 import {  PlusOutlined } from '@ant-design/icons';
 import { Button, Modal, Space, Table, TableColumnsType, notification } from 'antd';
-import dayjs from 'dayjs';
 import * as warrantyServices from '@/api/warrantyServices';
 import React, { SetStateAction } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import ModalWararrtyForm from './ModalWararrtyForm';
+import { columnsWarranty } from './TableColumnsBase';
 interface Props {
     orderDetail: OrderDetail | undefined;
     open: boolean;
@@ -66,41 +66,7 @@ const OrderWarranty: React.FC<Props> = ({ open, setOpen, orderDetail }) => {
         },
     });
     const columns: TableColumnsType<Warranty> = [
-        {
-            title: 'Id',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
-            title: 'description',
-            dataIndex: 'description',
-            key: 'description',
-        },
-        {
-            title: 'status',
-            dataIndex: 'status',
-            key: 'status',
-        },
-        {
-            title: 'dateCreated',
-            dataIndex: 'dateCreated',
-            key: 'dateCreated',
-            render: (_, record) => (
-                <div>
-                    <p>{dayjs(record.dateCreated).format('MM/DD/YYYY')}</p>
-                </div>
-            ),
-        },
-        {
-            title: 'dateModify',
-            dataIndex: 'dateModify',
-            key: 'dateModify',
-            render: (_, record) => (
-                <div>
-                    <p>{dayjs(record.dateModify).format('MM/DD/YYYY')}</p>
-                </div>
-            ),
-        },
+        ...columnsWarranty,
         {
             title: 'Action',
             key: 'status',

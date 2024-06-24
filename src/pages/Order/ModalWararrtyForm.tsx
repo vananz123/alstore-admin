@@ -94,7 +94,7 @@ const ModalWararrtyForm: React.FC<Props> = ({ open, setOpen, orderDetail , warra
                     placeholder="something..."
                     autoSize={{ minRows: 2, maxRows: 6 }}
                 />
-                <Button type="primary" onClick={() => save()} size="large">
+                <Button type="primary" loading={createWarranty.isPending} onClick={() => save()} size="large">
                     Save
                 </Button>
             </Modal>

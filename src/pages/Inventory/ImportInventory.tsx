@@ -214,7 +214,7 @@ function ImportInventory() {
     const changeTemoranySave = (value: number) => {
         setOptionKey(value);
         if (value !== -1 && data) {
-            setListProductItem(data[value]);
+            setListProductItem(data[value].items);
         } else {
             setListProductItem([]);
         }
@@ -224,6 +224,7 @@ function ImportInventory() {
         setOptionKey(-1);
         setListProductItem([]);
     };
+    console.log(data);
     return (
         <div>
             {contextHolder}
@@ -244,7 +245,7 @@ function ImportInventory() {
                 <Col xs={24} xl={6}>
                     <Select
                         value={optionKey}
-                        disabled={generateOption.length <=1}
+                        disabled={generateOption.length <= 1}
                         onChange={changeTemoranySave}
                         className="w-full"
                         options={generateOption}

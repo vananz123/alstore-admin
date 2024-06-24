@@ -90,6 +90,24 @@ export const OPTIONS_PRODUCT_STATUS = [
         color: 'red',
     },
 ];
+export const FILTERS_ROLES = [
+    {
+        value: "super-admin",
+        text: 'super-admin',
+    },
+    {
+        value: "admin",
+        text: 'admin',
+    },
+    {
+        value: "sale",
+        text: 'sale',
+    },
+    {
+        value: "customer",
+        text: 'customer',
+    },
+];
 export const FILTERS_PRODUCT_STATUS = [
     {
         value: 0,

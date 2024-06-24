@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
 import {OPTIONS_SHIPPING} from "@/common/common"
 import useSearchIndexTable from '@/hooks/useSearchIndexTable';
+import { ChangeCurrence } from '@/utils/utils';
 const items = [
     ...STATUS_ORDER,
     {
@@ -47,8 +48,6 @@ function OrderList() {
             dataIndex: 'orderTotal',
             key: 'orderTotal',
             render: (_, record) => <p>{ChangeCurrence(record.orderTotal)}</p>,
-            
-            
         },
         {
             title: 'Ngày Tạo',
@@ -105,17 +104,6 @@ function OrderList() {
         </div>
     );
 }
-const ChangeCurrence = (number: number | undefined) => {
-    if (number) {
-        const formattedNumber = number.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            currencyDisplay: 'code',
-        });
-        return formattedNumber;
-    }
-    return 0;
-};
 const getLateArray = (os: OrderStatus[] | undefined) => {
     if (os && os.length > 0) {
         return os[os.length - 1].name;

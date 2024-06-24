@@ -5,11 +5,12 @@ import {  Input, Popover } from 'antd';
 import type { SearchProps } from 'antd/es/input/Search';
 import * as productServices from '@/api/productServices';
 import type { InputRef } from 'antd';
-import React, {  SetStateAction, useEffect, useRef } from 'react';
+import React, {  SetStateAction, useRef } from 'react';
 import { ProductItemSearch } from '@/type';
 import {  useNavigate } from 'react-router-dom';
 import ProductItemCard from '@/conponents/ProductItemCard';
 import useNotification from '@/hooks/useNotification';
+import { useQuery } from '@tanstack/react-query';
 interface Props{
     className?:string;
     listProductItem:ProductItemSearch[];
@@ -21,30 +22,24 @@ const SearchProductItem: React.FC<Props> = ({className, onSetList , listProductI
     const [searchValue, setSearchValue] = React.useState('');
     const {contextHolder,openNotification} = useNotification()
     const navigate = useNavigate();
-    const [data, setData] = React.useState<ProductItemSearch[]>();
     const inputRef = useRef<InputRef>(null);
     const debounce = useDebounce({ value: searchValue, deplay: 1000 });
+    const {data ,isLoading} = useQuery({
+        queryKey:['search-product-item',debounce],
+        queryFn:()=> productServices.searchProductItemBySeo(debounce ,type),
+        enabled:debounce != ''
+    })
     const onSearch: SearchProps['onSearch'] = async (value, _e, info) => {
         if (info?.source == 'input') {
             navigate(`/product/${value}`);
         }
         if (info?.source == 'clear') {
-            setData([]);
+           // setData([]);
         }
     };
     const onChangeInput: SearchProps['onChange'] = (value) => {
         setSearchValue(value.target.value);
     };
-    useEffect(() => {
-        const Search = async () => {
-            if (debounce != '') {
-                const result = await productServices.searchProductItemBySeo(debounce ,type);
-                console.log(result)
-                setData(result);
-            }
-        };
-        Search();
-    }, [debounce]);
     return (
         <>
             <div>
@@ -81,6 +76,7 @@ const SearchProductItem: React.FC<Props> = ({className, onSetList , listProductI
                             placeholder="Tên sản phẩm"
                             className='block'
                             allowClear
+                            loading={isLoading}
                             autoFocus={false}
                             ref={inputRef}
                             size="middle"

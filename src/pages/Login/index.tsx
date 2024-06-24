@@ -30,7 +30,6 @@ function Login() {
                     if(auth.isAuth === true){
                         Navigate(auth.navigate)
                     }
-                    
                 },100)
             }else{
                 setError(data);
@@ -102,7 +101,7 @@ function Login() {
                         <Input.Password prefix={<LockOutlined />} />
                     </Form.Item>
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" block>
+                        <Button loading={login.isPending} type="primary" htmlType="submit" block>
                             Submit
                         </Button>
                         <Flex justify="space-between">

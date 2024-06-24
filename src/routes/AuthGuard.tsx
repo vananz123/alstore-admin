@@ -5,9 +5,8 @@ import { selectUser } from '@/app/feature/user/reducer';
 import Loading from '@/pages/Loading';
 import { useAuthStore } from '@/hooks';
 const AuthGuard: React.FC<{ children: JSX.Element }> = ({ children }) => {
-    const { isAuthenticated, isInitialized, isLoading } = useAppSelector(selectUser);
+    const { isAuthenticated, isLoading } = useAppSelector(selectUser);
     const { isToken } = useAuthStore();
-    console.log(isInitialized, isAuthenticated, isToken);
     if (isLoading === true) return <Loading />;
     if (isAuthenticated === false && isToken === false)
         return <Navigate to={'/auth/login'} />;

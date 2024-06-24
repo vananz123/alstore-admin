@@ -257,7 +257,7 @@ function ExportInventory() {
     const changeTemoranySave = (value: number) => {
         setOptionKey(value);
         if (value !== -1 && data) {
-            setListProductItem(data[value]);
+            setListProductItem(data[value].items);
         } else {
             setListProductItem([]);
         }

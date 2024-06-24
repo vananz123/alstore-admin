@@ -167,7 +167,7 @@ export type Order = {
     userId: string;
     isSuccsessedButton: boolean;
     isCanceledButton: boolean;
-    isReturnedButton: boolean;
+    isConfirmeddButton:boolean;
     user: ResponseUser;
     email:string;
     name:string;

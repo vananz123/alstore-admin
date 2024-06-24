@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Table, Tag } from 'antd';
 import type {  TableColumnsType } from 'antd';
 import * as userServices from '@/api/userServices';
@@ -6,11 +7,10 @@ import { EditOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import useSearchIndexTable from '@/hooks/useSearchIndexTable';
+import { FILTERS_ROLES } from '@/common/common';
 function UserList() {
     const Navigate = useNavigate();
     const {getColumnSearchProps} = useSearchIndexTable()
-    //search
-    //product search
     const { data , isLoading } = useQuery({
         queryKey: ['load-user-list'],
         queryFn: () => userServices.getAllUserForAdmin(),
@@ -50,6 +50,8 @@ function UserList() {
                     ))}
                 </>
             ),
+            filters:FILTERS_ROLES,
+            onFilter:(value: any, record: ResponseUser) => record.roleVm.some(x => x.name ===value) === true ,
         },
         {
             title: 'Action',

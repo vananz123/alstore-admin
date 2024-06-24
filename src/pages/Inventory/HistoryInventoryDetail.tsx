@@ -9,6 +9,7 @@ import useNotification from '@/hooks/useNotification';
 import { useErrorBoundary } from 'react-error-boundary';
 import { AxiosError } from 'axios';
 import { OPTIONS_STATUS_INVENTORY } from '@/common/common';
+import { ChangeCurrence } from '@/utils/utils';
 function HistoryInventoryDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -191,15 +192,4 @@ function HistoryInventoryDetail() {
         </div>
     );
 }
-const ChangeCurrence = (number: number | undefined) => {
-    if (number) {
-        const formattedNumber = number.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            currencyDisplay: 'code',
-        });
-        return formattedNumber;
-    }
-    return 0;
-};
 export default HistoryInventoryDetail;

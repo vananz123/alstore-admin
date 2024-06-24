@@ -6,7 +6,7 @@ const useDebounce:React.FC<{value:string,deplay:number}> = ({value,deplay}) : st
             setDebounceValue(value)
         }, deplay);
         return ()=> clearTimeout(handler)
-    },[value])
+    },[value,deplay])
     return debounceValue;
 }
 
