@@ -10,7 +10,6 @@ import {
     InputNumber,
     Modal,
     Select,
-    SelectProps,
     Space,
     Switch,
     Table,
@@ -25,6 +24,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useErrorBoundary } from 'react-error-boundary';
 import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
+import { useImmer } from 'use-immer';
 interface Body {
     isSize: boolean;
     data: ProductItem;
@@ -39,23 +39,21 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
     const [form] = useForm();
     const { contextHolder, openNotification } = useNotification();
     const { showBoundary } = useErrorBoundary();
-    const [openProductItem, setOpenProductItem] = React.useState(false);
-    const [openModalDel, setOpenModalDel] = React.useState(false);
-    const [isSize, setIsSize] = React.useState<boolean>(false);
-    const [options, setOptions] = React.useState<SelectProps['options']>([]);
-    const [openModalAssignPI, setOpenModalAssignPI] = React.useState<boolean>(false);
-    const [openModalAssignPromotionPI, setOpenModalAssignPromotionPI] = React.useState<boolean>(false);
-    const [currentProductItem, setCurrentProductItem] = React.useState<ProductItem>();
-    const [statusForm, SetStatusForm] = React.useState<StatusForm>('ADD');
+    const [openProductItem, setOpenProductItem] = useImmer(false);
+    const [openModalDel, setOpenModalDel] = useImmer(false);
+    const [isSize, setIsSize] = useImmer<boolean>(false);
+    const [openModalAssignPI, setOpenModalAssignPI] = useImmer<boolean>(false);
+    const [openModalAssignPromotionPI, setOpenModalAssignPromotionPI] = useImmer<boolean>(false);
+    const [currentProductItem, setCurrentProductItem] = useImmer<ProductItem | undefined>(undefined);
+    const [statusForm, SetStatusForm] = useImmer<StatusForm>('ADD');
     const showDrawerProductItem = () => {
         setOpenProductItem(true);
     };
     useEffect(() => {
-        setOptions(options);
         if (productItem != undefined && productItem.length > 0) {
             setIsSize(productItem[0].isMulti);
         }
-    }, [options, productItem]);
+    }, [productItem, setIsSize]);
     useEffect(() => {
         if (currentProductItem) form.setFieldsValue(currentProductItem);
     }, [form, currentProductItem]);
@@ -66,7 +64,7 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             key: 'id',
         },
         {
-            title: 'Name',
+            title: 'Size',
             dataIndex: 'name',
             key: 'name',
             render: (_, record) => (
@@ -74,7 +72,7 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             ),
         },
         {
-            title: 'Promotion',
+            title: 'KM',
             dataIndex: 'valuePromotion',
             key: 'Promotion',
             render: (_, record) => (
@@ -88,10 +86,16 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
             ),
         },
         {
-            title: 'Giá',
+            title: 'Giá sau KM',
             dataIndex: 'price',
             key: 'price',
-        },{
+        },
+        {
+            title: 'Giá',
+            dataIndex: 'priceBeforeDiscount',
+            key: 'priceBeforeDiscount',
+        },
+        {
             title: 'Giá vốn',
             dataIndex: 'capitalPrice',
             key: 'capitalPrice',
@@ -155,7 +159,7 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
         onError: (error: AxiosError<Result>) => {
             if (error.response?.status === 403) {
                 showBoundary(error);
-            }else{
+            } else {
                 openNotification('error', error.response?.data.message);
             }
         },
@@ -172,7 +176,7 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
         onError: (error: AxiosError<Result>) => {
             if (error.response?.status === 403) {
                 showBoundary(error);
-            }else{
+            } else {
                 openNotification('error', error.response?.data.message);
             }
         },
@@ -189,7 +193,7 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
         onError: (error: AxiosError<Result>) => {
             if (error.response?.status === 403) {
                 showBoundary(error);
-            }else{
+            } else {
                 openNotification('error', error.response?.data.message);
             }
         },
@@ -197,16 +201,17 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
     const onFinishProductItem = async (values: ProductItem) => {
         if (productItem != undefined && product != undefined) {
             values.productId = product.id;
+            values.price = values.priceBeforeDiscount;
             if (statusForm == 'ADD') {
                 const body: Body = {
                     isSize: isSize,
                     data: values,
                 };
-                createProductItem.mutate(body);
+                createProductItem.mutateAsync(body);
             } else {
                 if (currentProductItem) {
                     values.id = currentProductItem?.id;
-                    updateProductItem.mutate(values);
+                    updateProductItem.mutateAsync(values);
                 }
             }
         }
@@ -265,7 +270,7 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
                 >
                     <Form.Item<ProductItem>
                         label="Giá"
-                        name="price"
+                        name="priceBeforeDiscount"
                         //initialValue={productItem[0]?.price}
                         rules={[{ required: true, message: 'Missing price' }]}
                     >
@@ -296,7 +301,11 @@ const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) =
                         </>
                     )}
                     <Form.Item {...TAIL_FORM_ITEM_LAYOUT}>
-                        <Button loading={statusForm ==='ADD' ? createProductItem.isPending: updateProductItem.isPending} type="primary" htmlType="submit">
+                        <Button
+                            loading={statusForm === 'ADD' ? createProductItem.isPending : updateProductItem.isPending}
+                            type="primary"
+                            htmlType="submit"
+                        >
                             Submit
                         </Button>
                     </Form.Item>

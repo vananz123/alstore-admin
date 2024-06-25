@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { TableRowSelection } from 'antd/es/table/interface';
 export type ModePromotionType = 'EDIT' | 'DEL';
-import { Promotion } from '@/api/ResType';
+import { Promotion, Result } from '@/api/ResType';
 import dayjs from 'dayjs';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -27,7 +27,8 @@ interface RequsetBody {
 const ModalAssginPromotionsProductItem: React.FC<Props> = ({
     openModalAssignPI,
     setStateOpenModalAssignPI,
-    productItemProps,refetch,
+    productItemProps,
+    refetch,
 }) => {
     const [confirmLoading, setConfirmLoading] = React.useState(false);
     const [listSelectRowKeys, setListSelectRowKeys] = React.useState<number[]>([]);
@@ -49,12 +50,14 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
             if (data.isSuccessed === true) {
                 openNotification('success',data.message);
                 refetch()
-            } else {
-                openNotification('error', data.message);
             }
         },
-        onError:((error:AxiosError)=>{
-            if(error.response?.status === 403) showBoundary(error)
+        onError:((error:AxiosError<Result>)=>{
+            if(error.response?.status === 403) {
+                showBoundary(error)
+            }else{
+                openNotification('error', error.response?.data.message);
+            }
         })
     })
     const handleSaveGuaranties = async () => {
