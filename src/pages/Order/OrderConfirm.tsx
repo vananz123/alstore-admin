@@ -14,7 +14,7 @@ import { AxiosError } from 'axios';
 import {  useErrorBoundary } from 'react-error-boundary';
 import { useImmer } from 'use-immer';
 import { columnsOrderConfirm } from './TableColumnsBase';
-import { ChangeCurrence } from "@/utils/utils";
+import { ChangeCurrence, isAxiosBadRequestError, isAxiosUnauthoriedError } from "@/utils/utils";
 type TimeLineProps = {
     label?: string;
     children: string;
@@ -24,6 +24,7 @@ function OrderConfirm() {
     const [openModalFb, setOpenModalFb] = useImmer<boolean>(false);
     const [review, setReview] = useImmer<Review | undefined>(undefined);
     const { contextHolder, openNotification } = useNotification();
+    const {showBoundary}= useErrorBoundary()
     const statusTimeLine: TimeLineProps[] = [];
     const {
         data: order,
@@ -109,8 +110,6 @@ function OrderConfirm() {
     const navigate = useNavigate();
     const [openWarranty, setOpenWarranty] = React.useState(false);
     const [orderDetail, setOrderDetail] = React.useState<OrderDetail>();
-
-    const {showBoundary}= useErrorBoundary()
     const canceled = useMutation({
         mutationKey:['canceled'],
         mutationFn:(id:number)=> orderServices.canceled(id),
@@ -121,11 +120,8 @@ function OrderConfirm() {
             }
         }),
         onError:((error:AxiosError<Result>)=>{
-            if(error.response?.status === 403){
-                showBoundary(error)
-            }else{
-                openNotification('error', error.response?.data.message);
-            }
+            if(isAxiosUnauthoriedError(error))showBoundary(error)
+            if(isAxiosBadRequestError(error))openNotification('error', error.response?.data.message);
         })
     })
     const confirmed = useMutation({

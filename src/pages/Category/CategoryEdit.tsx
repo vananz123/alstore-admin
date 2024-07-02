@@ -1,48 +1,66 @@
 import CategoryForm from '@/conponents/CategoryForm';
-import React, { useEffect } from 'react';
-import {  notification } from 'antd';
-import * as categoryServices from '@/api/categoryServices';
-import { Category } from '@/type';
-type NotificationType = 'success' | 'error';
+import { getCateById } from '@/api/categoryServices';
 import { useParams } from 'react-router-dom';
-import { StatusForm } from '@/type';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { Skeleton } from 'antd';
+
+import { updateCate } from '@/api/categoryServices';
+import useNotification from '@/hooks/useNotification';
+import { Category } from '@/type';
+import { FormProps } from 'antd';
+import { AxiosError } from 'axios';
+import { Result } from '@/api/ResType';
+import GoBack from '@/conponents/GoBack';
 function CategoryEdit() {
     const { id } = useParams();
-    const [category, setCategory] = React.useState<Category>();
-    const [status, setStatus] = React.useState<StatusForm>('loading');
-    const [api, contextHolder] = notification.useNotification();
-
-    const openNotificationWithIcon = (type: NotificationType) => {
-        api[type]({
-            message: 'Notification Title',
-            description: type == 'success' ? 'Sucsess update!' : 'error',
-        });
-    };
-    useEffect(() => {
-        if(id != undefined && status == 'loading'){
-            const getCate = async () => {
-                const res = await categoryServices.getCateById(id);
-                if (res.isSuccessed == true) {
-                    setCategory(res.resultObj);
-                }
-            };
-            getCate()
-        }
-        if (status == 'success') {
-            if (category != undefined) {
-                openNotificationWithIcon('success');
+    const { contextHolder, openNotification } = useNotification();
+    const { data: category, refetch } = useQuery({
+        queryKey: ['load-category', id],
+        queryFn: () => getCateById(Number(id)).then((data) => data.resultObj),
+        enabled: !!id,
+    });
+    const update = useMutation({
+        mutationKey: ['update-category', category?.id],
+        mutationFn: (values: Category) => updateCate(values),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                refetch();
+                openNotification('success', data.message);
+            } 
+        },
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                //
+            } else {
+                openNotification('success', error.response?.data.message);
+            }
+        },
+    });
+    const onFinish: FormProps<Category>['onFinish'] = async (values) => {
+        if (category != undefined) {
+            if (category?.id != undefined) {
+                values.id = category.id;
+                update.mutateAsync(values);
             }
         }
-        if (status == 'error') {
-            openNotificationWithIcon('error');
-        }
-        setStatus('loading')
-    }, [status,id]);
-
+    };
+    const onFinishFailed: FormProps<Category>['onFinishFailed'] = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
     return (
         <>
             {contextHolder}
-            <CategoryForm category={category} onSetState={setCategory} onSetStatus={setStatus} />
+            <GoBack/>
+            {category ? (
+                <CategoryForm
+                    data={category}
+                    isLoading={update.isPending}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                />
+            ) : (
+                <Skeleton />
+            )}
         </>
     );
 }

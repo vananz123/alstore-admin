@@ -18,6 +18,11 @@ import { AxiosError } from 'axios';
 import { useErrorBoundary } from 'react-error-boundary';
 import useNotification from '@/hooks/useNotification';
 import { ChangeCurrence } from '@/utils/utils';
+import { getAllAdminCate } from '@/api/categoryServices';
+interface FilterProductByCate {
+    text: string;
+    value: number;
+} 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 const getBase64 = (file: FileType): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -52,12 +57,26 @@ function ProductList() {
     const [openDrawer, setOpenDrawer] = React.useState(false);
     const { data, isLoading, refetch } = useQuery({
         queryKey: [`load-product-list`],
-        queryFn: () => productServices.getAllProduct(),
+        queryFn: () => productServices.getAllProduct().then((data) => data.resultObj),
     });
+    const { data: categories } = useQuery({
+        queryKey: [`load-list-category`],
+        queryFn: () =>
+            getAllAdminCate('all').then((data) =>data.resultObj),
+    });
+    const filterProductByCate : FilterProductByCate[] = [];
+    if (categories) {
+        categories.forEach((e) => {
+            filterProductByCate.push({
+                value: e.id,
+                text: e.name,
+            });
+        });
+    }
     const { getColumnSearchProps } = useSearchIndexTable();
     const showDrawer = (id: number) => {
         const loadProductDetail = async () => {
-            const res = await productServices.getProductDetail(id, selected);
+            const res = await productServices.getProductDetail(id, selected).then((data) => data.resultObj);
             setCurrentProductItem(res);
         };
         loadProductDetail();
@@ -107,6 +126,15 @@ function ProductList() {
                     onClick={() => showModalImage(record.id)}
                 />
             ),
+        },{
+            title: 'Danh mục',
+            dataIndex: 'categoryId',
+            key: 'categoryId',
+            render: (_, record) => (
+                <p>{categories ? categories.find(x=> x.id === record.categoryId)?.name : ''}</p>
+            ),
+            filters:filterProductByCate, 
+            onFilter:(value: any, record: Product) => record.categoryId === value,
         },
         {
             title: 'Trạng Thái',

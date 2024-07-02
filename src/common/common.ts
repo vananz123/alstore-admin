@@ -81,7 +81,7 @@ export const OPTIONS_PRODUCT_STATUS = [
     {
         value: 4,
         label: 'Sale',
-        disabled: true,
+        disabled: false,
         color: 'green',
     },
     {

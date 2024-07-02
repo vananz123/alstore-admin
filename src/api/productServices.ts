@@ -1,35 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as request from '../utils/request';
-import { PagingResult, Promotion, Result } from './ResType';
+import { Promotion } from './ResType';
 import { Product, Filter, ProductItem, ProductItemSearch } from '@/type';
 import { UploadFile } from 'antd';
-export interface PagingProduct extends PagingResult {
-    items: Product[];
+export interface Result<T> {
+    error: string;
+    isSuccessed: boolean;
+    message: string;
+    statusCode: number;
+    resultObj: T;
 }
-export interface ResultProduct extends Result {
-    resultObj: Product;
+export interface PagingResult<T> {
+    items: T;
+    pageIndex: number;
+    pageSize: number;
+    pageCount: number;
+    totalRecords: number;
 }
 export const getAllProduct = async () => {
-    try {
-        const res = await request.get(`/product`);
-        const resultObj: Product[] = res.resultObj;
-        return resultObj;
-    } catch (error: any) {
-        return undefined;
-    }
+    const res: Result<Product[]> = await request.get(`/product`);
+    return res;
 };
 export const getProductDetail = async (id: number, departmentId: number) => {
-    try {
-        const params = {
-            DepartmentId: departmentId,
-        };
-        const res = await request.get(`/product/admin/${encodeURIComponent(id)}`, { params });
-        const resultObj: Product = res.resultObj;
-        return resultObj;
-    } catch (error) {
-        return undefined;
-    }
+    const params = {
+        DepartmentId: departmentId,
+    };
+    const res: Result<Product> = await request.get(`/product/admin/${encodeURIComponent(id)}`, { params });
+    return res;
 };
 export const getProductPagingByFilter = async (filter: Filter) => {
     let material: string = '';
@@ -47,21 +45,13 @@ export const getProductPagingByFilter = async (filter: Filter) => {
         isPromotion: filter.isPromotion || false,
         productStatus: filter.productStatus,
     };
-    const res = await request.get(`/product/filter`, {
+    const res: Result<PagingResult<Product[]>> = await request.get(`/product/filter`, {
         params,
         paramsSerializer: {
             indexes: null, // by default: false
         },
     });
-    const paging: PagingProduct = res.resultObj;
-    const resp: Result = {
-        error: '',
-        isSuccessed: res.isSuccessed,
-        message: res.message,
-        statusCode: 200,
-        resultObj: paging,
-    };
-    return resp;
+    return res;
 };
 
 export const addProduct = async (data: Product) => {
@@ -71,12 +61,11 @@ export const addProduct = async (data: Product) => {
         seoTitle: data.seoTitle,
         categoryId: data.categoryId,
     };
-    const res = await request.post(`/product`, pro);
-    const resultObj: ResultProduct = res;
-    if (data.file) {
-        await uploadThumbnailImage(resultObj.resultObj.id, data.file[0].originFileObj);
+    const res: Result<Product> = await request.post(`/product`, pro);
+    if (data.file && data.file[0].originFileObj) {
+        await uploadThumbnailImage(res.resultObj.id, data.file[0].originFileObj);
     }
-    return resultObj;
+    return res;
 };
 export const updateProduct = async (data: Product) => {
     const pro = {
@@ -87,99 +76,44 @@ export const updateProduct = async (data: Product) => {
         status: data.status,
         categoryId: data.categoryId,
     };
-    const res = await request.put(`/product`, pro);
-    const resultObj: ResultProduct = res;
-    if (data.file) {
-        await uploadThumbnailImage(resultObj.resultObj.id, data.file[0].originFileObj);
+    const res: Result<Product> = await request.put(`/product`, pro);
+    if (data.file && data.file[0].originFileObj) {
+        await uploadThumbnailImage(res.resultObj.id, data.file[0].originFileObj);
     }
-    return resultObj;
+    return res;
 };
 export const deleteProduct = async (id: number) => {
-    const res: Result = await request.del(`/product/${encodeURIComponent(id)}`);
+    const res: Result<number> = await request.del(`/product/${encodeURIComponent(id)}`);
     return res;
 };
 export const uploadThumbnailImage = async (id: number, data: any) => {
-    try {
-        const formData = new FormData();
-        formData.append('ImageFile', data);
-
-        const res = await request.put(`/product/${encodeURIComponent(id)}/thumbnail-image`, formData);
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const formData = new FormData();
+    formData.append('ImageFile', data);
+    const res: Result<number> = await request.put(`/product/${encodeURIComponent(id)}/thumbnail-image`, formData);
+    return res;
 };
 export const uploadImage = async (id: number, data: UploadFile[]) => {
-    try {
-        const formData = new FormData();
-        formData.append('Id', id.toString());
-        data.forEach((element: any) => {
-            formData.append('ImageFile', element.originFileObj);
-        });
-        const res = await request.post(`/product/images`, formData);
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const formData = new FormData();
+    formData.append('Id', id.toString());
+    data.forEach((element: any) => {
+        formData.append('ImageFile', element.originFileObj);
+    });
+    const res: Result<number> = await request.post(`/product/images`, formData);
+    return res;
 };
 export const updateImage = async (id: number, data: any) => {
-    try {
-        const formData = new FormData();
-        formData.append('Id', id.toString());
-        formData.append('ImageFile', data.originFileObj);
-        const res = await request.put(`/product/images`, formData);
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const formData = new FormData();
+    formData.append('Id', id.toString());
+    formData.append('ImageFile', data.originFileObj);
+    const res: Result<number> = await request.put(`/product/images`, formData);
+
+    return res;
 };
 export const deleteImage = async (id: number, name: string) => {
-    try {
-        const res = await request.del(`/product/${encodeURIComponent(id)}/images?name=${encodeURIComponent(name)}`);
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const res: Result<number> = await request.del(
+        `/product/${encodeURIComponent(id)}/images?name=${encodeURIComponent(name)}`,
+    );
+    return res;
 };
 function randomNumber(min: number, max: number): number {
     min = Math.ceil(min);
@@ -199,16 +133,8 @@ export const addProductItem = async (isSize: boolean, data: ProductItem) => {
         sku: data.sku || '',
         value: data.value || '',
     };
-    const res = await request.post(`/product/product-item`, productitem);
-    const resultObj: Product = res.resultObj;
-    const resp: Result = {
-        error: '',
-        isSuccessed: res.isSuccessed,
-        message: res.message,
-        statusCode: 200,
-        resultObj: resultObj,
-    };
-    return resp;
+    const res: Result<Product> = await request.post(`/product/product-item`, productitem);
+    return res;
 };
 export const updateProductItem = async (data: ProductItem) => {
     const productitem = {
@@ -219,29 +145,12 @@ export const updateProductItem = async (data: ProductItem) => {
         value: data.value,
         status: 1,
     };
-
-    const res = await request.put(`/product/product-item`, productitem);
-    const resultObj: Product = res.resultObj;
-    const resp: Result = {
-        error: '',
-        isSuccessed: res.isSuccessed,
-        message: res.message,
-        statusCode: 200,
-        resultObj: resultObj,
-    };
-    return resp;
+    const res: Result<Product> = await request.put(`/product/product-item`, productitem);
+    return res;
 };
 export const deleteProductItem = async (id: number) => {
-    const res = await request.del(`/product/product-item/${id}`);
-    const resultObj: Product = res.resultObj;
-    const resp: Result = {
-        error: '',
-        isSuccessed: res.isSuccessed,
-        message: res.message,
-        statusCode: 200,
-        resultObj: resultObj,
-    };
-    return resp;
+    const res: Result<Product> = await request.del(`/product/product-item/${id}`);
+    return res;
 };
 export const addVariation = async (id: number, data: any[]) => {
     const pro: any[] = [];
@@ -254,31 +163,15 @@ export const addVariation = async (id: number, data: any[]) => {
         };
         pro.push(item);
     });
-    const res = await request.put(`/product/${encodeURIComponent(id)}/variation`, { variations: pro });
-    const resultObj: Product = res.resultObj;
-    const resp: Result = {
-        error: '',
-        isSuccessed: res.isSuccessed,
-        message: res.message,
-        statusCode: 200,
-        resultObj: resultObj,
-    };
-    return resp;
+    const res: Result<Product> = await request.put(`/product/${encodeURIComponent(id)}/variation`, { variations: pro });
+    return res;
 };
 export const assignGuaranties = async (id: number, guarantyId: number) => {
-    const res = await request.put(`/product/product-item/guaranties`, {
+    const res: Result<Product> = await request.put(`/product/product-item/guaranties`, {
         productItemId: id,
         guarantyId: guarantyId,
     });
-    const resultObj: Product = res.resultObj;
-    const resp: Result = {
-        error: '',
-        isSuccessed: res.isSuccessed,
-        message: res.message,
-        statusCode: 201,
-        resultObj: resultObj,
-    };
-    return resp;
+    return res;
 };
 export const assignPromotion = async (id: number, data: Promotion[]) => {
     const pro: any[] = [];
@@ -291,50 +184,6 @@ export const assignPromotion = async (id: number, data: Promotion[]) => {
         };
         pro.push(item);
     });
-    const res = await request.put(`/product/product-item/promotions`, { id: id, items: pro });
-    const resultObj: Product = res.resultObj;
-    const resp: Result = {
-        error: '',
-        isSuccessed: res.isSuccessed,
-        message: res.message,
-        statusCode: 201,
-        resultObj: resultObj,
-    };
-    return resp;
-};
-export const productViewCount = async (id: number) => {
-    try {
-        const res = await request.put(`/product/view-count/${id}`);
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 201,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
-};
-export const productItemViewCount = async (id: number) => {
-    try {
-        const res = await request.put(`/product/product-item/view-count/${id}`);
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 201,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const res: Result<Product> = await request.put(`/product/product-item/promotions`, { id: id, items: pro });
+    return res;
 };

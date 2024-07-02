@@ -1,29 +1,42 @@
-import React from 'react';
 import { Department } from '@/type';
 import { TableProps, Space, Modal, Flex, Button,Table, Tag } from 'antd';
 import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
-import * as departmentServices from '@/api/departmentServices';
+import {deleteDepartment,getAllDepartment} from '@/api/departmentServices';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { OPTIONS_STATUS } from '@/common/common';
 import useSearchIndexTable from '@/hooks/useSearchIndexTable';
+import { AxiosError } from 'axios';
+import { Result } from '@/api/ResType';
+import { useImmer } from 'use-immer';
+import useNotification from '@/hooks/useNotification';
 function DepartmentList() {
-    const [currentId, setCurrentId] = React.useState<number>(0);
-    const [open, setOpen] = React.useState(false);
-    const [modalText, setModalText] = React.useState('Do you want delete!');
-    const [context, setContext] = React.useState<string>('OK');
+    const [open, setOpen] = useImmer(false);
+    const [context,setContext] = useImmer<{currentId:number,modalText:string}>({
+        currentId:0,
+        modalText:''
+    })
+    const {contextHolder,openNotification}= useNotification()
     const { isLoading, data , refetch} = useQuery({
         queryKey:['load-departments'],
-        queryFn:()=>  departmentServices.getAllDepartment().then((data) => data.resultObj)
+        queryFn:()=>  getAllDepartment().then((data) => data.resultObj)
     })
-    const deleteDepartment = useMutation({
-        mutationKey:[`delete-depaerment-${currentId}`],
-        mutationFn:(id:number)=> departmentServices.deleteDepartment(id),
+    const mutationDepartment = useMutation({
+        mutationKey:[`delete-depaerment`,context.currentId],
+        mutationFn:(id:number)=> deleteDepartment(id),
         onSuccess:(data)=>{
             if(data.isSuccessed === true){
                 refetch()
             }
-        }
+        },
+        onError:((error:AxiosError<Result>)=>{
+            setOpen(false)
+            if(error.response?.status === 403){
+                //
+            }else{
+                openNotification('error', error.response?.data.message)
+            }
+        })
     })
     const renderTag = (status:number)=>{
         const option = OPTIONS_STATUS?.find(x => x.value == status)
@@ -74,17 +87,18 @@ function DepartmentList() {
         },
     ];
     const showModalDel = (id: number, name: string) => {
-        setModalText(`Do you want department ${name}!`);
-        setCurrentId(id);
+        setContext((draft)=>{
+            draft.currentId = id,
+            draft.modalText = `Bạn có muốn xóa chi nhánh ${name}!`
+        })
         setOpen(true);
     };
     const handleOkDel = () => {
-        setModalText('deleting!');
-        setContext('');
-        deleteDepartment.mutate(currentId)
+        if(context.currentId !== 0) mutationDepartment.mutateAsync(context.currentId)
     };
     return (
         <div>
+            {contextHolder}
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
                     <Link to={'/department/add'}>
@@ -99,11 +113,10 @@ function DepartmentList() {
                 title="Delete"
                 open={open}
                 onOk={handleOkDel}
-                confirmLoading={deleteDepartment.isPending}
+                confirmLoading={mutationDepartment.isPending}
                 onCancel={() => setOpen(false)}
-                okText={context}
             >
-                <p>{modalText}</p>
+                <p>{context.modalText}</p>
             </Modal>
         </div>
     );

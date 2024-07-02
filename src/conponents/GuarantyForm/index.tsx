@@ -1,78 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { SetStateAction, useEffect } from 'react';
-import { Button, type FormProps, Form, Input, Select, InputNumber  } from 'antd';
-import { Guaranty, StatusForm } from '@/type';
-import * as guarantyServieces from '@/api/guarantyServices';
+import React from 'react';
+import { Button, Form, Input, Select, InputNumber } from 'antd';
+import { Guaranty } from '@/type';
 import { FORM_ITEM_LAYOUT, TAIL_FORM_ITEM_LAYOUT, OPTIONS_STATUS, editorConfiguration } from '@/common/common';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import { ClassicEditor } from '@ckeditor/ckeditor5-editor-classic';
-import { ArrowLeftOutlined  } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-interface Props {
-    guaranty: Guaranty | undefined;
-    onSetState: SetStateAction<any> | undefined;
-    onSetStatus: SetStateAction<any>;
-}
-const GuarantyForm: React.FC<Props> = ({ guaranty, onSetState, onSetStatus }) => {
+import { ConponentFormProps } from '@/type';
+const GuarantyForm: React.FC<ConponentFormProps<Guaranty>> = ({ data, isLoading, onFinish, onFinishFailed }) => {
     const [form] = Form.useForm();
-    const [value, setValue] = React.useState<string>('<p></p>');
-    useEffect(() => {
-        if (typeof guaranty !== 'undefined') setValue(guaranty?.description);
-        form.setFieldsValue(guaranty);
-    }, [form, guaranty]);
-    const [isLoading, setIsLoading] = React.useState<boolean>(false);
-    const [context, setContext] = React.useState<string>('Save');
-    const onFinish: FormProps<Guaranty>['onFinish'] = async (values) => {
-        setIsLoading(true);
-        setContext('');
-        if (guaranty != undefined) {
-            if (guaranty?.id != undefined) {
-                values.id = guaranty.id;
-                values.description = value;
-                const res = await guarantyServieces.updateGuaranty(values);
-                if (res.isSuccessed === true) {
-                    onSetState(res.resultObj);
-                    const status: StatusForm = 'success';
-                    onSetStatus(status);
-                } else {
-                    const status: StatusForm = 'error';
-                    onSetStatus(status);
-                }
-            }
-            setIsLoading(false);
-            setContext('Save');
-        } else {
-            values.description = value;
-            const res = await guarantyServieces.createGuaranty(values);
-            if (res.isSuccessed === true) {
-                onSetState(res.resultObj);
-                const status: StatusForm = 'success';
-                onSetStatus(status);
-            } else {
-                const status: StatusForm = 'error';
-                onSetStatus(status);
-            }
-            setIsLoading(false);
-        }
-    };
-
-    const onFinishFailed: FormProps<Guaranty>['onFinishFailed'] = (errorInfo) => {
-        console.log('Failed:', errorInfo);
-    };
-    const navigate = useNavigate();
+    if (data) form.setFieldsValue(data);
     return (
         <>
-            <Button
-                type="text"
-                icon={<ArrowLeftOutlined />}
-                size="small"
-                style={{ marginBottom: '10px' }}
-                onClick={() => {
-                    navigate(-1);
-                }}
-            >
-                Quay lại
-            </Button>
             <Form
                 {...FORM_ITEM_LAYOUT}
                 form={form}
@@ -112,17 +50,21 @@ const GuarantyForm: React.FC<Props> = ({ guaranty, onSetState, onSetStatus }) =>
                 >
                     <InputNumber max={36} min={0} type="number" />
                 </Form.Item>
-                <Form.Item label="Thông tin" tooltip="What do you want others to call you?">
+                <Form.Item<Guaranty>
+                    name="description"
+                    label="Thông tin"
+                    tooltip="What do you want others to call you?"
+                >
                     <CKEditor
                         editor={ClassicEditor}
                         config={editorConfiguration}
-                        data={value || '<p></p>'}
+                        data={form.getFieldValue('description') || '<p></p>'}
                         // onReady={(editor) => {
                         //     // You can store the "editor" and use when it is needed.
                         //     console.log('Editor is ready to use!', editor);
                         // }}
                         onChange={(_, editor) => {
-                            setValue(editor.getData());
+                            form.setFieldValue('description', editor.getData());
                         }}
                         // onBlur={(event, editor) => {
                         //     console.log('Blur.', editor);
@@ -142,7 +84,7 @@ const GuarantyForm: React.FC<Props> = ({ guaranty, onSetState, onSetStatus }) =>
                 </Form.Item>
                 <Form.Item {...TAIL_FORM_ITEM_LAYOUT}>
                     <Button type="primary" htmlType="submit" loading={isLoading} style={{ width: '100px' }}>
-                        {context}
+                        Save
                     </Button>
                 </Form.Item>
             </Form>

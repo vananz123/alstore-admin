@@ -1,43 +1,69 @@
 import ProductForm from '@/conponents/ProductForm';
 import * as productServices from '@/api/productServices';
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Skeleton, Space } from 'antd';
+import { useParams } from 'react-router-dom';
+import { Button, FormProps, Skeleton, Space } from 'antd';
 import { useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
 import ProductItemConfig from './ProductItemConfig';
 import UploadImages from '@/view/product/UploadImages';
-import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import VariationFrom from '@/conponents/VariationForm';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useErrorBoundary } from 'react-error-boundary';
+import useNotification from '@/hooks/useNotification';
+import { Product } from '@/type';
+import { AxiosError } from 'axios';
+import { Result } from '@/api/ResType';
+import GoBack from '@/conponents/GoBack';
 function ProductEdit() {
     const { id } = useParams();
-    const navigate = useNavigate();
     const { selected } = useAppSelector(selectDepartment);
     const [openUploadImage, setUploadImage] = React.useState(false);
     const [openVariaton, setOpenVariaton] = React.useState(false);
     const { data: product, refetch } = useQuery({
         queryKey: [`load-product-detail-${id}-${selected}`],
-        queryFn: () => productServices.getProductDetail(Number(id), selected),
+        queryFn: () => productServices.getProductDetail(Number(id), selected).then((data)=> data.resultObj),
         enabled: !!id,
     });
+
+    const { showBoundary } = useErrorBoundary();
+    const { contextHolder, openNotification } = useNotification();
+    const updateProduct = useMutation({
+        mutationKey: ['update-product'],
+        mutationFn: (body: Product) => productServices.updateProduct(body),
+        onSuccess: (res) => {
+            if (res.isSuccessed === true) {
+                refetch();
+                openNotification('success', 'Edit Product success');
+            }
+        },
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
+            } else {
+                openNotification('error', error.response?.data.message);
+            }
+        },
+    });
+    const onFinish: FormProps<Product>['onFinish'] = async (values) => {
+        if (product != undefined) {
+            values.id = product.id;
+            updateProduct.mutateAsync(values);
+        }
+    };
+    const onFinishFailed: FormProps<Product>['onFinishFailed'] = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
+
     const showDrawerVariation = () => {
         setOpenVariaton(true);
     };
     return (
         <div>
-            <div className='flex justify-between items-center mb-3'>
-                <Button
-                    type="text"
-                    icon={<ArrowLeftOutlined />}
-                    size="small"
-                    style={{ marginBottom: '10px' }}
-                    onClick={() => {
-                        navigate(-1);
-                    }}
-                >
-                    Quay lại
-                </Button>
+            {contextHolder}
+            <div className="flex justify-between items-center mb-3">
+                <GoBack />
                 {product != undefined && (
                     <>
                         <Space>
@@ -59,7 +85,12 @@ function ProductEdit() {
             </div>
             {product != undefined ? (
                 <>
-                    <ProductForm product={product} refetch={refetch} />
+                    <ProductForm
+                        data={product}
+                        isLoading={updateProduct.isPending}
+                        onFinish={onFinish}
+                        onFinishFailed={onFinishFailed}
+                    />
 
                     <ProductItemConfig product={product} refetch={refetch} productItem={product.items} />
                     <UploadImages open={openUploadImage} setOpen={setUploadImage} product={product} />

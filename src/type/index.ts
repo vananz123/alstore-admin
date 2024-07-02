@@ -2,6 +2,12 @@
 export type StatusForm = 'success' | 'error' | 'loading'
 export type TypeFormAddress = 'ADD' | 'EDIT';
 export type Sort = 'ascending' | 'descending';
+export interface ConponentFormProps<T,> {
+    data: T | undefined;
+    isLoading?: boolean;
+    onFinish: (values: T) => void;
+    onFinishFailed?: (errorInfo: any) => void;
+}
 export type Category = {
     id: number;
     name: string;
@@ -76,7 +82,7 @@ export interface Product {
     file: any;
     urlThumbnailImage: string;urlImage: string;
     viewCount: number;
-    PromotionName?:string,
+    promotionName?:string,
     status: number;
     dateCreated: string;
     dateModify: string;

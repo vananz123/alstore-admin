@@ -1,135 +1,55 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as request from '../utils/request';
-import { Promotion, Result } from './ResType';
+import { Promotion } from './ResType';
+export interface Result<T> {
+    error: string;
+    isSuccessed: boolean;
+    message: string;
+    statusCode: number;
+    resultObj: T;
+}
 export const getAllPromotion = async () => {
-    try {
-        const res = await request.get(`/promotion/type`);
-        const resultObj: Promotion[] = res.resultObj;
-        // const resp: Result = {
-        //     error: '',
-        //     isSuccessed: res.isSuccessed,
-        //     message: res.message,
-        //     statusCode: 200,
-        //     resultObj: resultObj,
-        // };
-        return resultObj;
-    } catch (error: any) {
-        
-        return undefined;
-    }
-}
-export const getAllPromotionByType = async ( type:string) => {
-    try {
-        const res = await request.get(`/promotion/type/?type=${encodeURIComponent(type)}`);
-        const resultObj: Promotion[] = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
-}
-export const getAllPromotionByPI = async ( id:number) => {
-    try {
-        const res = await request.get(`/promotion/product-item/${encodeURIComponent(id)}`);
-        const resultObj: Promotion[] = res.resultObj;
-        return resultObj;
-    } catch (error: any) {
-        return undefined;
-    }
-}
-export const getById= async (id:number) => {
-    try {
-        const res = await request.get(`/promotion/${encodeURIComponent(id)}`);
-        const resultObj: Promotion = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
-}
-export const CreatePromotion = async (data:any) => {
-    try {
-        const pro = {
-            Name : data.name,
-            description:data.description,
-            type: data.type,
-            value:data.value,
-            startDate:data.startDate,
-            endDate:data.endDate
-        }
-        const res = await request.post(`/promotion`,pro)
-        const resultObj: Promotion[] = res.resultObj
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 201,
-            resultObj: resultObj,
-        };
-        return resp
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
-}
-export const UpdatePromotion = async (data:any) => {
-    try {
-        const pro = {
-            id: data.id,
-            Name : data.name,
-            description:data.description,
-            type :data.type,
-            value: data.value,
-            startDate:data.startDate,
-            endDate:data.endDate
-        }
-        const res = await request.put(`/promotion`,pro)
-        const resultObj: Promotion[] = res.resultObj
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
-}
-export const DeletaPromotion = async (id:number) => {
-    try {
-        const res = await request.del(`/promotion/${encodeURIComponent(id)}`)
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 204,
-            resultObj: res.resultObj,
-        };
-        return resp
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
-}
+    const res: Result<Promotion[]> = await request.get(`/promotion/type`);
+    return res;
+};
+export const getAllPromotionByType = async (type: string) => {
+    const res: Result<Promotion[]> = await request.get(`/promotion/type/?type=${encodeURIComponent(type)}`);
+    return res;
+};
+export const getAllPromotionByPI = async (id: number) => {
+    const res: Result<Promotion[]> = await request.get(`/promotion/product-item/${encodeURIComponent(id)}`);
+    return res;
+};
+export const getById = async (id: number) => {
+    const res: Result<Promotion> = await request.get(`/promotion/${encodeURIComponent(id)}`);
+    return res;
+};
+export const CreatePromotion = async (data: any) => {
+    const pro = {
+        Name: data.name,
+        description: data.description,
+        type: data.type,
+        value: data.value,
+        startDate: data.startDate,
+        endDate: data.endDate,
+    };
+    const res: Result<Promotion[]> = await request.post(`/promotion`, pro);
+    return res;
+};
+export const UpdatePromotion = async (data: any) => {
+    const pro = {
+        id: data.id,
+        Name: data.name,
+        description: data.description,
+        type: data.type,
+        value: data.value,
+        startDate: data.startDate,
+        endDate: data.endDate,
+    };
+    const res: Result<Promotion> = await request.put(`/promotion`, pro);
+    return res;
+};
+export const DeletaPromotion = async (id: number) => {
+    const res: Result<number> = await request.del(`/promotion/${encodeURIComponent(id)}`);
+    return res;
+};

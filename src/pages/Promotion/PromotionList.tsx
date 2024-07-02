@@ -1,20 +1,26 @@
 import { Table, Space, Modal, Button, Flex } from 'antd';
 import type { TableProps } from 'antd';
-import * as promotionServices from '@/api/promotionServices';
-import React, { useEffect } from 'react';
+import {getAllPromotion ,DeletaPromotion} from '@/api/promotionServices';
+import React from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import type { Promotion } from '@/api/ResType';
+import type { Promotion, Result } from '@/api/ResType';
 import useSearchIndexTable from '@/hooks/useSearchIndexTable';
-
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useImmer } from 'use-immer';
+import useNotification from '@/hooks/useNotification';
+import { AxiosError } from 'axios';
 function PromotionList() {
-    const [data, setData] = React.useState<Promotion[]>();
-    const [currentId, setCurrentId] = React.useState<number>(0);
     const [open, setOpen] = React.useState(false);
-    const [confirmLoading, setConfirmLoading] = React.useState(false);
-    const [modalText, setModalText] = React.useState('Do you want delete!');
-    const [context, setContext] = React.useState<string>('OK');
-const {getColumnSearchProps} = useSearchIndexTable()
+    const [context, setContext] = useImmer<{currentId:number,textContent:string}>({
+        currentId:0,
+        textContent:''
+    });
+    const {getColumnSearchProps} = useSearchIndexTable()
+    const {data ,refetch} = useQuery({
+        queryKey:['load-promotion'],
+        queryFn:()=> getAllPromotion().then((data)=> data.resultObj)
+    })
     const columns: TableProps<Promotion>['columns'] = [
         {
             title: 'Id',
@@ -57,36 +63,37 @@ const {getColumnSearchProps} = useSearchIndexTable()
         },
     ];
     const showModalDel = (id: number, name: string) => {
-        setModalText(`Bạn muốn xóa ${name}!`);
-        setCurrentId(id);
+        setContext((draft)=>{
+            draft.currentId = id,
+            draft.textContent = `Bạn có chắc muốn xóa ${name}`;
+        })
         setOpen(true);
     };
-    const getAllPromotion = async () => {
-        const res = await promotionServices.getAllPromotion();
-        setData(res);
-    };
-    useEffect(() => {
-        getAllPromotion();
-    }, []);
-    const handleOkDel = () => {
-        setModalText('deleting!');
-        setConfirmLoading(true);
-        setContext('');
-        setTimeout(async () => {
-            const res = await promotionServices.DeletaPromotion(currentId)
-            if (res.isSuccessed === true) {
-                getAllPromotion()
-                setOpen(false);
-                setConfirmLoading(false);
-            } else {
-                setModalText('error!');
-                setConfirmLoading(false);
-                setContext('OK')
+    const {contextHolder,openNotification} = useNotification()
+    const del = useMutation({
+        mutationKey:['del-promotion',context.currentId],
+        mutationFn:(id:number) => DeletaPromotion(id),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                refetch();
+                setOpen(false)
+                openNotification('success', data.message);
             }
-        }, 300);
+        },
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                //
+            } else {
+                openNotification('success', error.response?.data.message);
+            }
+        },
+    })
+    const handleOkDel = () => {
+        if(context.currentId !== 0) del.mutateAsync(context.currentId)
     };
     return (
         <div>
+            {contextHolder}
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Flex justify="space-between">
                     <Link to={'/promotion/add'}>
@@ -102,11 +109,10 @@ const {getColumnSearchProps} = useSearchIndexTable()
                 title="Delete"
                 open={open}
                 onOk={handleOkDel}
-                confirmLoading={confirmLoading}
+                confirmLoading={del.isPending}
                 onCancel={() => setOpen(false)}
-                okText={context}
             >
-                <p>{modalText}</p>
+                <p>{context.textContent}</p>
             </Modal>
         </div>
     );

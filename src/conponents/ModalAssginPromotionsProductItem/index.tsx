@@ -35,11 +35,11 @@ const ModalAssginPromotionsProductItem: React.FC<Props> = ({
     const {contextHolder,openNotification} = useNotification()
     const {data:promotions} = useQuery({
         queryKey:['load-all-promotion'],
-        queryFn:()=> promotionServices.getAllPromotion()
+        queryFn:()=> promotionServices.getAllPromotion().then((data)=> data.resultObj)
     })
     const {data:listPromotionByPI} = useQuery({
         queryKey:[`load-all-promotion-${productItemProps}`],
-        queryFn:()=> promotionServices.getAllPromotionByPI(productItemProps ? productItemProps.id : 0),
+        queryFn:()=> promotionServices.getAllPromotionByPI(productItemProps ? productItemProps.id : 0).then((data)=> data.resultObj),
         enabled:!!productItemProps
     }) 
     const {showBoundary} = useErrorBoundary()

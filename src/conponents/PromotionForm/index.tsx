@@ -1,85 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { SetStateAction, useEffect } from 'react';
-import { Button, type FormProps, Form, Input, InputNumber, DatePicker, Select } from 'antd';
-import * as promotionServices from '@/api/promotionServices';
+import React from 'react';
+import { Button, Form, Input, InputNumber, DatePicker, Select } from 'antd';
 import dayjs from 'dayjs';
-import { StatusForm } from '@/type';
+import { ConponentFormProps } from '@/type';
 import { Promotion } from '@/api/ResType';
 import { FORM_ITEM_LAYOUT, TAIL_FORM_ITEM_LAYOUT, OPTIONS_PROMOTION_TYPE } from '@/common/common';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeftOutlined } from '@ant-design/icons';
 const { RangePicker } = DatePicker;
 import type { GetProps } from 'antd';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
 dayjs.extend(customParseFormat);
 const disabledDate: RangePickerProps['disabledDate'] = (current) => {
-  return current && current < dayjs().endOf('day');
+    return current && current < dayjs().endOf('day');
 };
-const PromotionForm: React.FC<{
-    promotion: Promotion | undefined;
-    onSetState: SetStateAction<any> | undefined;
-    onSetStatus: SetStateAction<any>;
-}> = ({ promotion, onSetState, onSetStatus }) => {
+const PromotionForm: React.FC<ConponentFormProps<Promotion>> = ({ data, isLoading, onFinish, onFinishFailed }) => {
     const [form] = Form.useForm();
-    
-    useEffect(()=>{
-        form.setFieldsValue(promotion);
-    },[form,promotion])
-    const [isLoading, setIsLoading] = React.useState<boolean>(false);
-    const [context, setContext] = React.useState<string>('Save');
-    const onFinish: FormProps<Promotion>['onFinish'] = async (values) => {
-        values.startDate = dayjs(values.arrDate[0]).format();
-        values.endDate = dayjs(values.arrDate[1]).format();
-        setIsLoading(true);
-        setContext('');
-        if (promotion != undefined) {
-            values.id = promotion?.id;
-            if (promotion?.id != undefined) {
-                const res = await promotionServices.UpdatePromotion(values);
-                if (res.isSuccessed === true) {
-                    onSetState(res.resultObj);
-                    const status: StatusForm = 'success';
-                    onSetStatus(status);
-                } else {
-                    const status: StatusForm = 'error';
-                    onSetStatus(status);
-                }
-            }
-            setIsLoading(false);
-            setContext('Save');
-        } else {
-            const res = await promotionServices.CreatePromotion(values);
-            if (res.isSuccessed === true) {
-                onSetState(res.resultObj);
-                const status: StatusForm = 'success';
-                onSetStatus(status);
-            } else {
-                const status: StatusForm = 'error';
-                onSetStatus(status);
-            }
-            setIsLoading(false);
-        }
-    };
-
-    const onFinishFailed: FormProps<Promotion>['onFinishFailed'] = (errorInfo) => {
-        console.log('Failed:', errorInfo);
-    };
-    const navigate = useNavigate();
-
+    if (data) form.setFieldsValue(data);
     return (
         <>
-            <Button
-                type="text"
-                icon={<ArrowLeftOutlined />}
-                size="small"
-                style={{ marginBottom: '10px' }}
-                onClick={() => {
-                    navigate(-1);
-                }}
-            >
-                Quay lại
-            </Button>
             <Form
                 {...FORM_ITEM_LAYOUT}
                 form={form}
@@ -156,11 +94,11 @@ const PromotionForm: React.FC<{
                     //initialValue={promotion?.arrDate}
                     rules={[{ required: true, message: 'Please input category name!' }]}
                 >
-                    <RangePicker disabledDate={disabledDate}/>
+                    <RangePicker disabledDate={disabledDate} />
                 </Form.Item>
                 <Form.Item {...TAIL_FORM_ITEM_LAYOUT}>
                     <Button type="primary" htmlType="submit" loading={isLoading} style={{ width: '100px' }}>
-                        {context}
+                        Save
                     </Button>
                 </Form.Item>
             </Form>
