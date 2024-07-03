@@ -40,6 +40,24 @@ export const OPTIONS_STATUS = [
         color: 'red',
     },
 ];
+
+export const OPTIONS_STATUS_WARRANTY = [
+    {
+        value: 0,
+        label: 'InProgress',
+        color: 'gold',
+    },
+    {
+        value: 1,
+        label: 'Success',
+        color: 'green',
+    },
+    {
+        value: 2,
+        label: 'Cancel',
+        color: 'red',
+    },
+];
 export const OPTIONS_STATUS_INVENTORY = [
     {
         value: 0,

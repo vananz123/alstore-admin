@@ -1,4 +1,4 @@
-import {  OrderDetail, Warranty } from "@/api/ResType";
+import {  OrderDetail } from "@/api/ResType";
 import { TableColumnsType } from "antd";
 import dayjs from "dayjs";
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -41,43 +41,6 @@ export const columnsOrderConfirm: TableColumnsType<OrderDetail> = [
                 <p>{record.guaranty.name}</p>
                 <p>{record.guaranty.period + ' ' + record.guaranty.sku}</p>
                 <p>{dayjs(record.guaranty.datePeriod).format('MM/DD/YYYY')}</p>
-            </div>
-        ),
-    },
-];
-export const columnsWarranty: TableColumnsType<Warranty> = [
-    {
-        title: 'Id',
-        dataIndex: 'id',
-        key: 'id',
-    },
-    {
-        title: 'description',
-        dataIndex: 'description',
-        key: 'description',
-    },
-    {
-        title: 'status',
-        dataIndex: 'status',
-        key: 'status',
-    },
-    {
-        title: 'dateCreated',
-        dataIndex: 'dateCreated',
-        key: 'dateCreated',
-        render: (_, record) => (
-            <div>
-                <p>{dayjs(record.dateCreated).format('MM/DD/YYYY')}</p>
-            </div>
-        ),
-    },
-    {
-        title: 'dateModify',
-        dataIndex: 'dateModify',
-        key: 'dateModify',
-        render: (_, record) => (
-            <div>
-                <p>{dayjs(record.dateModify).format('MM/DD/YYYY')}</p>
             </div>
         ),
     },

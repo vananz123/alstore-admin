@@ -10,10 +10,10 @@ interface Props {
     open: boolean;
     setOpen: SetStateAction<any>;
     orderDetail: OrderDetail | undefined;
-    warranty:Warranty | undefined;
+    warranty: Warranty | undefined;
     refresh: () => void;
 }
-const ModalWararrtyForm: React.FC<Props> = ({ open, setOpen, orderDetail , warranty ,refresh}) => {
+const ModalWararrtyForm: React.FC<Props> = ({ open, setOpen, orderDetail, warranty, refresh }) => {
     const [api, contextHolder] = notification.useNotification();
 
     const openNotificationWithIcon = (type: NotificationType, mess: string) => {
@@ -25,40 +25,40 @@ const ModalWararrtyForm: React.FC<Props> = ({ open, setOpen, orderDetail , warra
     const createWarranty = useMutation({
         mutationKey: ['create-warranty'],
         mutationFn: (body: Warranty) => warrantyServices.create(body),
-        onSuccess:(data)=>{
-            if( data.isSuccessed === true){
-                refresh()
-                setOpen(false)
-                openNotificationWithIcon('success', 'thành công')
-            }else{
-                openNotificationWithIcon('error', data.message)
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                refresh();
+                setOpen(false);
+                openNotificationWithIcon('success', 'thành công');
+            } else {
+                openNotificationWithIcon('error', data.message);
             }
-        }
+        },
     });
     const updateWarranty = useMutation({
         mutationKey: ['update-warranty'],
         mutationFn: (body: Warranty) => warrantyServices.update(body),
-        onSuccess:(data)=>{
-            if( data.isSuccessed === true){
-                refresh()
-                setOpen(false)
-                openNotificationWithIcon('success', 'thành công')
-            }else{
-                openNotificationWithIcon('error', data.message)
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                refresh();
+                setOpen(false);
+                openNotificationWithIcon('success', 'thành công');
+            } else {
+                openNotificationWithIcon('error', data.message);
             }
-        }
+        },
     });
     const [value, setValue] = React.useState<string | undefined>('');
-    useEffect(()=>{
-        if(warranty){
-            setValue(warranty.description)
+    useEffect(() => {
+        if (warranty) {
+            setValue(warranty.description);
         }
-    },[warranty])
-    console.log(warranty)
+    }, [warranty]);
+    console.log(warranty);
     const changeValue = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setValue(e.target.value);
     };
-    const save = async() => {
+    const save = async () => {
         if (!warranty && orderDetail && value) {
             const w: Warranty = {
                 orderDetailId: orderDetail.id,
@@ -71,7 +71,7 @@ const ModalWararrtyForm: React.FC<Props> = ({ open, setOpen, orderDetail , warra
             };
             createWarranty.mutateAsync(w);
         }
-        if(warranty && orderDetail && value){
+        if (warranty && orderDetail && value) {
             const w: Warranty = {
                 orderDetailId: orderDetail.id,
                 description: value,
@@ -87,8 +87,9 @@ const ModalWararrtyForm: React.FC<Props> = ({ open, setOpen, orderDetail , warra
     return (
         <div>
             {contextHolder}
-            <Modal title="Form" open={open} onCancel={() => setOpen(false)} footer="">
+            <Modal title="Tình trạng" open={open} onCancel={() => setOpen(false)} footer="">
                 <TextArea
+                className='mb-3'
                     value={value}
                     onChange={changeValue}
                     placeholder="something..."
