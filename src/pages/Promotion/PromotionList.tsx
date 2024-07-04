@@ -14,7 +14,7 @@ function PromotionList() {
     const [open, setOpen] = React.useState(false);
     const [context, setContext] = useImmer<{currentId:number,textContent:string}>({
         currentId:0,
-        textContent:''
+        textContent:'Những sản đã áp dụng mã này sẽ được gỡ'
     });
     const {getColumnSearchProps} = useSearchIndexTable()
     const {data ,refetch} = useQuery({
@@ -57,15 +57,14 @@ function PromotionList() {
             render: (_, record) => (
                 <Space size="middle">
                     <Link to={`/promotion/edit/${record.id}`}>Edit</Link>
-                    <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
+                    <a onClick={() => showModalDel(record.id)}>Delete</a>
                 </Space>
             ),
         },
     ];
-    const showModalDel = (id: number, name: string) => {
+    const showModalDel = (id: number) => {
         setContext((draft)=>{
-            draft.currentId = id,
-            draft.textContent = `Bạn có chắc muốn xóa ${name}`;
+            draft.currentId = id
         })
         setOpen(true);
     };
@@ -101,7 +100,6 @@ function PromotionList() {
                             Thêm
                         </Button>
                     </Link>
-                    {/* <SearchC typeSearch={2} onSetState={setData} /> */}
                 </Flex>
                 <Table pagination={{ position: ['bottomLeft'], pageSize: 4 }} columns={columns} dataSource={data} />
             </Space>

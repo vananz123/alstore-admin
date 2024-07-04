@@ -11,7 +11,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
 dayjs.extend(customParseFormat);
 const disabledDate: RangePickerProps['disabledDate'] = (current) => {
-    return current && current < dayjs().endOf('day');
+    return current && current <= dayjs().endOf('day');
 };
 const PromotionForm: React.FC<ConponentFormProps<Promotion>> = ({ data, isLoading, onFinish, onFinishFailed }) => {
     const [form] = Form.useForm();

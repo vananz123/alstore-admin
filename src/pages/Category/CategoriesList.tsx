@@ -1,4 +1,4 @@
-import { Table, Space, Modal, Button, Flex, Tag } from 'antd';
+import { Table, Space, Modal, Button, Flex } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { getAllAdminCate, deleteCate } from '@/api/categoryServices';
 import { PlusOutlined } from '@ant-design/icons';
@@ -10,6 +10,7 @@ import { useImmer } from 'use-immer';
 import useNotification from '@/hooks/useNotification';
 import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
+import StatusTag from '@/conponents/StatusTag';
 function CategoriesList() {
     const [open, setOpen] = useImmer(false);
     const [context,setContext] = useImmer<{currentId:number,modalText:string}>({
@@ -17,10 +18,6 @@ function CategoriesList() {
         modalText:''
     })
     const {contextHolder,openNotification} = useNotification()
-    const renderTag = (status: number) => {
-        const option = OPTIONS_STATUS?.find((x) => x.value == status);
-        return <Tag color={option?.color}>{option?.label}</Tag>;
-    };
     const { data, isLoading, refetch } = useQuery({
         queryKey: ['load-list-category'],
         queryFn: () => getAllAdminCate('sub').then((data) => data.resultObj),
@@ -40,7 +37,7 @@ function CategoriesList() {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',
-            render: (_, record) => renderTag(record.status),
+            render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS}/>,
         },
         {
             title: 'Action',
@@ -69,7 +66,7 @@ function CategoriesList() {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',
-            render: (_, record) => renderTag(record.status),
+            render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS}/>,
         },
         {
             title: 'Action',

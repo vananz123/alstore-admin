@@ -1,5 +1,5 @@
 import { Department } from '@/type';
-import { TableProps, Space, Modal, Flex, Button,Table, Tag } from 'antd';
+import { TableProps, Space, Modal, Flex, Button,Table } from 'antd';
 import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import {deleteDepartment,getAllDepartment} from '@/api/departmentServices';
@@ -10,6 +10,7 @@ import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
 import { useImmer } from 'use-immer';
 import useNotification from '@/hooks/useNotification';
+import StatusTag from '@/conponents/StatusTag';
 function DepartmentList() {
     const [open, setOpen] = useImmer(false);
     const [context,setContext] = useImmer<{currentId:number,modalText:string}>({
@@ -38,10 +39,6 @@ function DepartmentList() {
             }
         })
     })
-    const renderTag = (status:number)=>{
-        const option = OPTIONS_STATUS?.find(x => x.value == status)
-        return <Tag color={option?.color}>{option?.label}</Tag>
-    }
     const {getColumnSearchProps} = useSearchIndexTable()
     const columns: TableProps<Department>['columns'] = [
         {
@@ -72,7 +69,7 @@ function DepartmentList() {
             dataIndex: 'status',
             key: 'status',
             render:(_,record)=>(
-                renderTag(record.status)
+                <StatusTag status={record.status} options={OPTIONS_STATUS}/>
             ),
         },
         {

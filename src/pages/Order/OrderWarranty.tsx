@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { OrderDetail, Warranty } from '@/api/ResType';
 import {  PlusOutlined } from '@ant-design/icons';
-import { Button, Modal, Space, Table, TableColumnsType, Tag, notification } from 'antd';
+import { Button, Modal, Space, Table, TableColumnsType, notification } from 'antd';
 import * as warrantyServices from '@/api/warrantyServices';
 import React, { SetStateAction } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import ModalWararrtyForm from './ModalWararrtyForm';
 import dayjs from 'dayjs';
 import { OPTIONS_STATUS_WARRANTY } from '@/common/common';
+import StatusTag from '@/conponents/StatusTag';
 interface Props {
     orderDetail: OrderDetail | undefined;
     open: boolean;
@@ -22,10 +23,6 @@ const OrderWarranty: React.FC<Props> = ({ open, setOpen, orderDetail }) => {
             message: 'Notification Title',
             description: mess,
         });
-    };
-    const renderTag = (status: number) => {
-        const option = OPTIONS_STATUS_WARRANTY?.find((x) => x.value == status);
-        return <Tag color={option?.color}>{option?.label}</Tag>;
     };
     const { data, isLoading, refetch } = useQuery({
         queryKey: [`load-warranty-${orderDetail?.id}`],
@@ -86,7 +83,7 @@ const OrderWarranty: React.FC<Props> = ({ open, setOpen, orderDetail }) => {
             dataIndex: 'status',
             key: 'status',
             render:(_,record)=>(
-                renderTag(record.status)
+                <StatusTag status={record.status} options={OPTIONS_STATUS_WARRANTY}/>
             )
         },
         {

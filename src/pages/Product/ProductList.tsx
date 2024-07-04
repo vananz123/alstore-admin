@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Table, Space, Image, Modal, Upload, Button, Flex, Descriptions, Tag } from 'antd';
+import { Table, Space, Image, Modal, Upload, Button, Flex, Descriptions } from 'antd';
 import type { TableColumnsType, DescriptionsProps } from 'antd';
 import { Drawer } from 'antd';
 import type { GetProp, UploadFile, UploadProps } from 'antd';
@@ -17,12 +17,14 @@ import useSearchIndexTable from '@/hooks/useSearchIndexTable';
 import { AxiosError } from 'axios';
 import { useErrorBoundary } from 'react-error-boundary';
 import useNotification from '@/hooks/useNotification';
-import { ChangeCurrence } from '@/utils/utils';
+import { ChangeCurrence, isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 import { getAllAdminCate } from '@/api/categoryServices';
+import StatusTag from '@/conponents/StatusTag';
+import { Result } from '@/api/ResType';
 interface FilterProductByCate {
     text: string;
     value: number;
-} 
+}
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 const getBase64 = (file: FileType): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -37,10 +39,6 @@ const uploadButton = (
         <div style={{ marginTop: 8 }}>Upload</div>
     </button>
 );
-const renderTag = (status: number) => {
-    const option = OPTIONS_PRODUCT_STATUS?.find((x) => x.value == status);
-    return <Tag color={option?.color}>{option?.label}</Tag>;
-};
 function ProductList() {
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const { showBoundary } = useErrorBoundary();
@@ -61,10 +59,9 @@ function ProductList() {
     });
     const { data: categories } = useQuery({
         queryKey: [`load-list-category`],
-        queryFn: () =>
-            getAllAdminCate('all').then((data) =>data.resultObj),
+        queryFn: () => getAllAdminCate('all').then((data) => data.resultObj),
     });
-    const filterProductByCate : FilterProductByCate[] = [];
+    const filterProductByCate: FilterProductByCate[] = [];
     if (categories) {
         categories.forEach((e) => {
             filterProductByCate.push({
@@ -126,21 +123,20 @@ function ProductList() {
                     onClick={() => showModalImage(record.id)}
                 />
             ),
-        },{
+        },
+        {
             title: 'Danh mục',
             dataIndex: 'categoryId',
             key: 'categoryId',
-            render: (_, record) => (
-                <p>{categories ? categories.find(x=> x.id === record.categoryId)?.name : ''}</p>
-            ),
-            filters:filterProductByCate, 
-            onFilter:(value: any, record: Product) => record.categoryId === value,
+            render: (_, record) => <p>{categories ? categories.find((x) => x.id === record.categoryId)?.name : ''}</p>,
+            filters: filterProductByCate,
+            onFilter: (value: any, record: Product) => record.categoryId === value,
         },
         {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',
-            render: (_, record) => renderTag(record.status),
+            render: (_, record) => <StatusTag status={record.status} options={OPTIONS_PRODUCT_STATUS} />,
             filters: FILTERS_PRODUCT_STATUS,
             onFilter: (value: any, record: Product) => record.status === value,
         },
@@ -158,7 +154,7 @@ function ProductList() {
             key: 'action',
             render: (_: any, record: Product) => (
                 <Space size="middle">
-                    <Button icon={<DeleteOutlined />} onClick={() => showModalDel(record.id)}></Button>
+                    {record.price !== 0 && <Button icon={<DeleteOutlined />} onClick={() => showModalDel(record.id)}></Button>}
                     <Link to={`/product/edit/${record.id}`}>
                         <Button icon={<EditOutlined />}></Button>
                     </Link>
@@ -200,14 +196,11 @@ function ProductList() {
                 setOpen(false);
                 setFileList([]);
                 openNotification('success', data.message);
-            } else {
-                openNotification('success', data.message);
             }
         },
-        onError: (error: AxiosError) => {
-            if (error.response?.status === 403) {
-                showBoundary(error);
-            }
+        onError: (error: AxiosError<Result>) => {
+            if (isAxiosUnauthoriedError(error) ) showBoundary(error);
+            if(isAxiosBadRequestError(error))  openNotification('error', error.response?.data.message);
         },
     });
     const handleOkDel = () => {
