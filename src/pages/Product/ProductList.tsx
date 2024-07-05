@@ -5,11 +5,10 @@ import type { TableColumnsType, DescriptionsProps } from 'antd';
 import { Drawer } from 'antd';
 import type { GetProp, UploadFile, UploadProps } from 'antd';
 import * as productServices from '@/api/productServices';
-import React from 'react';
-import { DeleteOutlined, EditOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import { Product } from '@/type';
-import { FILTERS_PRODUCT_STATUS, OPTIONS_PRODUCT_STATUS } from '@/common/common';
+import { Product, ProductItem } from '@/type';
+import { FILTERS_PRODUCT_STATUS, OPTIONS_PRODUCT_STATUS, PAPINATION } from '@/common/common';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
@@ -21,6 +20,7 @@ import { ChangeCurrence, isAxiosBadRequestError, isAxiosUnauthoriedError } from 
 import { getAllAdminCate } from '@/api/categoryServices';
 import StatusTag from '@/conponents/StatusTag';
 import { Result } from '@/api/ResType';
+import { useImmer } from 'use-immer';
 interface FilterProductByCate {
     text: string;
     value: number;
@@ -43,17 +43,20 @@ function ProductList() {
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const { showBoundary } = useErrorBoundary();
     const { contextHolder, openNotification } = useNotification();
+    const [content, setContent] = useImmer<{ context: string; currentId: number }>({
+        context: 'Bạn có chắc chắn xóa sản phẩm này!',
+        currentId: 0,
+    });
     const { selected } = useAppSelector(selectDepartment);
-    const [currentId, setCurrentId] = React.useState<number>(0);
-    const [currentProductItem, setCurrentProductItem] = React.useState<Product>();
-    const [modal2Open, setModal2Open] = React.useState(false);
-    const [confirmLoadinModal2, setConfirmLoadingModal2] = React.useState(false);
-    const [open, setOpen] = React.useState(false);
-    const [previewOpen, setPreviewOpen] = React.useState(false);
-    const [previewImage, setPreviewImage] = React.useState('');
-    const [fileList, setFileList] = React.useState<UploadFile[]>([]);
-    const [openDrawer, setOpenDrawer] = React.useState(false);
-    const { data, isLoading, refetch } = useQuery({
+    const [currentProductItem, setCurrentProductItem] = useImmer<Product | undefined>(undefined);
+    const [modal2Open, setModal2Open] = useImmer(false);
+    const [confirmLoadinModal2, setConfirmLoadingModal2] = useImmer(false);
+    const [open, setOpen] = useImmer(false);
+    const [previewOpen, setPreviewOpen] = useImmer(false);
+    const [previewImage, setPreviewImage] = useImmer('');
+    const [fileList, setFileList] = useImmer<UploadFile[]>([]);
+    const [openDrawer, setOpenDrawer] = useImmer(false);
+    const { data, refetch } = useQuery({
         queryKey: [`load-product-list`],
         queryFn: () => productServices.getAllProduct().then((data) => data.resultObj),
     });
@@ -154,37 +157,100 @@ function ProductList() {
             key: 'action',
             render: (_: any, record: Product) => (
                 <Space size="middle">
-                    {record.price !== 0 && <Button icon={<DeleteOutlined />} onClick={() => showModalDel(record.id)}></Button>}
-                    <Link to={`/product/edit/${record.id}`}>
-                        <Button icon={<EditOutlined />}></Button>
-                    </Link>
-                    <Button
-                        icon={<InfoCircleOutlined />}
-                        onClick={() => showDrawer(record.id)}
-                        key={`a-${record.id}`}
-                    ></Button>
+                    <Link to={`/product/edit/${record.id}`}>Edit</Link>
+                    {record.price <= 0 && <a onClick={() => showModalDel(record.id)}>Delete</a>}
+                    <a onClick={() => showDrawer(record.id)} key={`a-${record.id}`}>
+                        View
+                    </a>
                 </Space>
             ),
+        },
+    ];
+    const columnsView: TableColumnsType<ProductItem> = [
+        {
+            title: 'Id',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Size',
+            dataIndex: 'name',
+            key: 'name',
+            render: (_, record) => (
+                <p>{record.name == undefined ? 'not' : `${record.name}: ${record.value} ${record.sku}`}</p>
+            ),
+        },
+        {
+            title: 'KM',
+            dataIndex: 'valuePromotion',
+            key: 'Promotion',
+            render: (_, record) => (
+                <p>
+                    {record.type == undefined
+                        ? 'not'
+                        : record.type == 'fixed'
+                          ? `${record.valuePromotion}VNG`
+                          : `${record.valuePromotion}%`}
+                </p>
+            ),
+        },
+        {
+            title: 'Giá sau KM',
+            dataIndex: 'price',
+            key: 'price',
+        },
+        {
+            title: 'Giá',
+            dataIndex: 'priceBeforeDiscount',
+            key: 'priceBeforeDiscount',
+        },
+        {
+            title: 'Giá vốn',
+            dataIndex: 'capitalPrice',
+            key: 'capitalPrice',
+        },
+        {
+            title: 'Tồn kho',
+            dataIndex: 'stock',
+            key: 'stock',
         },
     ];
     const desProduct: DescriptionsProps['items'] = [
         {
             key: 'Name',
-            label: 'Name',
+            label: 'Tên',
             children: <span>{currentProductItem?.name}</span>,
+        },{
+            key: 'Name',
+            label: 'Sản phẩm con',
+            children: '',
         },
         {
-            key: 'Promotion',
-            label: 'Promotion',
-            children: <span>{currentProductItem?.valuePromotion}</span>,
+            key: 'Items',
+            children: (
+                <div>
+                    {currentProductItem?.items && (
+                        <Table
+                            rowKey={(record) => record.id}
+                            columns={columnsView}
+                            pagination={{ position: ['none'] }}
+                            dataSource={currentProductItem.items}
+                        />
+                    )}
+                </div>
+            ),
         },
     ];
     const showModalImage = (id: number) => {
-        setCurrentId(id);
+        setContent((draft) => {
+            draft.currentId = id;
+        });
         setModal2Open(true);
     };
     const showModalDel = (id: number) => {
-        setCurrentId(id);
+        setContent((draft) => {
+            draft.currentId = id;
+        });
         setOpen(true);
     };
     const deleteProduct = useMutation({
@@ -199,16 +265,16 @@ function ProductList() {
             }
         },
         onError: (error: AxiosError<Result>) => {
-            if (isAxiosUnauthoriedError(error) ) showBoundary(error);
-            if(isAxiosBadRequestError(error))  openNotification('error', error.response?.data.message);
+            if (isAxiosUnauthoriedError(error)) showBoundary(error);
+            if (isAxiosBadRequestError(error)) openNotification('error', error.response?.data.message);
         },
     });
     const handleOkDel = () => {
-        deleteProduct.mutateAsync(currentId);
+        deleteProduct.mutateAsync(content.currentId);
     };
     const uploadImageAPI = async () => {
         setConfirmLoadingModal2(true);
-        const res = await productServices.uploadThumbnailImage(currentId, fileList[0].originFileObj);
+        const res = await productServices.uploadThumbnailImage(content.currentId, fileList[0].originFileObj);
         if (res != null) {
             setConfirmLoadingModal2(false);
             setModal2Open(false);
@@ -227,19 +293,10 @@ function ProductList() {
                         </Button>
                     </Link>
                 </Flex>
-                <Table
-                    rowKey={(record) => record.id}
-                    pagination={{ position: ['bottomLeft'], pageSize: 10 }}
-                    columns={columns}
-                    dataSource={data}
-                />
+                <Table rowKey={(record) => record.id} pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>
-
-            <Drawer width={640} placement="right" closable={false} onClose={onClose} open={openDrawer}>
-                <p className="site-description-item-profile-p" style={{ marginBottom: 24 }}>
-                    User Profile
-                </p>
-                <Descriptions title="Product profile" items={desProduct} />
+            <Drawer width={640} placement="right" closable={true} onClose={onClose} extra={<Button type='primary'><Link to={`/product/edit/${currentProductItem?.id}`}>Edit</Link></Button>} open={openDrawer}>
+                <Descriptions title="Thông tin sản phẩm" items={desProduct} column={1} />
             </Drawer>
             <Modal
                 title="Upload image"
@@ -274,10 +331,10 @@ function ProductList() {
                 title="Delete"
                 open={open}
                 onOk={handleOkDel}
-                confirmLoading={isLoading}
+                confirmLoading={deleteProduct.isPending}
                 onCancel={() => setOpen(false)}
             >
-                <p>Xóa sản phẩm này!</p>
+                <p>{content.context}</p>
             </Modal>
         </div>
     );

@@ -4,13 +4,14 @@ import { getAllAdminCate, deleteCate } from '@/api/categoryServices';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { Category } from '@/type';
-import { OPTIONS_STATUS } from '@/common/common';
+import { OPTIONS_STATUS, PAPINATION } from '@/common/common';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useImmer } from 'use-immer';
 import useNotification from '@/hooks/useNotification';
 import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
 import StatusTag from '@/conponents/StatusTag';
+import { isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 function CategoriesList() {
     const [open, setOpen] = useImmer(false);
     const [context,setContext] = useImmer<{currentId:number,modalText:string}>({
@@ -90,11 +91,10 @@ function CategoriesList() {
             }
         }),
         onError:((error:AxiosError<Result>)=>{
-            if(error.response?.status === 403){
+            if(isAxiosUnauthoriedError(error)){
                 //
-            }else{
-                openNotification('error',error.response?.data.message)
             }
+            if(isAxiosBadRequestError(error)) openNotification('error',error.response?.data.message)
         })
     })
     const showModalDel = (id: number, name: string) => {
@@ -123,7 +123,7 @@ function CategoriesList() {
                 <Table
                     loading={isLoading}
                     rowKey={(record) => record.id}
-                    pagination={{ position: ['bottomLeft'], pageSize: 4 }}
+                    pagination={PAPINATION}
                     columns={columns}
                     dataSource={data}
                     expandable={{

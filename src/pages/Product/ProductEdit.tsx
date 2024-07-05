@@ -7,7 +7,7 @@ import { useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
 import ProductItemConfig from './ProductItemConfig';
 import UploadImages from '@/view/product/UploadImages';
-import { PlusOutlined } from '@ant-design/icons';
+import {  PlusOutlined } from '@ant-design/icons';
 import VariationFrom from '@/conponents/VariationForm';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useErrorBoundary } from 'react-error-boundary';
@@ -16,6 +16,7 @@ import { Product } from '@/type';
 import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
 import GoBack from '@/conponents/GoBack';
+import { isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 function ProductEdit() {
     const { id } = useParams();
     const { selected } = useAppSelector(selectDepartment);
@@ -39,11 +40,8 @@ function ProductEdit() {
             }
         },
         onError: (error: AxiosError<Result>) => {
-            if (error.response?.status === 403) {
-                showBoundary(error);
-            } else {
-                openNotification('error', error.response?.data.message);
-            }
+            if (isAxiosUnauthoriedError(error)) showBoundary(error);
+            if (isAxiosBadRequestError(error)) openNotification('error', error.response?.data.message);
         },
     });
     const onFinish: FormProps<Product>['onFinish'] = async (values) => {

@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Table, Tag } from 'antd';
-import type {  TableColumnsType } from 'antd';
+import {  Table, Tag } from 'antd';
+import type { TableColumnsType } from 'antd';
 import * as userServices from '@/api/userServices';
 import { ResponseUser } from '@/api/ResType';
-import { EditOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import useSearchIndexTable from '@/hooks/useSearchIndexTable';
-import { FILTERS_ROLES } from '@/common/common';
+import { FILTERS_ROLES, PAPINATION } from '@/common/common';
 function UserList() {
-    const Navigate = useNavigate();
-    const {getColumnSearchProps} = useSearchIndexTable()
-    const { data , isLoading } = useQuery({
+    const { getColumnSearchProps } = useSearchIndexTable();
+    const { data, isLoading } = useQuery({
         queryKey: ['load-user-list'],
         queryFn: () => userServices.getAllUserForAdmin(),
     });
@@ -46,32 +44,23 @@ function UserList() {
             render: (_, record) => (
                 <>
                     {record.roleVm.map((e) => (
-                        <Tag color='green'>{e.name}</Tag>
+                        <Tag color="green">{e.name}</Tag>
                     ))}
                 </>
             ),
-            filters:FILTERS_ROLES,
-            onFilter:(value: any, record: ResponseUser) => record.roleVm.some(x => x.name ===value) === true ,
+            filters: FILTERS_ROLES,
+            onFilter: (value: any, record: ResponseUser) => record.roleVm.some((x) => x.name === value) === true,
         },
         {
             title: 'Action',
             dataIndex: '',
             key: 'Action',
-            render: (_, record) => (
-                <Button
-                    onClick={() => {
-                        Navigate(`/user/edit/${record.id}`);
-                    }}
-                    icon={<EditOutlined />}
-                >
-                    Edit
-                </Button>
-            ),
+            render: (_, record) => <Link to={`/user/edit/${record.id}`}>Edit</Link>,
         },
     ];
     return (
         <div>
-            <Table loading={isLoading} pagination={{ position: ['bottomLeft'], pageSize: 10 }} columns={columns} dataSource={data} />
+            <Table loading={isLoading} pagination={PAPINATION} columns={columns} dataSource={data} />
         </div>
     );
 }

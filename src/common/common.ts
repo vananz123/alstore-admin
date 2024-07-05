@@ -1,5 +1,5 @@
 import { OptionPrice, OptionBase, OptionSort } from '@/type';
-import { SelectProps } from 'antd';
+import { SelectProps, TablePaginationConfig } from 'antd';
 export const FORM_ITEM_LAYOUT = {
     labelCol: {
         xs: { span: 24 },
@@ -110,19 +110,19 @@ export const OPTIONS_PRODUCT_STATUS = [
 ];
 export const FILTERS_ROLES = [
     {
-        value: "super-admin",
+        value: 'super-admin',
         text: 'super-admin',
     },
     {
-        value: "admin",
+        value: 'admin',
         text: 'admin',
     },
     {
-        value: "sale",
+        value: 'sale',
         text: 'sale',
     },
     {
-        value: "customer",
+        value: 'customer',
         text: 'customer',
     },
 ];
@@ -285,21 +285,24 @@ export const STATUS_ORDER = [
         label: 'Trả hàng',
     },
 ];
-export const OPTIONS_SHIPPING =[
+export const OPTIONS_SHIPPING = [
     {
-        value:"Giao hàng tận nơi",
-        text:"Giao hàng tận nơi"
-    }, {
-        value:"Nhận hàng cửa hàng",
-        text:"Nhận hàng cửa hàng"
-    }
-] 
-export const OPTIONS_TYPE_INVENTORY =[
+        value: 'Giao hàng tận nơi',
+        text: 'Giao hàng tận nơi',
+    },
     {
-        value:"import",
-        text:"import"
-    }, {
-        value:"export",
-        text:"export"
-    }
-] 
+        value: 'Nhận hàng cửa hàng',
+        text: 'Nhận hàng cửa hàng',
+    },
+];
+export const OPTIONS_TYPE_INVENTORY = [
+    {
+        value: 'import',
+        text: 'import',
+    },
+    {
+        value: 'export',
+        text: 'export',
+    },
+];
+export const PAPINATION: TablePaginationConfig = { position: ['bottomLeft'], pageSize: 10 };

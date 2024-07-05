@@ -4,13 +4,14 @@ import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import {deleteDepartment,getAllDepartment} from '@/api/departmentServices';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { OPTIONS_STATUS } from '@/common/common';
+import { OPTIONS_STATUS, PAPINATION } from '@/common/common';
 import useSearchIndexTable from '@/hooks/useSearchIndexTable';
 import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
 import { useImmer } from 'use-immer';
 import useNotification from '@/hooks/useNotification';
 import StatusTag from '@/conponents/StatusTag';
+import { isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 function DepartmentList() {
     const [open, setOpen] = useImmer(false);
     const [context,setContext] = useImmer<{currentId:number,modalText:string}>({
@@ -32,9 +33,10 @@ function DepartmentList() {
         },
         onError:((error:AxiosError<Result>)=>{
             setOpen(false)
-            if(error.response?.status === 403){
+            if(isAxiosUnauthoriedError(error)){
                 //
-            }else{
+            }
+            if(isAxiosBadRequestError(error)){
                 openNotification('error', error.response?.data.message)
             }
         })
@@ -104,7 +106,7 @@ function DepartmentList() {
                         </Button>
                     </Link>
                 </Flex>
-                <Table loading={isLoading} pagination={{ position: ['bottomLeft'], pageSize: 4 }} columns={columns} dataSource={data} />
+                <Table loading={isLoading} pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>
             <Modal
                 title="Delete"

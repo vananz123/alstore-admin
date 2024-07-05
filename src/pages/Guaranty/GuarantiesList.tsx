@@ -11,6 +11,7 @@ import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
 import { isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 import { useErrorBoundary } from 'react-error-boundary';
+import {  PAPINATION } from '@/common/common';
 function GuaranriesList() {
     const [content, setContent] = useImmer<{ currentId: number; context: string }>({
         currentId: 0,
@@ -95,7 +96,7 @@ function GuaranriesList() {
                 </Flex>
                 <Table
                     loading={isLoading}
-                    pagination={{ position: ['bottomLeft'], pageSize: 4 }}
+                    pagination={PAPINATION}
                     columns={columns}
                     dataSource={data}
                 />

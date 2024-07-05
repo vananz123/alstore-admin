@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Order, OrderStatus } from '@/api/ResType';
-import { Table, Space, Badge, Tabs, Button } from 'antd';
+import { Table, Space, Badge, Tabs } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { selectOrderStatus ,changeOrderStatus} from '@/app/feature/order-status/reducer';
 import * as orderServices from '@/api/orderServices';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { InfoCircleOutlined } from '@ant-design/icons';
 import { STATUS_ORDER } from '@/common/common';
 import { useQuery } from '@tanstack/react-query';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
@@ -75,7 +74,7 @@ function OrderList() {
                 <Space size="middle">
                     {/* <Button icon={<DeleteOutlined />}></Button> */}
                     <Link key={`a-${record.id}`} to={`/order/detail/${record.id}`}>
-                        <Button icon={<InfoCircleOutlined />}></Button>
+                        View
                     </Link>
                 </Space>
             ),
