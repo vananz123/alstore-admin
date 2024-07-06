@@ -12,6 +12,7 @@ import { Result } from '@/api/ResType';
 import { isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 import { useErrorBoundary } from 'react-error-boundary';
 import { PAPINATION } from '@/common/common';
+import dayjs from 'dayjs';
 function GuaranriesList() {
     const [content, setContent] = useImmer<{ currentId: number; context: string }>({
         currentId: 0,
@@ -35,18 +36,17 @@ function GuaranriesList() {
             dataIndex: 'name',
             key: 'name',
             ...getColumnSearchProps<Guaranty>('name'),
+        },{
+            title: 'Thời hạn',
+            dataIndex: 'period',
+            key: 'period',
+            render: (_, record) => <p>{record.period +" " + record.sku}</p>,
         },
         {
             title: 'Ngày tạo',
             dataIndex: 'dateCreate',
             key: 'dateCreate',
-            render: (_, record) => <p>{new Date(record.dateCreated).toUTCString()}</p>,
-        },
-        {
-            title: 'Ngày bắt đâu',
-            dataIndex: 'dateModify',
-            key: 'dateModify',
-            render: (_, record) => <p>{new Date(record.dateModify).toUTCString()}</p>,
+            render: (_, record) => <p>{dayjs(record.dateCreated).format("MM/DD/YYYY")}</p>,
         },
         {
             title: 'Chức năng',

@@ -13,6 +13,7 @@ import { AxiosError } from 'axios';
 import { OPTIONS_STATUS, PAPINATION } from '@/common/common';
 import { isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 import StatusTag from '@/conponents/StatusTag';
+import dayjs from 'dayjs';
 function PromotionList() {
     const [open, setOpen] = React.useState(false);
     const [context, setContext] = useImmer<{ currentId: number; textContent: string }>({
@@ -46,13 +47,13 @@ function PromotionList() {
             title: 'Ngày Bắt Đầu',
             dataIndex: 'startDate',
             key: 'name',
-            render: (_, record) => <p>{new Date(record.startDate).toUTCString()}</p>,
+            render: (_, record) => <p>{dayjs(record.startDate).format("MM/DD/YYYY")}</p>,
         },
         {
             title: 'Ngày Kết Thúc',
             dataIndex: 'endDate',
             key: 'name',
-            render: (_, record) => <p>{new Date(record.endDate).toUTCString()}</p>,
+            render: (_, record) => <p>{dayjs(record.endDate).format("MM/DD/YYYY")}</p>,
         },
         {
             title: 'Trạng thái',

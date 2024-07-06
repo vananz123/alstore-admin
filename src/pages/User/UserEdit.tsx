@@ -11,6 +11,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useErrorBoundary } from 'react-error-boundary';
 import { selectDepartment } from '@/app/feature/department/reducer';
 import { AxiosError } from 'axios';
+import { Result } from '@/api/ResType';
+import { isAxiosBadRequestError } from '@/utils/utils';
 interface Body {
     userId: string;
     data: string[];
@@ -39,13 +41,11 @@ function UserEdit() {
         onSuccess: (data) => {
             if (data.isSuccessed === true) {
                 openNotification('success', data.message);
-            } else {
-                openNotification('error', data.message);
             }
         },
-        onError: (error: AxiosError) => {
-            console.log(error);
+        onError: (error: AxiosError<Result>) => {
             if (error.response?.status === 403) showBoundary(error);
+            if (isAxiosBadRequestError(error)) openNotification('error', error.response?.data.message);
         },
     });
     const assginClaims = useMutation({
@@ -54,12 +54,11 @@ function UserEdit() {
         onSuccess: (data) => {
             if (data.isSuccessed === true) {
                 openNotification('success', data.message);
-            } else {
-                openNotification('error', data.message);
             }
         },
-        onError: (error: AxiosError) => {
+        onError: (error: AxiosError<Result>) => {
             if (error.response?.status === 403) showBoundary(error);
+            if (isAxiosBadRequestError(error)) openNotification('error', error.response?.data.message);
         },
     });
     useEffect(() => {
@@ -143,7 +142,7 @@ function UserEdit() {
                         />
                     </div>
                     <Button
-                    loading={assginRoles.isPending}
+                        loading={assginRoles.isPending}
                         type="primary"
                         onClick={() => {
                             addRoles();
@@ -155,47 +154,51 @@ function UserEdit() {
             ) : (
                 <Skeleton />
             )}
-            <p className="my-3">Danh sách claim của user:</p>
-            <Select
-                mode="multiple"
-                onChange={handleChangeSelectDepartments}
-                placeholder="Please select"
-                disabled={!isAddClaims}
-                value={departmentKey}
-                style={{ width: '100%' }}
-                options={optionDepartment}
-            />
-            {!isAddClaims && (
-                <div className="mt-3">
-                    <Button
-                        onClick={() => {
-                            setIsAddClaims(!isAddClaims);
-                        }}
-                    >
-                        + Thêm
-                    </Button>
-                </div>
-            )}
-            {isAddClaims && (
+            {user && user.roles.includes('customer') === false && (
                 <>
-                    <Space className="mt-3">
-                        <Button 
-                        loading={assginClaims.isPending}
-                            type="primary"
-                            onClick={() => {
-                                addClaims();
-                            }}
-                        >
-                            Cập nhật
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                setIsAddClaims(!isAddClaims);
-                            }}
-                        >
-                            Hủy
-                        </Button>
-                    </Space>
+                    <p className="my-3">Danh sách claim của user:</p>
+                    <Select
+                        mode="multiple"
+                        onChange={handleChangeSelectDepartments}
+                        placeholder="Please select"
+                        disabled={!isAddClaims}
+                        value={departmentKey}
+                        style={{ width: '100%' }}
+                        options={optionDepartment}
+                    />
+                    {!isAddClaims && (
+                        <div className="mt-3">
+                            <Button
+                                onClick={() => {
+                                    setIsAddClaims(!isAddClaims);
+                                }}
+                            >
+                                + Thêm
+                            </Button>
+                        </div>
+                    )}
+                    {isAddClaims && (
+                        <>
+                            <Space className="mt-3">
+                                <Button
+                                    loading={assginClaims.isPending}
+                                    type="primary"
+                                    onClick={() => {
+                                        addClaims();
+                                    }}
+                                >
+                                    Cập nhật
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        setIsAddClaims(!isAddClaims);
+                                    }}
+                                >
+                                    Hủy
+                                </Button>
+                            </Space>
+                        </>
+                    )}
                 </>
             )}
         </div>
