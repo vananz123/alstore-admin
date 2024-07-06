@@ -75,12 +75,12 @@ function DepartmentList() {
             ),
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/department/edit/${record.id}`}>Edit</Link>
-                    <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
+                    <Link to={`/department/edit/${record.id}`}>Sửa</Link>
+                    <a onClick={() => showModalDel(record.id, record.name)}>Xóa</a>
                 </Space>
             ),
         },
@@ -109,7 +109,7 @@ function DepartmentList() {
                 <Table loading={isLoading} pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>
             <Modal
-                title="Delete"
+                title="Xóa chi nhánh"
                 open={open}
                 onOk={handleOkDel}
                 confirmLoading={mutationDepartment.isPending}

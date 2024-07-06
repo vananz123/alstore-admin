@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { OrderDetail, Warranty } from '@/api/ResType';
-import {  PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { Button, Modal, Space, Table, TableColumnsType, notification } from 'antd';
 import * as warrantyServices from '@/api/warrantyServices';
 import React, { SetStateAction } from 'react';
@@ -82,9 +82,7 @@ const OrderWarranty: React.FC<Props> = ({ open, setOpen, orderDetail }) => {
             title: 'status',
             dataIndex: 'status',
             key: 'status',
-            render:(_,record)=>(
-                <StatusTag status={record.status} options={OPTIONS_STATUS_WARRANTY}/>
-            )
+            render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS_WARRANTY} />,
         },
         {
             title: 'dateCreated',
@@ -107,7 +105,7 @@ const OrderWarranty: React.FC<Props> = ({ open, setOpen, orderDetail }) => {
             ),
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             key: 'status',
             render: (_, record) => (
                 <>
@@ -163,15 +161,26 @@ const OrderWarranty: React.FC<Props> = ({ open, setOpen, orderDetail }) => {
                 onCancel={() => setOpen(false)}
                 footer=""
             >
-                <Button type="primary" onClick={() => {
-                    setWarranty(undefined)
-                    setOpenForm(true)
-                }} icon={<PlusOutlined />} size="large">
+                <Button
+                    type="primary"
+                    onClick={() => {
+                        setWarranty(undefined);
+                        setOpenForm(true);
+                    }}
+                    icon={<PlusOutlined />}
+                    size='middle'
+                >
                     Thêm
                 </Button>
                 {data && <Table dataSource={data} columns={columns} />}
             </Modal>
-            <ModalWararrtyForm open={openForm} setOpen={setOpenForm} orderDetail={orderDetail} warranty={warranty} refresh={refetch}/>
+            <ModalWararrtyForm
+                open={openForm}
+                setOpen={setOpenForm}
+                orderDetail={orderDetail}
+                warranty={warranty}
+                refresh={refetch}
+            />
         </div>
     );
 };

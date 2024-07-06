@@ -153,14 +153,14 @@ function ProductList() {
             },
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             key: 'action',
             render: (_: any, record: Product) => (
                 <Space size="middle">
-                    <Link to={`/product/edit/${record.id}`}>Edit</Link>
-                    {record.price <= 0 && <a onClick={() => showModalDel(record.id)}>Delete</a>}
+                    <Link to={`/product/edit/${record.id}`}>Sửa</Link>
+                    {record.price <= 0 && <a onClick={() => showModalDel(record.id)}>Xóa</a>}
                     <a onClick={() => showDrawer(record.id)} key={`a-${record.id}`}>
-                        View
+                        Xem
                     </a>
                 </Space>
             ),
@@ -328,7 +328,7 @@ function ProductList() {
                 )}
             </Modal>
             <Modal
-                title="Delete"
+                title="Xóa sản phẩm"
                 open={open}
                 onOk={handleOkDel}
                 confirmLoading={deleteProduct.isPending}

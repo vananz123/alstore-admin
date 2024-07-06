@@ -11,7 +11,7 @@ import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
 import { isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 import { useErrorBoundary } from 'react-error-boundary';
-import {  PAPINATION } from '@/common/common';
+import { PAPINATION } from '@/common/common';
 function GuaranriesList() {
     const [content, setContent] = useImmer<{ currentId: number; context: string }>({
         currentId: 0,
@@ -49,12 +49,12 @@ function GuaranriesList() {
             render: (_, record) => <p>{new Date(record.dateModify).toUTCString()}</p>,
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/guaranty/edit/${record.id}`}>Edit</Link>
-                    <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
+                    <Link to={`/guaranty/edit/${record.id}`}>Sửa</Link>
+                    <a onClick={() => showModalDel(record.id, record.name)}>Xóa</a>
                 </Space>
             ),
         },
@@ -71,13 +71,16 @@ function GuaranriesList() {
         mutationFn: (id: number) => deleteGuaranty(id),
         onSuccess: (data) => {
             if (data.isSuccessed === true) {
-                setOpen(false)
+                setOpen(false);
                 openNotification('success', data.message);
             }
         },
         onError: (error: AxiosError<Result>) => {
             if (isAxiosUnauthoriedError(error)) showBoundary(error);
-            if (isAxiosBadRequestError(error)) openNotification('error', error.response?.data.message);
+            if (isAxiosBadRequestError(error)){
+                setOpen(false);
+                openNotification('error', error.response?.data.message);
+            }
         },
     });
     const handleOkDel = () => {
@@ -94,15 +97,10 @@ function GuaranriesList() {
                         </Button>
                     </Link>
                 </Flex>
-                <Table
-                    loading={isLoading}
-                    pagination={PAPINATION}
-                    columns={columns}
-                    dataSource={data}
-                />
+                <Table loading={isLoading} pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>
             <Modal
-                title="Delete"
+                title="Xóa bảo hành"
                 open={open}
                 onOk={handleOkDel}
                 confirmLoading={del.isPending}

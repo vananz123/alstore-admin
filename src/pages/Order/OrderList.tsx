@@ -6,7 +6,7 @@ import { selectOrderStatus ,changeOrderStatus} from '@/app/feature/order-status/
 import * as orderServices from '@/api/orderServices';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { STATUS_ORDER } from '@/common/common';
+import { PAPINATION, STATUS_ORDER } from '@/common/common';
 import { useQuery } from '@tanstack/react-query';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
@@ -68,13 +68,12 @@ function OrderList() {
             onFilter: (value: any, record: Order) => record.shippingName === value,
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    {/* <Button icon={<DeleteOutlined />}></Button> */}
                     <Link key={`a-${record.id}`} to={`/order/detail/${record.id}`}>
-                        View
+                        Xem
                     </Link>
                 </Space>
             ),
@@ -96,7 +95,7 @@ function OrderList() {
             />
             <Table
                 loading={isLoading}
-                pagination={{ position: ['bottomLeft'], pageSize: 10, total: data?.totalRecords }}
+                pagination={{ ...PAPINATION, total: data?.totalRecords }}
                 columns={columns}
                 dataSource={data?.items}
             />

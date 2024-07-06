@@ -12,13 +12,14 @@ import { AxiosError } from 'axios';
 import { Result } from '@/api/ResType';
 import StatusTag from '@/conponents/StatusTag';
 import { isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
+import { useErrorBoundary } from 'react-error-boundary';
 function CategoriesList() {
     const [open, setOpen] = useImmer(false);
-    const [context,setContext] = useImmer<{currentId:number,modalText:string}>({
-        currentId:0,
-        modalText:''
-    })
-    const {contextHolder,openNotification} = useNotification()
+    const [context, setContext] = useImmer<{ currentId: number; modalText: string }>({
+        currentId: 0,
+        modalText: '',
+    });
+    const { contextHolder, openNotification } = useNotification();
     const { data, isLoading, refetch } = useQuery({
         queryKey: ['load-list-category'],
         queryFn: () => getAllAdminCate('sub').then((data) => data.resultObj),
@@ -38,15 +39,15 @@ function CategoriesList() {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',
-            render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS}/>,
+            render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS} />,
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/category/edit/${record.id}`}>Edit</Link>
-                    <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
+                    <Link to={`/category/edit/${record.id}`}>Sửa</Link>
+                    <a onClick={() => showModalDel(record.id, record.name)}>Xóa</a>
                 </Space>
             ),
         },
@@ -67,46 +68,51 @@ function CategoriesList() {
             title: 'Trạng Thái',
             dataIndex: 'status',
             key: 'status',
-            render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS}/>,
+            render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS} />,
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/category/edit/${record.id}`}>Edit</Link>
-                    <a onClick={() => showModalDel(record.id, record.name)}>Delete</a>
+                    <Link to={`/category/edit/${record.id}`}>Sửa</Link>
+                    {record.subCategory && record.subCategory.length <= 0 && (
+                        <a onClick={() => showModalDel(record.id, record.name)}>Xóa</a>
+                    )}
                 </Space>
             ),
         },
     ];
+    const { showBoundary } = useErrorBoundary();
     const mutationDel = useMutation({
-         mutationKey:['del-category', context.currentId],
-         mutationFn:(id:number)=> deleteCate(id),
-        onSuccess:((data)=>{
-            if(data.isSuccessed === true){
-                refetch()
-                setOpen(false)
-                openNotification('success',data.message)
+        mutationKey: ['del-category', context.currentId],
+        mutationFn: (id: number) => deleteCate(id),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                refetch();
+                setOpen(false);
+                openNotification('success', data.message);
             }
-        }),
-        onError:((error:AxiosError<Result>)=>{
-            if(isAxiosUnauthoriedError(error)){
-                //
+        },
+        onError: (error: AxiosError<Result>) => {
+            if (isAxiosUnauthoriedError(error)) {
+                showBoundary(error);
             }
-            if(isAxiosBadRequestError(error)) openNotification('error',error.response?.data.message)
-        })
-    })
+            if (isAxiosBadRequestError(error)){
+                setOpen(false);
+                openNotification('error', error.response?.data.message);
+            }
+        },
+    });
     const showModalDel = (id: number, name: string) => {
-        setContext((draft)=>{
-            draft.currentId = id,
-            draft.modalText = `Bạn có chắc chắc xóa danh mục ${name}?`
-        })
+        setContext((draft) => {
+            (draft.currentId = id), (draft.modalText = `Bạn có chắc chắc xóa danh mục ${name}?`);
+        });
         setOpen(true);
     };
     const handleOkDel = () => {
-        if(context.currentId !== 0){
-            mutationDel.mutateAsync(context.currentId)
+        if (context.currentId !== 0) {
+            mutationDel.mutateAsync(context.currentId);
         }
     };
     return (
@@ -140,7 +146,7 @@ function CategoriesList() {
                 />
             </Space>
             <Modal
-                title="Delete"
+                title="Xóa loại sản phẩm"
                 open={open}
                 onOk={handleOkDel}
                 confirmLoading={mutationDel.isPending}

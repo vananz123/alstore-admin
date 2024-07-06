@@ -61,12 +61,12 @@ function PromotionList() {
             render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS} />,
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/promotion/edit/${record.id}`}>Edit</Link>
-                    <a onClick={() => showModalDel(record.id)}>Delete</a>
+                    <Link to={`/promotion/edit/${record.id}`}>Sửa</Link>
+                    <a onClick={() => showModalDel(record.id)}>Xóa</a>
                 </Space>
             ),
         },
@@ -93,6 +93,7 @@ function PromotionList() {
                 //
             }
             if (isAxiosBadRequestError(error)) {
+                setOpen(false);
                 openNotification('success', error.response?.data.message);
             }
         },
@@ -114,7 +115,7 @@ function PromotionList() {
                 <Table pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>
             <Modal
-                title="Delete"
+                title="Xóa khuyến mãi"
                 open={open}
                 onOk={handleOkDel}
                 confirmLoading={del.isPending}
