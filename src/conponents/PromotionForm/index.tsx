@@ -94,7 +94,7 @@ const PromotionForm: React.FC<ConponentFormProps<Promotion>> = ({ data, isLoadin
                     //initialValue={promotion?.arrDate}
                     rules={[{ required: true, message: 'Please input category name!' }]}
                 >
-                    <RangePicker disabledDate={disabledDate} />
+                    {!data ? <RangePicker disabledDate={disabledDate} />: <RangePicker/>}
                 </Form.Item>
                 <Form.Item {...TAIL_FORM_ITEM_LAYOUT}>
                     <Button type="primary" htmlType="submit" loading={isLoading} style={{ width: '100px' }}>

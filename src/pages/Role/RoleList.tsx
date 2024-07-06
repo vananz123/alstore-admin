@@ -22,10 +22,10 @@ function RoleList() {
             dataIndex: 'description',
             key: 'description',
         },{
-            title: 'Action',
+            title: 'Chức năng',
             key: 'Action',
             render:(_,record)=>(
-                <a onClick={()=>navigate(`/role/edit/${record.id}`)}>Edit</a>
+                <a onClick={()=>navigate(`/role/edit/${record.id}`)}>Sửa</a>
             )
         }
     ]

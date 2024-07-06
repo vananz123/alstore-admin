@@ -52,10 +52,10 @@ function UserList() {
             onFilter: (value: any, record: ResponseUser) => record.roleVm.some((x) => x.name === value) === true,
         },
         {
-            title: 'Action',
+            title: 'Chức năng',
             dataIndex: '',
             key: 'Action',
-            render: (_, record) => <Link to={`/user/edit/${record.id}`}>Edit</Link>,
+            render: (_, record) => <Link to={`/user/edit/${record.id}`}>Sửa</Link>,
         },
     ];
     return (
