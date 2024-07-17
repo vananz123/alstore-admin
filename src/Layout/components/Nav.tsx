@@ -3,9 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useSkin } from '@/hooks';
-import { AppstoreOutlined, AuditOutlined, DiffOutlined, GroupOutlined, PieChartOutlined, ProductOutlined, ReconciliationOutlined, ShoppingOutlined, TagOutlined, ToolOutlined, TranslationOutlined, UserOutlined } from '@ant-design/icons';
 type MenuItem = Required<MenuProps>['items'][number];
-
+import { LIST_NAV_DATA } from './data';
 function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, children?: MenuItem[]): MenuItem {
     return {
         key,
@@ -17,36 +16,39 @@ function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode,
 function Nav() {
     const loca = useLocation();
     const arr = [];
-    if(loca){
-        const a = loca.pathname.split('/')
-        arr.push("/"+ a[1])
+    if (loca) {
+        const a = loca.pathname.split('/');
+        arr.push('/' + a[1]);
     }
-    const { style , skin} = useSkin();
+    const { style, skin } = useSkin();
     const Navigate = useNavigate();
     const onClick: MenuProps['onClick'] = (e) => {
         Navigate(e.key);
     };
-    const bg: CSSProperties ={
-        background:'#bae0ff'
-    }
-    const items: MenuItem[] = [
-        getItem('Chi Nhánh', '/department' , <GroupOutlined />),
-        getItem('Loại Sản Phẩm', '/category' , <AppstoreOutlined />),
-        getItem('Sản Phẩm', '/product' , <ProductOutlined />),
-        getItem('Giao dịch', '/translation', <TranslationOutlined/>, [
-            getItem('Nhập hàng', '/translation/import' , <DiffOutlined />),
-            getItem('Chuyển hàng', '/translation/export' , <DiffOutlined />),
-            getItem('Lịch sử', '/translation/inventory' , <ReconciliationOutlined />),
-        ]),
-        getItem('Đơn Hàng', '/order' , <ShoppingOutlined />),
-        getItem('Giảm Giá', '/promotion', <TagOutlined />),
-        getItem('Bảo Hành', '/guaranty' , <ToolOutlined />),
-        getItem('Người Dùng', '/user' , <UserOutlined />),
-        getItem('Vai trò', '/role' , <AuditOutlined />),
-        getItem('Dashboard', '/', <PieChartOutlined />),
-    ];
+    const bg: CSSProperties = {
+        background: '#bae0ff',
+    };
+    
+    const items: MenuItem[] = [];
+    LIST_NAV_DATA.forEach((element) => {
+        if (element.children) {
+            const chir: MenuItem[] = [];
+            element.children.forEach((e) => {
+                chir.push(getItem(e.label, e.link, e.icon));
+            });
+            items.push(getItem(element.label, element.link, element.icon, chir));
+        } else {
+            items.push(getItem(element.label, element.link, element.icon));
+        }
+    });
     return (
-        <Menu  onClick={onClick} style={ skin === 'light' ? bg:  style} mode='horizontal' selectedKeys={arr} items={items} />
+        <Menu
+            onClick={onClick}
+            style={skin === 'light' ? bg : style}
+            mode='inline'
+            selectedKeys={arr}
+            items={items}
+        />
     );
 }
 

@@ -96,9 +96,15 @@ function ProductList() {
     const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) => setFileList(newFileList);
     const columns: TableColumnsType<Product> = [
         {
-            title: 'Id',
-            dataIndex: 'id',
-            key: 'id',
+            title: 'Ảnh',
+            key: 'picture',
+            render: (_: any, record: Product) => (
+                <img
+                    src={`${baseUrl + record.urlThumbnailImage}`}
+                    className="w-[80px] h-auto cursor-pointer"
+                    onClick={() => showModalImage(record.id)}
+                />
+            ),
         },
         {
             title: 'Tiêu Đề',
@@ -115,17 +121,6 @@ function ProductList() {
                 multiple: 2,
             },
             render: (_: any, record: Product) => <p>{ChangeCurrence(record.price)}</p>,
-        },
-        {
-            title: 'Ảnh',
-            key: 'picture',
-            render: (_: any, record: Product) => (
-                <img
-                    src={`${baseUrl + record.urlThumbnailImage}`}
-                    className="w-[80px] h-auto cursor-pointer"
-                    onClick={() => showModalImage(record.id)}
-                />
-            ),
         },
         {
             title: 'Danh mục',

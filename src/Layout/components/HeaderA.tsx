@@ -1,21 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Select, Space, Switch } from 'antd';
+import { Badge, Popover, Select, Space, Switch } from 'antd';
 import { Layout, Avatar, Dropdown } from 'antd';
-import { UserOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons';
+import { UserOutlined, MoonOutlined, SunOutlined, BellFilled, DownOutlined } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '@/app/hooks';
 import { selectUser } from '@/app/feature/user/reducer';
 import type { MenuProps, SelectProps } from 'antd';
 const { Header } = Layout;
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { loadUser } from '@/app/feature/user/action';
 import { loadDepartment, changeDepartment } from '@/app/feature/department/action';
 import { selectDepartment } from '@/app/feature/department/reducer';
-import { useSkin } from '@/hooks';
+import { useDebounce, useSkin } from '@/hooks';
 import { useEffect } from 'react';
-import Nav from './Nav';
-import Logo from '/logo.png';
+import Search, { SearchProps } from 'antd/es/input/Search';
+import { useImmer } from 'use-immer';
+import { LIST_NAV_DATA, NavType } from './data';
 function HeaderA() {
     const Navigate = useNavigate();
+    const loca = useLocation().pathname;
     const dispatch = useAppDispatch();
     const user = useAppSelector(selectUser).data;
     const { selected, data: department } = useAppSelector(selectDepartment);
@@ -68,43 +70,117 @@ function HeaderA() {
     const onChangeDepartment = (value: number) => {
         dispatch(changeDepartment(value));
     };
+    const PlaneNavData: NavType[] = [];
+    LIST_NAV_DATA.forEach((element) => {
+        if (element.children) {
+            element.children.forEach((e) => {
+                PlaneNavData.push(e);
+            });
+        } else {
+            PlaneNavData.push(element);
+        }
+    });
+    const a = loca.split('/');
+    const PageName = PlaneNavData.find(x => x.link === `/${a[1]}`)?.key
+    const [searchData, setSearchData] = useImmer<NavType[]>([]);
+    const [searchValue, setSearchValue] = useImmer('');
+    const debounce = useDebounce({ value: searchValue, deplay: 100 });
+    const onChangeInput: SearchProps['onChange'] = (value) => {
+        setSearchValue(value.target.value);
+    };
+    const onSearch: SearchProps['onSearch'] = async (_, _e, info) => {
+        if (info?.source == 'clear') {
+            setSearchData([]);
+        }
+    };
+    useEffect(() => {
+        const Search = async () => {
+            if (debounce != '' && debounce != undefined) {
+                const data = PlaneNavData.filter(
+                    (x) => x.key.toLowerCase().includes(debounce?.toString().toLowerCase()) === true,
+                );
+
+                setSearchData(data);
+            }
+        };
+        Search();
+    }, [debounce]);
     return (
         <Header
             style={{
                 ...style,
                 padding: 0,
-                height: 128,
+                height: 64,
             }}
         >
             <div className="flex justify-between items-center px-3">
-                <div className="w-[64px]">
-                    <img className="w-full h-full" src={Logo} alt="la store" />
+                <div className="flex gap-5">
+                    <p className='text-[24px] font-bold'>{PageName}</p>
+                    <div className="h-[64px] flex justify-start items-center">
+                        <Popover
+                            content={
+                                <div>
+                                    {searchData? (
+                                        <>
+                                            {searchData.map((e) => (
+                                                <div className="mb-2" key={e.key}>
+                                                    <Link to={e.link} className="underline">
+                                                        <p>{e.key}</p>
+                                                    </Link>
+                                                </div>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <div style={{ textAlign: 'center' }}>Not found</div>
+                                    )}
+                                </div>
+                            }
+                            title={'Tìm kiếm'}
+                            trigger={'click'}
+                            placement="bottom"
+                        >
+                            <Search
+                                className="max-w-[600px]"
+                                allowClear
+                                enterButton={false}
+                                placeholder="Từ khóa"
+                                size="large"
+                                onChange={onChangeInput}
+                                onSearch={onSearch}
+                            />
+                        </Popover>
+                    </div>
                 </div>
-                <Space>
+                <Space size={'middle'}>
                     <Select
-                        className="w-[300px] h-[50px]"
+                        size='large'
                         onChange={onChangeDepartment}
                         value={selected}
                         options={options}
                     />
+                    <Badge count={1} size="small">
+                        <a>
+                            <BellFilled />
+                        </a>
+                    </Badge>
                     <Switch
                         checked={skin == 'dark' ? true : false}
                         checkedChildren={<SunOutlined />}
                         unCheckedChildren={<MoonOutlined />}
                         onChange={onChange}
-                        style={{ marginRight: 10 }}
                     />
                     <Dropdown menu={{ items }} trigger={['hover']}>
                         <a onClick={(e) => e.preventDefault()}>
                             <Space>
-                                <div>{user?.userName}</div>
                                 <Avatar size={'small'} icon={<UserOutlined />} />
+                                <div>
+                                    {user?.userName} <DownOutlined />
+                                </div>
                             </Space>
                         </a>
                     </Dropdown>
                 </Space>
             </div>
-            <Nav />
         </Header>
     );
 }

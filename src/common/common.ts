@@ -306,3 +306,4 @@ export const OPTIONS_TYPE_INVENTORY = [
     },
 ];
 export const PAPINATION: TablePaginationConfig = { position: ['bottomLeft'], pageSize: 10 };
+

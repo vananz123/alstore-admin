@@ -2,8 +2,9 @@
 import { Inventory } from '@/api/ResType';
 import * as inventoryServices from '@/api/inventoryServices';
 import { OPTIONS_TYPE_INVENTORY  , OPTIONS_STATUS_INVENTORY} from '@/common/common';
+import { DiffOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import { Table, TableColumnsType, Tag } from 'antd';
+import { Button, Flex, Space, Table, TableColumnsType, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 function HistoryInventory() {
@@ -50,13 +51,28 @@ function HistoryInventory() {
             title: 'Action',
             key: 'action',
             render:(_,record)=>(
-                <Link to={`/translation/inventory/${record.id}`}>View</Link>
+                <Link to={`/translation/${record.id}`}>View</Link>
             )
         },
     ];
     return (
         <div>
-            <Table columns={columns} dataSource={listInventoty} />
+            <Space direction="vertical" style={{ width: '100%' }}>
+                <Flex justify='start' gap={5}>
+                    <Link to={'/translation/import'}>
+                        <Button type="primary" icon={<DiffOutlined />} size="large">
+                            Nhập hàng
+                        </Button>
+                    </Link>
+                    <Link to={'/translation/export'}>
+                        <Button type="primary" icon={<DiffOutlined />} size="large">
+                            Chuyển hàng
+                        </Button>
+                    </Link>
+                </Flex>
+                <Table columns={columns} dataSource={listInventoty} />
+            </Space>
+           
         </div>
     );
 }
