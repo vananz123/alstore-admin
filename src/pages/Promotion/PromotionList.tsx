@@ -2,7 +2,7 @@ import { Table, Space, Modal, Button, Flex } from 'antd';
 import type { TableProps } from 'antd';
 import { getAllPromotion, DeletaPromotion } from '@/api/promotionServices';
 import React from 'react';
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import type { Promotion, Result } from '@/api/ResType';
 import useSearchIndexTable from '@/hooks/useSearchIndexTable';
@@ -47,13 +47,13 @@ function PromotionList() {
             title: 'Ngày Bắt Đầu',
             dataIndex: 'startDate',
             key: 'name',
-            render: (_, record) => <p>{dayjs(record.startDate).format("MM/DD/YYYY")}</p>,
+            render: (_, record) => <p>{dayjs(record.startDate).format('MM/DD/YYYY')}</p>,
         },
         {
             title: 'Ngày Kết Thúc',
             dataIndex: 'endDate',
             key: 'name',
-            render: (_, record) => <p>{dayjs(record.endDate).format("MM/DD/YYYY")}</p>,
+            render: (_, record) => <p>{dayjs(record.endDate).format('MM/DD/YYYY')}</p>,
         },
         {
             title: 'Trạng thái',
@@ -62,12 +62,15 @@ function PromotionList() {
             render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS} />,
         },
         {
-            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/promotion/edit/${record.id}`}>Sửa</Link>
-                    <a onClick={() => showModalDel(record.id)}>Xóa</a>
+                    <Link to={`/promotion/edit/${record.id}`}>
+                        <EditOutlined />{' '}
+                    </Link>
+                    <a onClick={() => showModalDel(record.id)}>
+                        <DeleteOutlined />
+                    </a>
                 </Space>
             ),
         },
@@ -106,12 +109,15 @@ function PromotionList() {
         <div>
             {contextHolder}
             <Space direction="vertical" style={{ width: '100%' }}>
-                <Flex justify="space-between">
-                    <Link to={'/promotion/add'}>
-                        <Button type="primary" icon={<PlusOutlined />} size="large">
-                            Thêm
-                        </Button>
-                    </Link>
+                <Flex justify="end">
+                    <Space>
+                        <Link to={'/promotion/add'}>
+                            <Button type="primary" icon={<PlusOutlined />}>
+                                Thêm
+                            </Button>
+                        </Link>
+                        <Button icon={<ReloadOutlined />}></Button>
+                    </Space>
                 </Flex>
                 <Table pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>

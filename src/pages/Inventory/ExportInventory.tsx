@@ -113,7 +113,7 @@ function ExportInventory() {
     const { data: department, selected } = useAppSelector(selectDepartment);
     const { data: inventoty } = useQuery({
         queryKey: [`load-his-inventory`, id],
-        queryFn: () => inventoryServices.getById(Number(id)),
+        queryFn: () => inventoryServices.getById(Number(id)).then((data)=> data.resultObj),
         enabled: !!id,
     });
     useEffect(() => {

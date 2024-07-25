@@ -20,7 +20,7 @@ function HistoryInventoryDetail() {
         refetch,
     } = useQuery({
         queryKey: [`load-his-inventory`,id],
-        queryFn: () => inventoryServices.getById(Number(id)),
+        queryFn: () => inventoryServices.getById(Number(id)).then((data)=> data.resultObj),
         enabled: !!id,
     });
     const { contextHolder, openNotification } = useNotification();

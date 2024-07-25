@@ -25,6 +25,11 @@ export type ResponseUser = {
     roleVm: RoleType[];
     claims: Claim[];
 };
+export interface  PagingRequest{
+    value?:string;
+    pageIndex: number;
+    pageSize: number;
+}
 export interface Result {
     error: string;
     isSuccessed: boolean;

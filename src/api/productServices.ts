@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as request from '../utils/request';
-import { Promotion } from './ResType';
+import { PagingRequest, Promotion } from './ResType';
 import { Product, Filter, ProductItem, ProductItemSearch } from '@/type';
 import { UploadFile } from 'antd';
 export interface Result<T> {
@@ -18,8 +18,14 @@ export interface PagingResult<T> {
     pageCount: number;
     totalRecords: number;
 }
-export const getAllProduct = async () => {
-    const res: Result<Product[]> = await request.get(`/product`);
+export const getAllProduct = async (data:PagingRequest) => {
+    const params={
+        ProductName:data.value,
+        PageIndex: data.pageIndex,
+        PageSize: data.pageSize,
+    }
+    const res: Result<PagingResult<Product[]>> = await request.get(`/product`,{params});
+    console.log(res)
     return res;
 };
 export const getProductDetail = async (id: number, departmentId: number) => {

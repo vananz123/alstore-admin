@@ -115,11 +115,11 @@ function HeaderA() {
         >
             <div className="flex justify-between items-center px-3">
                 <div className="flex gap-5">
-                    <p className='text-[24px] font-bold'>{PageName}</p>
+                    <p className='text-[24px] w-[200px] font-bold'>{PageName}</p>
                     <div className="h-[64px] flex justify-start items-center">
                         <Popover
                             content={
-                                <div>
+                                <div className='w-[245px]'>
                                     {searchData? (
                                         <>
                                             {searchData.map((e) => (

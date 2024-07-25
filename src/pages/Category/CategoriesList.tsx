@@ -1,7 +1,7 @@
 import { Table, Space, Modal, Button, Flex } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { getAllAdminCate, deleteCate } from '@/api/categoryServices';
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { Category } from '@/type';
 import { OPTIONS_STATUS, PAPINATION } from '@/common/common';
@@ -42,12 +42,11 @@ function CategoriesList() {
             render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS} />,
         },
         {
-            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/category/edit/${record.id}`}>Sửa</Link>
-                    <a onClick={() => showModalDel(record.id, record.name)}>Xóa</a>
+                    <Link to={`/category/edit/${record.id}`}><EditOutlined/></Link>
+                    <a onClick={() => showModalDel(record.id, record.name)}><DeleteOutlined/></a>
                 </Space>
             ),
         },
@@ -71,13 +70,12 @@ function CategoriesList() {
             render: (_, record) => <StatusTag status={record.status} options={OPTIONS_STATUS} />,
         },
         {
-            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/category/edit/${record.id}`}>Sửa</Link>
+                    <Link to={`/category/edit/${record.id}`}><EditOutlined/></Link>
                     {record.subCategory && record.subCategory.length <= 0 && (
-                        <a onClick={() => showModalDel(record.id, record.name)}>Xóa</a>
+                        <a onClick={() => showModalDel(record.id, record.name)}><DeleteOutlined/></a>
                     )}
                 </Space>
             ),
@@ -119,12 +117,16 @@ function CategoriesList() {
         <div>
             {contextHolder}
             <Space direction="vertical" style={{ width: '100%' }}>
-                <Flex justify="space-between">
-                    <Link to={'/category/add'}>
-                        <Button type="primary" icon={<PlusOutlined />} size="large">
-                            Thêm
-                        </Button>
-                    </Link>
+                <Flex justify='end'>
+                   <Space>
+                        <Link to={'/category/add'}>
+                            <Button type="primary" icon={<PlusOutlined />}>
+                                Thêm
+                            </Button>
+                        </Link>
+                        <Button icon={<ReloadOutlined />}>
+                            </Button>
+                   </Space>
                 </Flex>
                 <Table
                     loading={isLoading}

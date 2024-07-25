@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import useSearchIndexTable from '@/hooks/useSearchIndexTable';
 import { FILTERS_ROLES, PAPINATION } from '@/common/common';
+import { EditOutlined } from '@ant-design/icons';
 function UserList() {
     const { getColumnSearchProps } = useSearchIndexTable();
     const { data, isLoading } = useQuery({
@@ -52,10 +53,9 @@ function UserList() {
             onFilter: (value: any, record: ResponseUser) => record.roleVm.some((x) => x.name === value) === true,
         },
         {
-            title: 'Chức năng',
             dataIndex: '',
             key: 'Action',
-            render: (_, record) => <Link to={`/user/edit/${record.id}`}>Sửa</Link>,
+            render: (_, record) => <Link to={`/user/edit/${record.id}`}><EditOutlined/></Link>,
         },
     ];
     return (

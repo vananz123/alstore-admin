@@ -5,22 +5,23 @@ import type { TableColumnsType, DescriptionsProps } from 'antd';
 import { Drawer } from 'antd';
 import type { GetProp, UploadFile, UploadProps } from 'antd';
 import * as productServices from '@/api/productServices';
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { Product, ProductItem } from '@/type';
 import { FILTERS_PRODUCT_STATUS, OPTIONS_PRODUCT_STATUS, PAPINATION } from '@/common/common';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAppSelector } from '@/app/hooks';
 import { selectDepartment } from '@/app/feature/department/reducer';
-import useSearchIndexTable from '@/hooks/useSearchIndexTable';
 import { AxiosError } from 'axios';
 import { useErrorBoundary } from 'react-error-boundary';
 import useNotification from '@/hooks/useNotification';
 import { ChangeCurrence, isAxiosBadRequestError, isAxiosUnauthoriedError } from '@/utils/utils';
 import { getAllAdminCate } from '@/api/categoryServices';
 import StatusTag from '@/conponents/StatusTag';
-import { Result } from '@/api/ResType';
+import { PagingRequest, Result } from '@/api/ResType';
 import { useImmer } from 'use-immer';
+import useQueryString from '@/hooks/useQueryString';
+import Search, { SearchProps } from 'antd/es/input/Search';
 interface FilterProductByCate {
     text: string;
     value: number;
@@ -56,9 +57,15 @@ function ProductList() {
     const [previewImage, setPreviewImage] = useImmer('');
     const [fileList, setFileList] = useImmer<UploadFile[]>([]);
     const [openDrawer, setOpenDrawer] = useImmer(false);
+    const { queryString, setQueryString, removeQueryString } = useQueryString();
+    const pagingRequest: PagingRequest = {
+        value: queryString.productName,
+        pageIndex: Number(queryString.page) || 1,
+        pageSize: 10,
+    };
     const { data, refetch } = useQuery({
-        queryKey: [`load-product-list`],
-        queryFn: () => productServices.getAllProduct().then((data) => data.resultObj),
+        queryKey: [`load-product-list`, pagingRequest],
+        queryFn: () => productServices.getAllProduct(pagingRequest).then((data) => data.resultObj),
     });
     const { data: categories } = useQuery({
         queryKey: [`load-list-category`],
@@ -73,7 +80,6 @@ function ProductList() {
             });
         });
     }
-    const { getColumnSearchProps } = useSearchIndexTable();
     const showDrawer = (id: number) => {
         const loadProductDetail = async () => {
             const res = await productServices.getProductDetail(id, selected).then((data) => data.resultObj);
@@ -110,7 +116,6 @@ function ProductList() {
             title: 'Tiêu Đề',
             dataIndex: 'seoTitle',
             key: 'seoTitle',
-            ...getColumnSearchProps<Product>('seoTitle'),
         },
         {
             title: 'Giá',
@@ -148,14 +153,13 @@ function ProductList() {
             },
         },
         {
-            title: 'Chức năng',
             key: 'action',
             render: (_: any, record: Product) => (
                 <Space size="middle">
-                    <Link to={`/product/edit/${record.id}`}>Sửa</Link>
-                    {record.price <= 0 && <a onClick={() => showModalDel(record.id)}>Xóa</a>}
+                    <Link to={`/product/edit/${record.id}`}><EditOutlined/> </Link>
+                    {record.price <= 0 && <a onClick={() => showModalDel(record.id)}><DeleteOutlined color='red'/></a>}
                     <a onClick={() => showDrawer(record.id)} key={`a-${record.id}`}>
-                        Xem
+                        <EyeOutlined/>
                     </a>
                 </Space>
             ),
@@ -215,7 +219,8 @@ function ProductList() {
             key: 'Name',
             label: 'Tên',
             children: <span>{currentProductItem?.name}</span>,
-        },{
+        },
+        {
             key: 'Name',
             label: 'Sản phẩm con',
             children: '',
@@ -277,20 +282,68 @@ function ProductList() {
             setFileList([]);
         }
     };
+    const onSearch: SearchProps['onSearch'] = async (value, _e, info) => {
+        if (info?.source == 'input') {
+            if (value && value != '') {
+                removeQueryString('page')
+                setQueryString('productName', value);
+            }
+        }
+        if (info?.source == 'clear') {
+            removeQueryString('page')
+            removeQueryString('productName');
+        }
+    };
     return (
         <div>
             {contextHolder}
             <Space direction="vertical" style={{ width: '100%' }}>
-                <Flex justify="space-between">
-                    <Link to={'/product/add'}>
-                        <Button type="primary" icon={<PlusOutlined />} size="large">
-                            Thêm
-                        </Button>
-                    </Link>
-                </Flex>
-                <Table rowKey={(record) => record.id} pagination={PAPINATION} columns={columns} dataSource={data} />
+                <Space direction="vertical" style={{ width: '100%' }}>
+                    <Flex justify="space-between">
+                        <Search
+                            className="max-w-[400px]"
+                            allowClear
+                            enterButton
+                            defaultValue={queryString.productName || ''}
+                            placeholder="Tên sản phẩm"
+                            onSearch={onSearch}
+                        />
+                        <Space>
+                            <Link to={'/product/add'}>
+                                <Button type="primary" icon={<PlusOutlined />}>
+                                    Thêm
+                                </Button>
+                            </Link>
+                            <Button icon={<ReloadOutlined />}></Button>
+                        </Space>
+                    </Flex>
+                </Space>
+                <Table
+                    rowKey={(record) => record.id}
+                    pagination={{
+                        ...PAPINATION,
+                        current:Number(queryString.page) || 1,
+                        total: data?.totalRecords,
+                        onChange: (page) => {
+                            setQueryString('page', page.toString());
+                        },
+                    }}
+                    columns={columns}
+                    dataSource={data?.items}
+                />
             </Space>
-            <Drawer width={640} placement="right" closable={true} onClose={onClose} extra={<Button type='primary'><Link to={`/product/edit/${currentProductItem?.id}`}>Edit</Link></Button>} open={openDrawer}>
+            <Drawer
+                width={640}
+                placement="right"
+                closable={true}
+                onClose={onClose}
+                extra={
+                    <Button type="primary">
+                        <Link to={`/product/edit/${currentProductItem?.id}`}>Edit</Link>
+                    </Button>
+                }
+                open={openDrawer}
+            >
                 <Descriptions title="Thông tin sản phẩm" items={desProduct} column={1} />
             </Drawer>
             <Modal

@@ -1,7 +1,7 @@
 import { Department } from '@/type';
 import { TableProps, Space, Modal, Flex, Button,Table } from 'antd';
 import { Link } from 'react-router-dom';
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import {deleteDepartment,getAllDepartment} from '@/api/departmentServices';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { OPTIONS_STATUS, PAPINATION } from '@/common/common';
@@ -75,12 +75,11 @@ function DepartmentList() {
             ),
         },
         {
-            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/department/edit/${record.id}`}>Sửa</Link>
-                    <a onClick={() => showModalDel(record.id, record.name)}>Xóa</a>
+                    <Link to={`/department/edit/${record.id}`}><EditOutlined/></Link>
+                    <a onClick={() => showModalDel(record.id, record.name)}><DeleteOutlined/></a>
                 </Space>
             ),
         },
@@ -99,12 +98,16 @@ function DepartmentList() {
         <div>
             {contextHolder}
             <Space direction="vertical" style={{ width: '100%' }}>
-                <Flex justify="space-between">
-                    <Link to={'/department/add'}>
-                        <Button type="primary" icon={<PlusOutlined />} size="large">
-                            Thêm
-                        </Button>
-                    </Link>
+                <Flex justify='end'>
+                    <Space>
+                        <Link to={'/department/add'}>
+                            <Button type="primary" icon={<PlusOutlined />} >
+                                Thêm
+                            </Button>
+                        </Link>
+                        <Button  icon={<ReloadOutlined />} >
+                            </Button>
+                    </Space>
                 </Flex>
                 <Table loading={isLoading} pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>

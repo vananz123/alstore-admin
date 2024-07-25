@@ -1,22 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as request from '../utils/request'
-import { Inventory, Result } from "./ResType";
-import { ProductItemSearch } from "@/type";
-
-export const getAllInventory = async (type?:string) => {
+import * as request from '../utils/request';
+import { Inventory } from './ResType';
+import { ProductItemSearch } from '@/type';
+export interface Result<T> {
+    error: string;
+    isSuccessed: boolean;
+    message: string;
+    statusCode: number;
+    resultObj: T;
+}
+export interface PagingResult<T> {
+    items: T;
+    pageIndex: number;
+    pageSize: number;
+    pageCount: number;
+    totalRecords: number;
+}
+export const getAllInventory = async ({ type, page, pageSize }: { type?: string; page: number; pageSize: number }) => {
     const params = {
-        type : type
-    }
-    const res :Result = await request.get(`/inventories`,{params});
-    console.log(res)
-    const resultObj: Inventory[]= res.resultObj;
-    return resultObj;
+        Type: type,
+        PageIndex: page,
+        PageSize: pageSize,
+    };
+    const res: Result<PagingResult<Inventory[]>> = await request.get(`/inventories`, { params });
+    return res;
 };
-export const getById = async (id:number) => {
-    
-    const res :Result = await request.get(`/inventories/${encodeURIComponent(id)}`);
-    const resultObj: Inventory= res.resultObj;
-    return resultObj;
+export const getById = async (id: number) => {
+    const res: Result<Inventory> = await request.get(`/inventories/${encodeURIComponent(id)}`);
+    return res;
 };
 export const importInventory = async (data: ProductItemSearch[]) => {
     const items: any[] = [];
@@ -31,11 +42,10 @@ export const importInventory = async (data: ProductItemSearch[]) => {
     const body = {
         items: items,
     };
-    console.log(body)
-    const res : Result = await request.post(`/inventories/import`, body);
+    const res: Result<number> = await request.post(`/inventories/import`, body);
     return res;
 };
-export const exportInventory = async (toDepartmentId:number, data: ProductItemSearch[]) => {
+export const exportInventory = async (toDepartmentId: number, data: ProductItemSearch[]) => {
     const items: any[] = [];
     data.forEach((element) => {
         const item = {
@@ -46,17 +56,17 @@ export const exportInventory = async (toDepartmentId:number, data: ProductItemSe
         items.push(item);
     });
     const body = {
-        toDepartmentId:toDepartmentId,
+        toDepartmentId: toDepartmentId,
         items: items,
     };
-    const res: Result = await request.put(`/inventories/export`, body);
+    const res: Result<number> = await request.put(`/inventories/export`, body);
     return res;
 };
-export const successed = async (id:number) => {
-    const res: Result = await request.put(`/inventories/successed/${encodeURIComponent(id)}`);
+export const successed = async (id: number) => {
+    const res: Result<string> = await request.put(`/inventories/successed/${encodeURIComponent(id)}`);
     return res;
 };
-export const canceled = async (id:number) => {
-    const res: Result = await request.put(`/inventories/canceled/${encodeURIComponent(id)}`);
+export const canceled = async (id: number) => {
+    const res: Result<string> = await request.put(`/inventories/canceled/${encodeURIComponent(id)}`);
     return res;
 };

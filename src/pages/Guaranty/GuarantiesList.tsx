@@ -1,5 +1,5 @@
 import { Guaranty } from '@/type';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Button, Flex, Space, TableProps, Table, Modal } from 'antd';
 import { Link } from 'react-router-dom';
 import { getAllGuaranty, deleteGuaranty } from '@/api/guarantyServices';
@@ -36,17 +36,18 @@ function GuaranriesList() {
             dataIndex: 'name',
             key: 'name',
             ...getColumnSearchProps<Guaranty>('name'),
-        },{
+        },
+        {
             title: 'Thời hạn',
             dataIndex: 'period',
             key: 'period',
-            render: (_, record) => <p>{record.period +" " + record.sku}</p>,
+            render: (_, record) => <p>{record.period + ' ' + record.sku}</p>,
         },
         {
             title: 'Ngày tạo',
             dataIndex: 'dateCreate',
             key: 'dateCreate',
-            render: (_, record) => <p>{dayjs(record.dateCreated).format("MM/DD/YYYY")}</p>,
+            render: (_, record) => <p>{dayjs(record.dateCreated).format('MM/DD/YYYY')}</p>,
         },
         {
             title: 'Chức năng',
@@ -77,7 +78,7 @@ function GuaranriesList() {
         },
         onError: (error: AxiosError<Result>) => {
             if (isAxiosUnauthoriedError(error)) showBoundary(error);
-            if (isAxiosBadRequestError(error)){
+            if (isAxiosBadRequestError(error)) {
                 setOpen(false);
                 openNotification('error', error.response?.data.message);
             }
@@ -90,12 +91,15 @@ function GuaranriesList() {
         <div>
             {contextHolder}
             <Space direction="vertical" style={{ width: '100%' }}>
-                <Flex justify="space-between">
-                    <Link to={'/guaranty/add'}>
-                        <Button type="primary" icon={<PlusOutlined />} size="large">
-                            Thêm
-                        </Button>
-                    </Link>
+                <Flex justify='end'>
+                    <Space>
+                        <Link to={'/guaranty/add'}>
+                            <Button type="primary" icon={<PlusOutlined />}>
+                                Thêm
+                            </Button>
+                        </Link>
+                        <Button icon={<ReloadOutlined />}></Button>
+                    </Space>
                 </Flex>
                 <Table loading={isLoading} pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>
