@@ -20,7 +20,7 @@ const ProfileAddress: React.FC<Props> = ({ user }) => {
     const [typeFormAddress, setTypeFormAddress] = React.useState<TypeFormAddress>('EDIT');
     const { data: addresses, refetch } = useQuery({
         queryKey: [`list-addresses`],
-        queryFn: () => userServices.getAddressByUserId(user !== undefined ? user.id : ''),
+        queryFn: () => userServices.getAddressByUserId(user !== undefined ? user.id : '').then((data)=> data.resultObj),
         enabled: !!user,
     });
     const mutation = useMutation({
