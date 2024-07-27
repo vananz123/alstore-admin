@@ -63,7 +63,7 @@ function ProductList() {
         pageIndex: Number(queryString.page) || 1,
         pageSize: 10,
     };
-    const { data, refetch } = useQuery({
+    const { data, refetch ,isLoading} = useQuery({
         queryKey: [`load-product-list`, pagingRequest],
         queryFn: () => productServices.getAllProduct(pagingRequest).then((data) => data.resultObj),
     });
@@ -319,6 +319,7 @@ function ProductList() {
                     </Flex>
                 </Space>
                 <Table
+                loading={isLoading}
                     rowKey={(record) => record.id}
                     pagination={{
                         ...PAPINATION,

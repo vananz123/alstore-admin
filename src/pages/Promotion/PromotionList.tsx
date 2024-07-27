@@ -21,7 +21,7 @@ function PromotionList() {
         textContent: 'Những sản đã áp dụng mã này sẽ được gỡ',
     });
     const { getColumnSearchProps } = useSearchIndexTable();
-    const { data, refetch } = useQuery({
+    const { data, refetch ,isLoading} = useQuery({
         queryKey: ['load-promotion'],
         queryFn: () => getAllPromotion().then((data) => data.resultObj),
     });
@@ -119,7 +119,7 @@ function PromotionList() {
                         <Button icon={<ReloadOutlined />}></Button>
                     </Space>
                 </Flex>
-                <Table pagination={PAPINATION} columns={columns} dataSource={data} />
+                <Table loading={isLoading} pagination={PAPINATION} columns={columns} dataSource={data} />
             </Space>
             <Modal
                 title="Xóa khuyến mãi"

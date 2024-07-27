@@ -1,232 +1,128 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RegisterUser } from '@/pages/Register';
 import * as request from '../utils/request';
-import { Result, Address, RoleType } from './ResType';
+import { Address, RoleType } from './ResType';
 import { ResponseUser } from './ResType';
+export interface Result<T> {
+    error: string;
+    isSuccessed: boolean;
+    message: string;
+    statusCode: number;
+    resultObj: T;
+}
+export interface PagingResult<T> {
+    items: T;
+    pageIndex: number;
+    pageSize: number;
+    pageCount: number;
+    totalRecords: number;
+}
 export const getUser = async () => {
-    try {
-        const res = await request.get(`/user`);
-        const resultObj: ResponseUser = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const res: Result<ResponseUser> = await request.get(`/user`);
+    return res;
 };
-export const getUserById = async (userId:string) => {
-    try {
-        const res = await request.get(`/user/${encodeURIComponent(userId)}`);
-        const resultObj: ResponseUser = res.resultObj;
-       
-        return resultObj;
-    } catch {
-        return undefined;
-    }
+export const getUserById = async (userId: string) => {
+    const res: Result<ResponseUser> = await request.get(`/user/${encodeURIComponent(userId)}`);
+    return res.resultObj;
 };
 export const getRoles = async () => {
-    try {
-        const res = await request.get(`/role`);
-        const resultObj: RoleType[] = res.resultObj;
-        return resultObj;
-    } catch {
-        return undefined;
-    }
-};
-export const assginRoles = async (id:string,value:string[]) => {
-    const res:Result = await request.put(`/user/roles`,{id:id,roleName:value});
+    const res: Result<RoleType[]> = await request.get(`/role`);
     return res;
 };
-export const assginClaims = async (id:string,value:string[]) => {
-    const res:Result = await request.post(`/user/claims`,{userId:id,claims:value});
+export const assginRoles = async (id: string, value: string[]) => {
+    const res: Result<string> = await request.put(`/user/roles`, { id: id, roleName: value });
     return res;
 };
-export const getAllUserForAdmin = async () => {
-    try {
-        const res = await request.get(`/user/admin`);
-        const resultObj :ResponseUser[] = res.resultObj
-        return resultObj
-    } catch  {
-        return undefined;
-    }
+export const assginClaims = async (id: string, value: string[]) => {
+    const res: Result<string> = await request.post(`/user/claims`, { userId: id, claims: value });
+    return res;
+};
+export const getAllUserForAdmin = async ({
+    keyword,
+    page = 1,
+    pageSize = 100,
+}: {
+    keyword?: string;
+    page: number;
+    pageSize: number;
+}) => {
+    const params = {
+        Keyword: keyword,
+        PageIndex: page,
+        PageSize: pageSize,
+    };
+    const res: Result<PagingResult<ResponseUser[]>> = await request.get(`/user/admin`, { params });
+    return res;
 };
 export const Register = async (data: RegisterUser) => {
-    try {
-        const user = {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            phoneNumber: data.phoneNumber,
-            password: data.password,
-            userName: data.userName,
-            confirmPassword: data.confirmPassword,
-        };
-        const res = await request.post(`/user`, user);
-        const resultObj: ResponseUser = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 201,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const user = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        password: data.password,
+        userName: data.userName,
+        confirmPassword: data.confirmPassword,
+    };
+    const res:Result<ResponseUser> = await request.post(`/user`, user);
+    return res;
 };
 export const update = async (data: ResponseUser) => {
-    try {
-        const user = {
-            id:data.id,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            phoneNumber: data.phoneNumber,
-            userName: data.userName
-        };
-        const res = await request.put(`/user`, user);
-        const resultObj: ResponseUser = res.resultObj;
-        return resultObj;
-    } catch (error: any) {
-        return undefined;
-    }
+    const user = {
+        id: data.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: data.phoneNumber,
+        userName: data.userName,
+    };
+    const res:Result<ResponseUser> = await request.put(`/user`, user);
+    return res;
 };
 export const getAddressByUserId = async (id: string) => {
-    try {
-        const res = await request.get(`/address/user/${encodeURIComponent(id)}`);
-        const resultObj: Address[] = res.resultObj;
-        // const resp: Result = {
-        //     error: '',
-        //     isSuccessed: res.isSuccessed,
-        //     message: res.message,
-        //     statusCode: 200,
-        //     resultObj: resultObj,
-        // };
-        return resultObj;
-    } catch (error: any) {
-        return undefined;
-    }
+    const res:Result<Address[]> = await request.get(`/address/user/${encodeURIComponent(id)}`);
+    return res;
 };
 export const addAddress = async (data: Address) => {
-    try {
-        const add = {
-            province:data.province,
-            phoneNumber: data.phoneNumber,
-            streetNumber: data.streetNumber,
-            urbanDistrict: data.urbanDistrict,
-            userId: data.userId,
-            wardCommune: data.wardCommune,
-        };
-        const res = await request.post(`/address`, add);
-        const resultObj: Address = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 201,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const add = {
+        province: data.province,
+        phoneNumber: data.phoneNumber,
+        streetNumber: data.streetNumber,
+        urbanDistrict: data.urbanDistrict,
+        userId: data.userId,
+        wardCommune: data.wardCommune,
+    };
+    const res:Result<Address> = await request.post(`/address`, add);
+    return res;
 };
 export const updateAddress = async (data: Address) => {
-    try {
-        const add = {
-            id:data.id,
-            province:data.province,
-            phoneNumber: data.phoneNumber,
-            streetNumber: data.streetNumber,
-            urbanDistrict: data.urbanDistrict,
-            userId: data.userId,
-            wardCommune: data.wardCommune,
-        };
-        const res = await request.put(`/address`, add);
-        const resultObj: Address = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 201,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const add = {
+        id: data.id,
+        province: data.province,
+        phoneNumber: data.phoneNumber,
+        streetNumber: data.streetNumber,
+        urbanDistrict: data.urbanDistrict,
+        userId: data.userId,
+        wardCommune: data.wardCommune,
+    };
+    const res:Result<Address> = await request.put(`/address`, add);
+    return res;
 };
 export const deleteAddress = async (id: number) => {
-    try {
-        const res = await request.del(`/address/${encodeURIComponent(id)}`);
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 201,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const res:Result<string> = await request.del(`/address/${encodeURIComponent(id)}`);
+        return res;
 };
 export const forgotPass = async (email: string) => {
-    try {
-        const res = await request.post(`/user/forgot-password?email=${encodeURIComponent(email)}`,{});
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+    const res:Result<string> = await request.post(`/user/forgot-password?email=${encodeURIComponent(email)}`, {});
+        return res;
 };
-export const resetPass = async (token:string,email: string,password:string) => {
-    try {
-        const re ={
-            token :token,
-            email:email,
-            password:password,
-            confirmPassword:password
-        }
-        const res = await request.post(`/user/reset-password`,re);
-        const resultObj = res.resultObj;
-        const resp: Result = {
-            error: '',
-            isSuccessed: res.isSuccessed,
-            message: res.message,
-            statusCode: 200,
-            resultObj: resultObj,
-        };
-        return resp;
-    } catch (error: any) {
-        console.log(error.response.data);
-        const resError: Result = error.response.data;
-        return resError;
-    }
+export const resetPass = async (token: string, email: string, password: string) => {
+    const re = {
+        token: token,
+        email: email,
+        password: password,
+        confirmPassword: password,
+    };
+    const res:Result<string> = await request.post(`/user/reset-password`, re);
+    
+    return res;
 };
-

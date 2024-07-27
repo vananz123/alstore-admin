@@ -5,6 +5,7 @@ import { selectRoles } from '@/app/feature/role/reducer';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { EditOutlined } from "@ant-design/icons";
 function RoleList() {
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
@@ -22,10 +23,9 @@ function RoleList() {
             dataIndex: 'description',
             key: 'description',
         },{
-            title: 'Chức năng',
             key: 'Action',
             render:(_,record)=>(
-                <a onClick={()=>navigate(`/role/edit/${record.id}`)}>Sửa</a>
+                <a onClick={()=>navigate(`/role/edit/${record.id}`)}><EditOutlined/></a>
             )
         }
     ]

@@ -1,5 +1,5 @@
 import { Guaranty } from '@/type';
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Button, Flex, Space, TableProps, Table, Modal } from 'antd';
 import { Link } from 'react-router-dom';
 import { getAllGuaranty, deleteGuaranty } from '@/api/guarantyServices';
@@ -50,12 +50,11 @@ function GuaranriesList() {
             render: (_, record) => <p>{dayjs(record.dateCreated).format('MM/DD/YYYY')}</p>,
         },
         {
-            title: 'Chức năng',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to={`/guaranty/edit/${record.id}`}>Sửa</Link>
-                    <a onClick={() => showModalDel(record.id, record.name)}>Xóa</a>
+                    <Link to={`/guaranty/edit/${record.id}`}><EditOutlined/></Link>
+                    <a onClick={() => showModalDel(record.id, record.name)}><DeleteOutlined/></a>
                 </Space>
             ),
         },
