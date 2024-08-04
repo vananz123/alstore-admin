@@ -1,0 +1,343 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect } from 'react';
+import * as productServices from '@/api/productServices';
+import { Product, ProductItem } from '@/type';
+import {
+    Button,
+    Drawer,
+    Form,
+    Input,
+    InputNumber,
+    Modal,
+    Select,
+    Space,
+    Switch,
+    Table,
+    TableColumnsType,
+} from 'antd';
+import ModalAssignGuarantiesProductItem from '@/conponents/ModalAssignGuarantiesProductItem';
+import ModalAssginPromotionsProductItem from '@/conponents/ModalAssginPromotionsProductItem';
+import { OPTIONS_SKU, FORM_ITEM_LAYOUT, TAIL_FORM_ITEM_LAYOUT } from '@/common/common';
+import useNotification from '@/hooks/useNotification';
+import { useForm } from 'antd/es/form/Form';
+import { useMutation } from '@tanstack/react-query';
+import { useErrorBoundary } from 'react-error-boundary';
+import { AxiosError } from 'axios';
+import { Result } from '@/api/ResType';
+import { useImmer } from 'use-immer';
+interface Body {
+    isSize: boolean;
+    data: ProductItem;
+}
+interface Props {
+    productItem: ProductItem[] | undefined;
+    product: Product | undefined;
+    refetch: () => void;
+}
+type StatusForm = 'EDIT' | 'ADD';
+const ProductItemConfig: React.FC<Props> = ({ productItem, product, refetch }) => {
+    const [form] = useForm();
+    const { contextHolder, openNotification } = useNotification();
+    const { showBoundary } = useErrorBoundary();
+    const [openProductItem, setOpenProductItem] = useImmer(false);
+    const [openModalDel, setOpenModalDel] = useImmer(false);
+    const [isSize, setIsSize] = useImmer<boolean>(false);
+    const [openModalAssignPI, setOpenModalAssignPI] = useImmer<boolean>(false);
+    const [openModalAssignPromotionPI, setOpenModalAssignPromotionPI] = useImmer<boolean>(false);
+    const [currentProductItem, setCurrentProductItem] = useImmer<ProductItem | undefined>(undefined);
+    const [statusForm, SetStatusForm] = useImmer<StatusForm>('ADD');
+    const showDrawerProductItem = () => {
+        setOpenProductItem(true);
+    };
+    useEffect(() => {
+        if (productItem != undefined && productItem.length > 0) {
+            setIsSize(productItem[0].isMulti);
+        }
+    }, [productItem, setIsSize]);
+    useEffect(() => {
+        if (currentProductItem) form.setFieldsValue(currentProductItem);
+    }, [form, currentProductItem]);
+    const columns: TableColumnsType<ProductItem> = [
+        {
+            title: 'Id',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Size',
+            dataIndex: 'name',
+            key: 'name',
+            render: (_, record) => (
+                <p>{record.name == undefined ? 'not' : `${record.name}: ${record.value} ${record.sku}`}</p>
+            ),
+        },
+        {
+            title: 'KM',
+            dataIndex: 'valuePromotion',
+            key: 'Promotion',
+            render: (_, record) => (
+                <p>
+                    {record.type == undefined
+                        ? 'not'
+                        : record.type == 'fixed'
+                          ? `${record.valuePromotion}VNG`
+                          : `${record.valuePromotion}%`}
+                </p>
+            ),
+        },
+        {
+            title: 'Giá sau KM',
+            dataIndex: 'price',
+            key: 'price',
+        },
+        {
+            title: 'Giá',
+            dataIndex: 'priceBeforeDiscount',
+            key: 'priceBeforeDiscount',
+        },
+        {
+            title: 'Giá vốn',
+            dataIndex: 'capitalPrice',
+            key: 'capitalPrice',
+        },
+        {
+            title: 'Tồn kho',
+            dataIndex: 'stock',
+            key: 'stock',
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size={'small'}>
+                    <a
+                        onClick={() => {
+                            setCurrentProductItem(record);
+                            setOpenModalDel(true);
+                        }}
+                    >
+                        Xóa
+                    </a>
+                    <a
+                        onClick={() => {
+                            setCurrentProductItem(record);
+                            setOpenProductItem(true);
+                            SetStatusForm('EDIT');
+                        }}
+                    >
+                        Sửa
+                    </a>
+                    <a
+                        onClick={() => {
+                            setCurrentProductItem(record);
+                            setOpenModalAssignPI(true);
+                        }}
+                    >
+                        Bảo hành
+                    </a>
+                    <a
+                        onClick={() => {
+                            setCurrentProductItem(record);
+                            setOpenModalAssignPromotionPI(true);
+                        }}
+                    >
+                        Khuyến mãi
+                    </a>
+                </Space>
+            ),
+        },
+    ];
+    const createProductItem = useMutation({
+        mutationKey: ['create-product-item'],
+        mutationFn: (body: Body) => productServices.addProductItem(body.isSize, body.data),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                refetch();
+                openNotification('success', data.message);
+            }
+        },
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
+            } else {
+                openNotification('error', error.response?.data.message);
+            }
+        },
+    });
+    const updateProductItem = useMutation({
+        mutationKey: ['update-product-item'],
+        mutationFn: (body: ProductItem) => productServices.updateProductItem(body),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                refetch();
+                openNotification('success', data.message);
+            }
+        },
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
+            } else {
+                openNotification('error', error.response?.data.message);
+            }
+        },
+    });
+    const deleteProductItem = useMutation({
+        mutationKey: ['delete-product-item'],
+        mutationFn: (id: number) => productServices.deleteProductItem(id),
+        onSuccess: (data) => {
+            if (data.isSuccessed === true) {
+                refetch();
+                openNotification('success', data.message);
+            }
+        },
+        onError: (error: AxiosError<Result>) => {
+            if (error.response?.status === 403) {
+                showBoundary(error);
+            } else {
+                openNotification('error', error.response?.data.message);
+            }
+        },
+    });
+    const onFinishProductItem = async (values: ProductItem) => {
+        if (productItem != undefined && product != undefined) {
+            values.productId = product.id;
+            values.price = values.priceBeforeDiscount;
+            if (statusForm == 'ADD') {
+                const body: Body = {
+                    isSize: isSize,
+                    data: values,
+                };
+                createProductItem.mutateAsync(body);
+            } else {
+                if (currentProductItem) {
+                    values.id = currentProductItem?.id;
+                    updateProductItem.mutateAsync(values);
+                }
+            }
+        }
+    };
+    return (
+        <div>
+            {contextHolder}
+            <Table
+                title={() => (
+                    <>
+                        <Button
+                            type="primary"
+                            disabled={isSize === false && productItem && productItem.length == 1}
+                            onClick={() => {
+                                form.resetFields();
+                                showDrawerProductItem();
+                                SetStatusForm('ADD');
+                            }}
+                        >
+                            Add
+                        </Button>
+                    </>
+                )}
+                pagination={{ position: ['none'] }}
+                columns={columns}
+                dataSource={productItem}
+                rowKey={(record) => record.id}
+            />
+
+            <Drawer
+                title="Create product item"
+                width={'auto'}
+                onClose={() => setOpenProductItem(false)}
+                open={openProductItem}
+            >
+                {typeof productItem !== 'undefined' && (
+                    <>
+                        <Switch
+                            checked={isSize}
+                            checkedChildren="size"
+                            unCheckedChildren="No size"
+                            onChange={() => {
+                                setIsSize(!isSize);
+                            }}
+                            disabled={productItem.length > 0}
+                        />
+                    </>
+                )}
+                <Form
+                    {...FORM_ITEM_LAYOUT}
+                    name="dynamic_form_nest_item"
+                    form={form}
+                    onFinish={onFinishProductItem}
+                    style={{ width: 300, marginTop: 10 }}
+                    autoComplete="off"
+                >
+                    <Form.Item<ProductItem>
+                        label="Giá"
+                        name="priceBeforeDiscount"
+                        //initialValue={productItem[0]?.price}
+                        rules={[{ required: true, message: 'Missing price' }]}
+                    >
+                        <InputNumber type="number" style={{ width: 150 }} placeholder="Price" min={0} />
+                    </Form.Item>
+                    {isSize === true && (
+                        <>
+                            <Form.Item<ProductItem>
+                                label="Giá trị"
+                                name="value"
+                                //initialValue={productItem[0]?.price}
+                                rules={[{ required: true, message: 'Missing price' }]}
+                            >
+                                <Input placeholder="Value" style={{ width: 100 }} />
+                            </Form.Item>
+                            <Form.Item<ProductItem>
+                                label="Đơn vị"
+                                name="sku"
+                                rules={[{ required: true, message: 'Missing stock' }]}
+                            >
+                                <Select
+                                    size={'middle'}
+                                    //onChange={handleChange}
+                                    style={{ width: 70 }}
+                                    options={OPTIONS_SKU}
+                                />
+                            </Form.Item>
+                        </>
+                    )}
+                    <Form.Item {...TAIL_FORM_ITEM_LAYOUT}>
+                        <Button
+                            loading={statusForm === 'ADD' ? createProductItem.isPending : updateProductItem.isPending}
+                            type="primary"
+                            htmlType="submit"
+                        >
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Drawer>
+            <Modal
+                title={'Xóa'}
+                confirmLoading={deleteProductItem.isPending}
+                open={openModalDel}
+                onCancel={() => setOpenModalDel(false)}
+                onOk={() => {
+                    if (currentProductItem) {
+                        deleteProductItem.mutate(currentProductItem.id);
+                    }
+                }}
+            >
+                Del
+            </Modal>
+            <ModalAssignGuarantiesProductItem
+                openModalAssignPI={openModalAssignPI}
+                setStateOpenModalAssignPI={setOpenModalAssignPI}
+                productItemProps={currentProductItem}
+                refetch={refetch}
+            />
+            <ModalAssginPromotionsProductItem
+                openModalAssignPI={openModalAssignPromotionPI}
+                setStateOpenModalAssignPI={setOpenModalAssignPromotionPI}
+                productItemProps={currentProductItem}
+                refetch={refetch}
+            />
+        </div>
+    );
+};
+
+export default ProductItemConfig;
